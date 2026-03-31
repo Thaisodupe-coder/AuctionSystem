@@ -7,7 +7,7 @@ public class Seller extends User implements ISeller{
         super(name, password, UserRole.SELLER);
     }
     @Override
-    public Auction postItem(String name,String description,String category, double startPrice, int minute){
+    public Auction postItem(String name,String description,String category, double startPrice,long startTime, long endTime){
 
     }
 }

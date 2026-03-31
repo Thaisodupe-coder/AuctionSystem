@@ -6,8 +6,9 @@ public interface ISeller {
      * @param name : tên sản phẩm, phiên đấu giá
      * @param description : mô tả sản phẩm đấu giá
      * @param startPrice : giá tại thời điểm bắt đầu
-     * @param minutes : thời gian tới khi kết thúc phiên đấu giá (theo phút)
+     * @param startTime : thời gian bắt đầu phiên đấu giá
+     * @param endTime : thời gian kết thúc phiên đấu giá
      * @return
      */
-    Auction postItem(String name, String description,String category, double startPrice, int minutes);
+    Auction postItem(String name, String description,String category, double startPrice,long startTime,long endTime);
 }
