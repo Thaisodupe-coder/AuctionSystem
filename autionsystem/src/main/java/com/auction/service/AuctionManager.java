@@ -18,7 +18,7 @@ public class AuctionManager {
     }
     public void addAuction(Auction auction) {
         if (auction == null) {
-            return;
+            throw new IllegalArgumentException("Auction cannot be null");
         }
         auctions.add(auction);
     }
