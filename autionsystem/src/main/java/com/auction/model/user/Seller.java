@@ -1,11 +1,7 @@
 package com.auction.model.user;
-
 import com.auction.model.auction.Auction;
 import com.auction.model.item.Item;
 
-/**
- * người
- */
 public class Seller extends User implements ISeller {
     public Seller(String name, String password) {
         super(name, password, UserRole.SELLER);

@@ -2,7 +2,8 @@ package com.auction.model.user;
 import com.auction.model.auction.*;
 
 public class Bidder extends User implements IBidder{
-    public Bidder(String name, String password) {
+public class Bidder extends User implements IBidder, AuctionObserver {
+    public Bidder(String name, String password){
         super(name, password, UserRole.BIDDER);
     }
     @Override
@@ -13,15 +14,10 @@ public class Bidder extends User implements IBidder{
      * @return : true nếu đặt giá hợp lệ , false thì không hợp lệ
      */
     public boolean placeBid(Auction auction, double amount) {
-        if (auction.getStatus() != AuctionStatus.OPEN) {
-            return false;
-        }
-
-        if (amount > auction.getHighestBid()) {
-            auction.setHighestBid(amount);
-            auction.setHighestBidderId(getId());
-            return true;
-        }
-        else return false;
+        return auction.processBid(this.getId(), amount);
+    }
+    @Override
+    public void update(Auction auction){
+        System.out.println("cập nhật thông báo mới"+auction.getHighestBid());
     }
 }
