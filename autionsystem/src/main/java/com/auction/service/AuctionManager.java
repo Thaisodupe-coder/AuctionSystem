@@ -1,0 +1,24 @@
+package com.auction.service;
+import java.util.List;
+import com.auction.model.auction.Auction;
+public class AuctionManager {
+    private static volatile AuctionManager INSTANCE;
+    private List<Auction> auctions;
+    private AuctionManager() {}
+    public static AuctionManager getINSTANCE() {
+        if (INSTANCE == null) {
+            synchronized (AuctionManager.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new AuctionManager();
+                }
+            }
+        }
+        return INSTANCE;
+    }
+    public void addAuction(Auction auction) {
+        if (auction == null) {
+            throw new IllegalArgumentException("Auction cannot be null");
+        auctions.add(auction);
+        }
+    }
+}
