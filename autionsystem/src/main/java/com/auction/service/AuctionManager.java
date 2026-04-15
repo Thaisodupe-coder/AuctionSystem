@@ -108,7 +108,7 @@ public class AuctionManager {
     /**
      * Trả về ID người chiến thắng nếu phiên đấu giá đã kết thúc thành công
      */
-    public String getWinner(String auctionId) {
+    public String getWinnerId(String auctionId) {
         Auction auction = getAuction(auctionId);
         if (auction == null) return null;
 
@@ -125,7 +125,7 @@ public class AuctionManager {
     /**
      * Trả về số tiền thắng cược cuối cùng
      */
-    public double getWinningAmount(String auctionId) {
+    public double getWinningBid(String auctionId) {
         Auction auction = getAuction(auctionId);
         if (auction == null) return 0.0;
 
