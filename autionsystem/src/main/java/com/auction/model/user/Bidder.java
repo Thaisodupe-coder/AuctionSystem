@@ -1,8 +1,7 @@
 package com.auction.model.user;
 import com.auction.model.auction.*;
 
-public class Bidder extends User implements IBidder{
-public class Bidder extends User implements IBidder, AuctionObserver {
+public class Bidder extends User implements IBidder,AuctionObserver{
     public Bidder(String name, String password){
         super(name, password, UserRole.BIDDER);
     }
@@ -16,7 +15,6 @@ public class Bidder extends User implements IBidder, AuctionObserver {
     public boolean placeBid(Auction auction, double amount) {
         return auction.processBid(this.getId(), amount);
     }
-    @Override
     public void update(Auction auction){
         System.out.println("cập nhật thông báo mới"+auction.getHighestBid());
     }

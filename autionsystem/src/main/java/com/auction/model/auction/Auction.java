@@ -69,7 +69,7 @@ public class Auction extends Entity {
         this.setHighestBid(amount); 
         this.highestBidderId = bidderId; 
         long bidTime = System.currentTimeMillis();
-        BidTransaction newBid = new BidTransaction(bidderId, this.getId(), amount, bidTime);
+        BidTransaction newBid = new BidTransaction(this.getId(), bidderId, amount, bidTime);
         this.bidHistory.add(newBid);
 
         // thông báo tới mọi người
@@ -87,6 +87,8 @@ public class Auction extends Entity {
         observers.remove(observer);
     }
     private void notifyObservers() {
-        observers.forEach(observer -> observer.update(this));
+        for (AuctionObserver observer:observers){
+            observer.update(this);
+        };
     }
 }
