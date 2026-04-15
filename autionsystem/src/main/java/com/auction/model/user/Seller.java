@@ -1,6 +1,7 @@
 package com.auction.model.user;
 import com.auction.model.auction.Auction;
 import com.auction.model.item.Item;
+import com.auction.service.AuctionManager;
 
 public class Seller extends User implements ISeller {
     public Seller(String name, String password) {
@@ -9,6 +10,6 @@ public class Seller extends User implements ISeller {
 
     @Override
     public Auction postItem(Item item, double startPrice, long startTime, long endTime) {
-        return new Auction(item, this, startPrice, startTime, endTime);
+        return AuctionManager.getINSTANCE().createAuction(item, this, startPrice, startTime, endTime);
     }
 }

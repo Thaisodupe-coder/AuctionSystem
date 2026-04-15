@@ -1,21 +1,18 @@
 package com.auction.model.user;
 import com.auction.model.auction.*;
+import com.auction.service.AuctionManager;
 
 public class Bidder extends User implements IBidder,AuctionObserver{
     public Bidder(String name, String password){
         super(name, password, UserRole.BIDDER);
     }
     @Override
-    /**
-     * Đặt mức giá mới cho phiên đấu giá
-     * @param auction : phiên đấu giá tham gia
-     * @param amount : số tiền đấu giá
-     * @return : true nếu đặt giá hợp lệ , false thì không hợp lệ
-     */
-    public boolean placeBid(Auction auction, double amount) {
-        return auction.processBid(this.getId(), amount);
+    //đặt giá
+    public boolean placeBid(String auctionId, double amount) {
+        return AuctionManager.getINSTANCE().placeBid(auctionId, this.getId(), amount);
     }
+    /////test thử trong main
     public void update(Auction auction){
-        System.out.println("cập nhật thông báo mới"+auction.getHighestBid());
+        System.out.println(this.getName()+"cập nhật thông báo mới"+auction.getHighestBid());
     }
 }

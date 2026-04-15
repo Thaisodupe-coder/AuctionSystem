@@ -1,8 +1,6 @@
 package com.auction.model.auction;
 
 import com.auction.model.common.Entity;
-import com.auction.exception.AuctionClosedException;
-import com.auction.exception.InvalidBidException;
 import com.auction.model.item.Item;
 import com.auction.model.user.Seller;
 import com.auction.model.user.User;
@@ -42,41 +40,23 @@ public class Auction extends Entity {
     public long getEndTime() {  return endTime;  }
     public AuctionStatus getStatus() {  return status;  }
     //setter
-    private void setHighestBid(double highestBid) {  this.highestBid = highestBid;}
+    public void setHighestBid(double highestBid) {  this.highestBid = highestBid;}
+
+    public void setHighestBidderId(String highestBidderId) { this.highestBidderId = highestBidderId; }
 
     public void setStatus(AuctionStatus status) {
         this.status = status;
     }
+
+    public void addBidToHistory(BidTransaction transaction) {
+        this.bidHistory.add(transaction);
+    }
+
     //getter BidHistory clone
     public List<BidTransaction> getBidHistory() {
         return new ArrayList<>(bidHistory);
     }
-    /////
-    /**
-     * 
-     * @param bidderId  id bidder
-     * @param amount    bid âmount
-     * @return  true nếu kiểm tra thành công, false không thành công
-     */
-    public synchronized boolean processBid(String bidderId, double amount) {
-        if (this.status != AuctionStatus.OPEN && this.status != AuctionStatus.RUNNING) {
-            throw new AuctionClosedException("Phiên đấu giá chưa cho phép đấu giá | Current status: " + this.status);
-        }
-        if (amount <= this.highestBid) {
-            throw new InvalidBidException("Bid amount (" + amount + ") must be higher than current highest bid (" + this.highestBid + ").");
-        }
-        //xử lý đấu giá **
-        this.setHighestBid(amount); 
-        this.highestBidderId = bidderId; 
-        long bidTime = System.currentTimeMillis();
-        BidTransaction newBid = new BidTransaction(this.getId(), bidderId, amount, bidTime);
-        this.bidHistory.add(newBid);
-
-        // thông báo tới mọi người
-        notifyObservers();
-        return true;
-    }
-
+    
     // Observer pattern : dùng cho controller
     public void addObserver(AuctionObserver observer) {
         if (observer != null && !observers.contains(observer)) {
@@ -86,7 +66,7 @@ public class Auction extends Entity {
     public void removeObserver(AuctionObserver observer) {
         observers.remove(observer);
     }
-    private void notifyObservers() {
+    public void notifyObservers() {
         for (AuctionObserver observer:observers){
             observer.update(this);
         };

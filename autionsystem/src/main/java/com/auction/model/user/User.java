@@ -6,7 +6,6 @@ public abstract class User extends Entity {
     private String name;
     private String password;
     private UserRole role;
-
     /**
      *
      * @param name tên tài khoản
@@ -24,23 +23,18 @@ public abstract class User extends Entity {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public String getPassword() {
         return password;
     }
-
     public void setPassword(String password) {
         this.password = password;
     }
-
     public UserRole getRole() {
         return role;
     }
-
     public void setRole(UserRole role) {
         this.role = role;
     }
