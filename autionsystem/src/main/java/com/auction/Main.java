@@ -29,15 +29,16 @@ public class Main {
         
         // Kiểm tra người thắng (Lúc này sẽ là null vì trạng thái là RUNNING)
         System.out.println("Người thắng hiện tại (Manager): " + auctionManager.getWinnerId(auction.getId()));
+        auction.setStatus(AuctionStatus.FINISHED);;
 
         // Chờ cho phiên đấu giá thực sự kết thúc theo thời gian
-        try {
-            System.out.println("\nĐang chờ phiên đấu giá kết thúc...");
-            Thread.sleep(3000); // Chờ 3 giây để đảm bảo thời gian kết thúc đã qua
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.err.println("Thread interrupted: " + e.getMessage());
-        }
+        // try {
+        //     System.out.println("\nĐang chờ phiên đấu giá kết thúc...");
+        //     Thread.sleep(3000); // Chờ 3 giây để đảm bảo thời gian kết thúc đã qua
+        // } catch (InterruptedException e) {
+        //     Thread.currentThread().interrupt();
+        //     System.err.println("Thread interrupted: " + e.getMessage());
+        // }
 
         System.out.println("Sau khi kết thúc:");
         System.out.println("Số tiền thắng: " + auctionManager.getWinningBid(auction.getId()));

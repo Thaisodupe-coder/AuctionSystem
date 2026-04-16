@@ -48,7 +48,9 @@ public class AuctionManager {
      * Cập nhật trạng thái dựa trên thời gian hiện tại
      */
     public void updateAuctionStatus(Auction auction) {
-        if (auction.getStatus() == AuctionStatus.CANCELED || auction.getStatus() == AuctionStatus.PAID) {
+        if (auction.getStatus() == AuctionStatus.CANCELED || 
+            auction.getStatus() == AuctionStatus.PAID || 
+            auction.getStatus() == AuctionStatus.FINISHED) {
             return;
         }
         LocalDateTime now = LocalDateTime.now();
