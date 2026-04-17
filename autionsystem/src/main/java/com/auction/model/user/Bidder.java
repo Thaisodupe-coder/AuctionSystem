@@ -13,6 +13,6 @@ public class Bidder extends User implements IBidder,AuctionObserver{
     }
     /////test thử trong main
     public void update(Auction auction){
-        System.out.println(this.getName()+"cập nhật thông báo mới"+auction.getHighestBid());
+        System.out.println(this.getName()+"| cập nhật thông báo mới | giá hiện tại của phiên đấu giá: "+auction.getHighestBid());
     }
 }

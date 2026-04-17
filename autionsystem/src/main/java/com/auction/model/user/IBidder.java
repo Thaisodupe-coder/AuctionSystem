@@ -1,6 +1,5 @@
 package com.auction.model.user;
 
-import com.auction.model.auction.Auction;
 
 public interface IBidder {
     /**
