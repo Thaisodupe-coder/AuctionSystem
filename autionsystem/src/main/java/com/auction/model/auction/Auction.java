@@ -41,7 +41,7 @@ public class Auction extends Entity {
     public LocalDateTime getStartTime() { return this.startTime; }
     public LocalDateTime getEndTime() { return this.endTime; }
     public AuctionStatus getStatus() { 
-        updateInternalStatus(); // Đảm bảo trạng thái luôn được cập nhật khi truy vấn
+        updateAuctionStatus(); // Đảm bảo trạng thái luôn được cập nhật khi truy vấn
         return this.status; 
     }
 
@@ -57,7 +57,7 @@ public class Auction extends Entity {
  * Cập nhật trạng thái nội bộ của phiên đấu giá dựa trên thời gian hiện tại.
  * Phương thức này là private để đảm bảo chỉ Auction mới có thể tự thay đổi trạng thái của mình.
  */
-    private void updateInternalStatus() {
+    private void updateAuctionStatus() {
         // Không thay đổi trạng thái nếu đã ở trạng thái cuối cùng
         if (this.status == AuctionStatus.CANCELED || 
             this.status == AuctionStatus.PAID || 
@@ -83,8 +83,8 @@ public class Auction extends Entity {
  * @throws AuctionClosedException nếu phiên đấu giá không ở trạng thái RUNNING.
  * @throws InvalidBidException nếu số tiền đặt giá không hợp lệ (thấp hơn giá hiện tại).
  */
-    public synchronized boolean processNewBid(String bidderId, double amount) {
-        updateInternalStatus(); // Đảm bảo trạng thái hiện tại trước khi xử lý bid
+    public synchronized boolean processBid(String bidderId, double amount) {
+        updateAuctionStatus(); // Đảm bảo trạng thái hiện tại trước khi xử lý bid
 
         if (this.status != AuctionStatus.RUNNING) {
             throw new AuctionClosedException("Chỉ có thể đặt giá khi phiên đấu giá đang RUNNING | Current status: " + this.status);
@@ -131,7 +131,7 @@ public class Auction extends Entity {
  * @return true nếu hủy thành công, false nếu không thể hủy.
  */
     public synchronized boolean cancelAuction(String sellerId) {
-        updateInternalStatus(); // Đảm bảo trạng thái hiện tại
+        updateAuctionStatus(); // Đảm bảo trạng thái hiện tại
 
         if (!this.seller.getId().equals(sellerId)) {
             return false; // Chỉ người bán tạo phiên mới có quyền hủy

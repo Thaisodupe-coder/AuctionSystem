@@ -56,10 +56,10 @@ public class AuctionManager {
             return auction.getHighestBid();
         }
         return 0.0;}
-    //tạo phiên đấu giá
+    //Tạo phiên đấu giá
+    // Auction sẽ tự quản lý trạng thái của nó thông qua phương thức updateAuctionStatus()
     public Auction createAuction(Item item, Seller seller, double startPrice, LocalDateTime startTime, LocalDateTime endTime) {
         Auction auction = new Auction(item, seller, startPrice, startTime, endTime);
-        // Auction sẽ tự quản lý trạng thái của nó thông qua phương thức getStatus()
         this.addAuction(auction);
         return auction;
     }
@@ -77,7 +77,7 @@ public class AuctionManager {
         }
         // Ủy quyền xử lý đặt giá cho Auction
         // Auction sẽ tự kiểm tra trạng thái và tính hợp lệ của giá
-        return auction.processNewBid(bidderId, amount);
+        return auction.processBid(bidderId, amount);
     }
 
     public synchronized boolean cancelAuction(String auctionId, String sellerId) {
