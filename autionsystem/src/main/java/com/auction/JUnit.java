@@ -20,6 +20,7 @@ import com.auction.model.item.Vehicle;
 import com.auction.model.item.Item;
 import com.auction.model.user.Bidder;
 import com.auction.model.user.Seller;
+import com.auction.model.user.NormalUser;
 import com.auction.service.AuctionManager;
 
 public class JUnit {
@@ -29,7 +30,7 @@ public class JUnit {
     void bidSuccessWhenRunning() {
         // Expected output: Đặt giá thành công, cập nhật highestBid + highestBidderId, kiểm tra lịch sử đấu giá.
         Item item = new Art("Mona Lisa");
-        Seller seller = new Seller("Nguyễn Quốc Thái", "123456");
+        Seller seller = new Seller(new NormalUser("Nguyễn Quốc Thái", "123456"));
         Auction auction = new Auction(
                 item,
                 seller,
@@ -37,7 +38,7 @@ public class JUnit {
                 LocalDateTime.now().minusMinutes(5),
                 LocalDateTime.now().plusMinutes(5));
 
-        Bidder bidder = new Bidder("Đinh Anh Vũ", "654321");
+        Bidder bidder = new Bidder(new NormalUser("Đinh Anh Vũ", "654321"));
         boolean status = auction.processNewBid(bidder.getId(), 150.0);
         
         assertTrue(status);
@@ -50,7 +51,7 @@ public class JUnit {
     void bidFailWhenLowerPrice() {
         // Expected output: Nem InvalidBidException khi giá đặt thấp hơn giá cao nhất hiện tại.
         Item item = new Art("The Scream");
-        Seller seller = new Seller("Nguyễn Viết Thông", "36nemchua");
+        Seller seller = new Seller(new NormalUser("Nguyễn Viết Thông", "36nemchua"));
         Auction auction = new Auction(
                 item,
                 seller,
@@ -58,7 +59,7 @@ public class JUnit {
                 LocalDateTime.now().minusMinutes(5),
                 LocalDateTime.now().plusMinutes(5));
         
-        Bidder bidder = new Bidder("Phạm Hữu Chí Thành", "686868");
+        Bidder bidder = new Bidder(new NormalUser("Phạm Hữu Chí Thành", "686868"));
         assertThrows(InvalidBidException.class, () -> auction.processNewBid(bidder.getId(), 150.0));
     }
 
@@ -66,7 +67,7 @@ public class JUnit {
     void bidFailWhenNotRunning() {
         // Expected output: Ném AuctionClosedException khi phiên đấu giá chưa RUNNING.
         Item item = new Art("Starry Nights");
-        Seller seller = new Seller("Nguyễn Viết Thông", "Rauma");
+        Seller seller = new Seller(new NormalUser("Nguyễn Viết Thông", "Rauma"));
         Auction auction = new Auction(
                 item,
                 seller,
@@ -74,7 +75,7 @@ public class JUnit {
                 LocalDateTime.now().plusMinutes(2),
                 LocalDateTime.now().plusHours(1));
 
-        Bidder bidder = new Bidder("Nguyễn Quốc Thái", "thaidui123");
+        Bidder bidder = new Bidder(new NormalUser("Nguyễn Quốc Thái", "thaidui123"));
         assertThrows(AuctionClosedException.class, () -> auction.processNewBid(bidder.getId(), 120.0));
     }
 
@@ -82,7 +83,7 @@ public class JUnit {
     void cancelSuccessForOwner() {
         // Expected output: Huỷ thành công, trạng thái = CANCELED.
         Item item = new Vehicle("VinFast VF3");
-        Seller seller = new Seller("Đinh Anh Vũ", "654321");
+        Seller seller = new Seller(new NormalUser("Đinh Anh Vũ", "654321"));
         Auction auction = new Auction(
                 item,
                 seller,
@@ -100,8 +101,8 @@ public class JUnit {
     void cancelFailWhenNotOwner() {
         // Expected output: Huỷ thất bại do người dùng ko phải chủ phiên.
         Item item = new Electronics("Điều hoà siêu mát");
-        Seller owner = new Seller("Nguyễn Quốc Thái", "123456");
-        Seller otherSeller = new Seller("Nguyễn Viết Thông", "363636");
+        Seller owner = new Seller(new NormalUser("Nguyễn Quốc Thái", "123456"));
+        Seller otherSeller = new Seller(new NormalUser("Nguyễn Viết Thông", "363636"));
         Auction auction = new Auction(
                 item,
                 owner,
@@ -119,7 +120,7 @@ public class JUnit {
     void createAuctionStoredInManager() {
         // Expected output: Tạo auction thành công và getAuction trả về đúng object.
         Item item = new Electronics("Laptop");
-        Seller seller = new Seller("Đinh Anh Vũ", "presidentSVM");
+        Seller seller = new Seller(new NormalUser("Đinh Anh Vũ", "presidentSVM"));
 
         Auction auction = auctionManager.createAuction(
                 item,
@@ -142,7 +143,7 @@ public class JUnit {
     void winnerInfoWhenFinished() {
         // Expected output: Có winnerId và winningBid đúng sau khi FINISHED.
         Item item = new Electronics("SamSung Galaxy S21");
-        Seller seller = new Seller("Nguyễn Viết Thông", "thichrauma");
+        Seller seller = new Seller(new NormalUser("Nguyễn Viết Thông", "thichrauma"));
 
         Auction auction = auctionManager.createAuction(
                 item,
@@ -151,7 +152,7 @@ public class JUnit {
                 LocalDateTime.now().minusMinutes(10),
                 LocalDateTime.now().plusMinutes(2));
         
-        Bidder bidder = new Bidder("Đinh Anh Vũ", "654321");
+        Bidder bidder = new Bidder(new NormalUser("Đinh Anh Vũ", "654321"));
 
         boolean status = auctionManager.placeBid(auction.getId(), bidder.getId(), 130.0);
         assertTrue(status);
@@ -173,8 +174,8 @@ public class JUnit {
     @Test
     void bidderPlaceBidSuccess() {
         // Expected output: Bidder placeBid thành công và cập nhật giá cao nhất.
-        Seller seller = new Seller("Phạm Hữu Chí Thành", "camonquykhach");
-        Bidder bidder = new Bidder("Nguyễn Quốc Thái", "thaidui123");
+        Seller seller = new Seller(new NormalUser("Phạm Hữu Chí Thành", "camonquykhach"));
+        Bidder bidder = new Bidder(new NormalUser("Nguyễn Quốc Thái", "thaidui123"));
         Item item = new Electronics("Điện thoại iPhone 17 Pro Max");
 
         Auction auction = auctionManager.createAuction(
@@ -194,8 +195,8 @@ public class JUnit {
     @Test
     void bidderPlaceBidFailWhenClosed() {
         // Expected output: Bidder placeBid ném AuctionClosedException khi phiên đấu giá đã đóng.
-        Seller seller = new Seller("Đinh Anh Vũ", "654321");
-        Bidder bidder = new Bidder("Nguyễn Viết Thông", "rauma123");
+        Seller seller = new Seller(new NormalUser("Đinh Anh Vũ", "654321"));
+        Bidder bidder = new Bidder(new NormalUser("Nguyễn Viết Thông", "rauma123"));
         Item item = new Vehicle("Ferrari F8");
 
         Auction auction = auctionManager.createAuction(
