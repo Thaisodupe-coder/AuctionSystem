@@ -12,11 +12,10 @@ public abstract class User extends Entity {
      * @param password mật khẩu
      * @param role vai trò (buyer, bidder,admin)
      */
-    public User(String name, String password, UserRole role) {
+    public User(String name, String password) {
         super();
         this.name = name;
         this.password = password;
-        this.role = role;
     }
 
     //getter & setter

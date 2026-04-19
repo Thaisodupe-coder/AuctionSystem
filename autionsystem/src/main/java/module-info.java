@@ -1,6 +1,7 @@
 module com.auction {
     requires javafx.controls;
     requires javafx.fxml;
+    requires org.junit.jupiter.api;
 
     exports com.auction;
     exports com.auction.controller;
