@@ -39,7 +39,7 @@ public class JUnit {
                 LocalDateTime.now().plusMinutes(5));
 
         Bidder bidder = new Bidder(new NormalUser("Đinh Anh Vũ", "654321"));
-        boolean status = auction.processNewBid(bidder.getId(), 150.0);
+        boolean status = auction.processBid(bidder.getId(), 150.0);
         
         assertTrue(status);
         assertEquals(150.0, auction.getHighestBid());
@@ -60,7 +60,7 @@ public class JUnit {
                 LocalDateTime.now().plusMinutes(5));
         
         Bidder bidder = new Bidder(new NormalUser("Phạm Hữu Chí Thành", "686868"));
-        assertThrows(InvalidBidException.class, () -> auction.processNewBid(bidder.getId(), 150.0));
+        assertThrows(InvalidBidException.class, () -> auction.processBid(bidder.getId(), 150.0));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class JUnit {
                 LocalDateTime.now().plusHours(1));
 
         Bidder bidder = new Bidder(new NormalUser("Nguyễn Quốc Thái", "thaidui123"));
-        assertThrows(AuctionClosedException.class, () -> auction.processNewBid(bidder.getId(), 120.0));
+        assertThrows(AuctionClosedException.class, () -> auction.processBid(bidder.getId(), 120.0));
     }
 
     @Test
