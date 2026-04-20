@@ -1,0 +1,59 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "Model - Item" {
+    abstract class Item
+    Item <|-- Art
+    Item <|-- Electronics
+    Item <|-- Vehicle
+}
+
+package "Model - User (Decorator Pattern)" {
+    abstract class User
+    class NormalUser extends User
+    
+    abstract class UserDecorator extends User {
+        # user: User
+    }
+    
+    class Seller extends UserDecorator implements ISeller
+    class Bidder extends UserDecorator implements AuctionObserver, IBidder
+    class Admin extends UserDecorator
+}
+
+package "Model - Auction (Observer Pattern)" {
+    class Entity
+    class Auction extends Entity {
+        - bidHistory: List<BidTransaction>
+        - item: Item
+        - status: AuctionStatus
+        + addObserver(o: AuctionObserver)
+        + notifyObservers()
+    }
+    
+    interface AuctionObserver {
+        + update(message: String)
+    }
+    
+    enum AuctionStatus {
+        OPEN, RUNNING, FINISHED, PAID, CANCELED
+    }
+    
+    Auction o-- AuctionObserver
+    Auction *-- BidTransaction
+    Auction --> Item
+}
+
+package "Service (Singleton)" {
+    class AuctionManager <<Singleton>> {
+        {static} - instance: AuctionManager
+        - auctions: Map<UUID, Auction>
+    }
+    
+    class UserManager <<Singleton>> {
+        {static} - instance: UserManager
+        - users: Map<String, NormalUser>
+    }
+}
+
+@enduml
