@@ -51,7 +51,7 @@ public class JUnit {
     void bidFailWhenLowerPrice() {
         // Expected output: Nem InvalidBidException khi giá đặt thấp hơn giá cao nhất hiện tại.
         Item item = new Art("The Scream");
-        Seller seller = new Seller(new NormalUser("Nguyễn Viết Thông", "36nemchua"));
+        Seller seller = new Seller(new NormalUser("Nguyễn Viết Thông", "depzai va dang cap"));
         Auction auction = new Auction(
                 item,
                 seller,
