@@ -21,6 +21,6 @@ public class Bidder extends UserDecorator implements IBidder,AuctionObserver{
     }
     /////test thử trong main
     public void update(Auction auction){
-        System.out.println(this.getName()+"| cập nhật thông báo mới | giá hiện tại của phiên đấu giá: "+auction.getHighestBid());
+        System.out.println("[" + this.getName() + "] Thông báo: Vật phẩm '" + auction.getItem().getName() + "' vừa có mức giá mới là: " + auction.getHighestBid());
     }
 }

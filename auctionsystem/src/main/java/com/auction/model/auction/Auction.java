@@ -24,7 +24,6 @@ public class Auction extends Entity {
     private AuctionStatus status;
     
     public Auction(Item item, Seller seller, double startBid, LocalDateTime startTime, LocalDateTime endTime) {
-        //super();  bỏ super
         this.item = item;
         this.seller = seller;
         this.highestBidderId = null;
