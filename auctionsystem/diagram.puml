@@ -1,0 +1,115 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+
+title Sơ đồ lớp chi tiết Hệ thống Đấu giá (Auction System)
+
+' === ENTRY POINTS ===
+package com.auction {
+    class App {
+        + start(stage: Stage): void
+        + main(args: String[]): void
+    }
+    class Main {
+        + main(args: String[]): void
+    }
+    class JUnit {
+        + testAuctionLogic(): void
+    }
+}
+
+' === EXCEPTIONS ===
+package com.auction.exception {
+    class AuctionClosedException extends Exception
+    class InvalidBidException extends Exception
+}
+
+' === MODEL COMMON ===
+package com.auction.model.common {
+    abstract class Entity {
+        # uuid: UUID
+        + getUuid(): UUID
+    }
+}
+
+' === MODEL ITEM ===
+package com.auction.model.item {
+    abstract class Item {
+        # name: String
+        # startingPrice: double
+    }
+    class Art extends Item
+    class Electronics extends Item
+    class Vehicle extends Item
+    
+    com.auction.model.common.Entity <|-- Item
+}
+
+' === MODEL USER ===
+package com.auction.model.user {
+    abstract class User {
+        # username: String
+    }
+    com.auction.model.common.Entity <|-- User
+    
+    class NormalUser extends User
+    
+    abstract class UserDecorator extends User {
+        # wrappedUser: User
+    }
+    UserDecorator o--> User
+    
+    class Seller extends UserDecorator
+    class Bidder extends UserDecorator
+    class Admin extends UserDecorator
+}
+
+' === MODEL AUCTION ===
+package com.auction.model.auction {
+    enum AuctionStatus {
+        OPEN
+        RUNNING
+        FINISHED
+        CANCELED
+    }
+    
+    interface AuctionObserver {
+        + update(message: String): void
+    }
+    
+    com.auction.model.user.Bidder ..|> AuctionObserver
+
+    class BidTransaction {
+        - amount: double
+    }
+    
+    class Auction {
+        - status: AuctionStatus
+        + processBid(amount: double): void
+    }
+    
+    com.auction.model.common.Entity <|-- Auction
+    Auction *-- BidTransaction
+    Auction o-- AuctionObserver
+    Auction --> AuctionStatus
+    Auction --> com.auction.model.item.Item
+}
+
+' === SERVICE ===
+package com.auction.service {
+    class AuctionManager <<Singleton>> {
+        {static} - instance: AuctionManager
+        + {static} getInstance(): AuctionManager
+    }
+    class UserManager <<Singleton>> {
+        {static} - instance: UserManager
+        + {static} getInstance(): UserManager
+    }
+    
+    AuctionManager o-- com.auction.model.auction.Auction
+    UserManager o-- com.auction.model.user.NormalUser
+}
+
+@enduml
