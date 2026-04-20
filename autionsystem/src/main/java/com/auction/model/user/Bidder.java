@@ -1,10 +1,18 @@
 package com.auction.model.user;
 import com.auction.model.auction.*;
 import com.auction.service.AuctionManager;
-
-public class Bidder extends User implements IBidder,AuctionObserver{
-    public Bidder(String name, String password){
-        super(name, password, UserRole.BIDDER);
+interface IBidder {
+    /**
+     * Đặt mức giá mới cho phiên đấu giá
+     * @param auctionId : id phiên đấu giá tham gia
+     * @param amount : số tiền đấu giá
+     * @return : true nếu đặt giá hợp lệ , false thì không hợp lệ
+     */
+    boolean placeBid(String auctionId, double amount);
+}
+public class Bidder extends UserDecorator implements IBidder,AuctionObserver{
+    public Bidder(User decoratedUser){
+        super(decoratedUser);
     }
     @Override
     //đặt giá
@@ -13,6 +21,6 @@ public class Bidder extends User implements IBidder,AuctionObserver{
     }
     /////test thử trong main
     public void update(Auction auction){
-        System.out.println(this.getName()+"cập nhật thông báo mới"+auction.getHighestBid());
+        System.out.println(this.getName()+"| cập nhật thông báo mới | giá hiện tại của phiên đấu giá: "+auction.getHighestBid());
     }
 }
