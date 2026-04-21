@@ -102,3 +102,10 @@
  #txtBidInput:focused {
      -fx-border-color: #0c4b8e;
  }
+ .btn-secondary {
+     -fx-background-color: #6c757d;
+     -fx-text-fill: white;
+ }
+ .btn-secondary:hover {
+     -fx-background-color: #5a6268;
+ }
