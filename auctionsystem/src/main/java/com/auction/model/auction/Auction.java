@@ -40,6 +40,7 @@ public class Auction extends Entity {
     public LocalDateTime getStartTime() { return this.startTime; }
     public LocalDateTime getEndTime() { return this.endTime; }
     public AuctionStatus getStatus() { 
+    public synchronized AuctionStatus getStatus() { 
         updateAuctionStatus(); // Đảm bảo trạng thái luôn được cập nhật khi truy vấn
         return this.status; 
     }
