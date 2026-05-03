@@ -208,37 +208,4 @@ public class AuctionSystemTest {
 
         assertThrows(AuctionClosedException.class, () -> bidder.placeBid(auction.getId(), 320.0));
     }
-
-    /**
-     * Chay tat ca test theo kieu try assertion:
-     * - PASS: in [PASS]
-     * - sai assert: in [ASSERT FAIL]
-     * - loi khac: in [ERROR]
-     */
-    public void runAll() {
-        runCase("bidSuccessWhenRunning", this::bidSuccessWhenRunning);
-        runCase("bidFailWhenLowerPrice", this::bidFailWhenLowerPrice);
-        runCase("bidFailWhenNotRunning", this::bidFailWhenNotRunning);
-        runCase("cancelSuccessForOwner", this::cancelSuccessForOwner);
-        runCase("cancelFailWhenNotOwner", this::cancelFailWhenNotOwner);
-        runCase("createAuctionStoredInManager", this::createAuctionStoredInManager);
-        runCase("addNullAuctionThrowsException", this::addNullAuctionThrowsException);
-        runCase("winnerInfoWhenFinished", this::winnerInfoWhenFinished);
-        runCase("defaultWinnerInfoWhenAuctionMissing", this::defaultWinnerInfoWhenAuctionMissing);
-        runCase("bidderPlaceBidSuccess", this::bidderPlaceBidSuccess);
-        runCase("bidderPlaceBidFailWhenClosed", this::bidderPlaceBidFailWhenClosed);
-    }
-
-    private void runCase(String name, Runnable testMethod) {
-        try {
-            testMethod.run();
-            System.out.println("[PASS] " + name);
-        } catch (AssertionError e) {
-            System.out.println("[ASSERT FAIL] " + name + " -> " + e.getMessage());
-        } catch (Throwable t) {
-            System.out.println("[ERROR] " + name + " -> " + t.getClass().getSimpleName() + ": " + t.getMessage());
-        } finally {
-            System.out.println("_".repeat(50));
-        }
-    }
 }
