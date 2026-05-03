@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="300.0" prefWidth="400.0" spacing="15.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.LoginController">
+<VBox alignment="CENTER" prefHeight="300.0" prefWidth="400.0" spacing="15.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.RegisterController">
 
     <padding>
         <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
@@ -44,7 +44,7 @@
    <PasswordField promptText="Xác nhận mật khẩu" />
    <TextField promptText="Thông tin giao dịch" />
 
-    <Button mnemonicParsing="false" onAction="#handleLoginAction" prefHeight="30.0" prefWidth="102.0" style="-fx-background-color: #007bff; -fx-text-fill: white;" text="Đăng kí">
+    <Button mnemonicParsing="false" onAction="#handleRegisterAction" prefHeight="30.0" prefWidth="102.0" style="-fx-background-color: #007bff; -fx-text-fill: white;" text="Đăng kí">
         <font>
             <Font name="System Bold" size="14.0" />
         </font>

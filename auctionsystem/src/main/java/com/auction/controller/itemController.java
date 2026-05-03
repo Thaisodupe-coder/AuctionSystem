@@ -1,4 +1,4 @@
-package com.auction.client.controller;
+package com.auction.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -8,10 +8,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import com.auction.model.Item;
+import com.auction.model.item.Item;
 import java.io.IOException;
 
-class LotItemController {
+public class itemController {
     @FXML private Label lblTitle;
     @FXML private Label txtPrice;
     private Item myItem;
@@ -23,7 +23,7 @@ class LotItemController {
     @FXML
     public void handleViewDetails(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/view/item_detail.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/view/itemDetails.fxml"));
             Parent detailView = loader.load();
             itemDetailsController detailController = loader.getController();
             detailController.setItemData(this.myItem);

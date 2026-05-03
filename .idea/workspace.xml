@@ -1,11 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="57215f92-0275-486f-add7-863dac722dc0" name="Changes" comment="" />
+    <list default="true" id="57215f92-0275-486f-add7-863dac722dc0" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/java/com/auction/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/java/com/auction/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/java/com/auction/model/item/Item.java" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/java/com/auction/model/item/Item.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/java/module-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/view/a.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/view/auction-list.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/java/com/auction/controller/AddItemController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/java/com/auction/controller/LoginController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/java/com/auction/controller/LogoutController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/java/com/auction/controller/itemController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/java/com/auction/controller/itemDetailsController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/resources/com/auction/client/css/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/resources/com/auction/client/image/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/resources/com/auction/client/view/addItem.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/resources/com/auction/client/view/itemDetails.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/resources/com/auction/client/view/itemView.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/resources/com/auction/client/view/login.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/resources/com/auction/client/view/mainPage.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/autionsystem/src/main/resources/com/auction/client/view/register.fxml" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -16,12 +49,19 @@
     &quot;assignee&quot;: &quot;viethondz&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Thaisodupe-coder/AuctionSystem.git",
-    "accountId": "cb53c77f-8ae0-45fe-b22c-34cf9c2d3eda"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Thaisodupe-coder/AuctionSystem.git&quot;,
+    &quot;accountId&quot;: &quot;cb53c77f-8ae0-45fe-b22c-34cf9c2d3eda&quot;
   }
-}]]></component>
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -32,12 +72,23 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.AppClient.executor": "Run",
+    "Application.Main.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true"
+    "git-widget-placeholder": "UI-testing",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/CT/IdeaProjects/AuctionSystem",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.14941406",
+    "project.structure.side.proportion": "0.20574713"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql_aurora"
+    ]
   }
 }]]></component>
   <component name="RunManager">
@@ -56,7 +107,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.32098.37" />
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.32098.101" />
       </set>
     </attachedChunks>
   </component>

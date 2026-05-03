@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="360.0" prefWidth="260.0" spacing="10.0" styleClass="item-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="360.0" prefWidth="260.0" spacing="10.0" styleClass="item-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.LotItemController">
     <children>
         <ImageView fx:id="imgProduct" fitHeight="150.0" fitWidth="230.0" pickOnBounds="true" preserveRatio="true" style="-fx-border-color: #ddd;" />
 
