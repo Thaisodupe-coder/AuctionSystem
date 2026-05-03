@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.auction</groupId>
-    <artifactId>autionsystem</artifactId>
+    <artifactId>auctionsystem</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -59,7 +59,7 @@
                     <useModulePath>false</useModulePath>
                     <includes>
                         <include>**/JUnit.java</include>
-                    </includes>
+                    </includes>re
                 </configuration>
             </plugin>
         </plugins>

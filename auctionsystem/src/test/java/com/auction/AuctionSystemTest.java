@@ -23,7 +23,7 @@ import com.auction.model.user.Seller;
 import com.auction.model.user.NormalUser;
 import com.auction.service.AuctionManager;
 
-public class JUnit {
+public class AuctionSystemTest {
     public AuctionManager auctionManager = AuctionManager.getINSTANCE();
 
     @Test

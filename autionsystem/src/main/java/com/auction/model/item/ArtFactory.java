@@ -1,9 +1,8 @@
 package com.auction.model.item;
 
-public class VehicleFactory extends ItemFactory {
+public class ArtFactory extends ItemFactory {
     @Override
     public Item createItem(String name) {
-        return new Vehicle(name);
+        return new Art(name);
     }
-    
 }
