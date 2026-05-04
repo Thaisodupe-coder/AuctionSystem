@@ -4,21 +4,18 @@ import com.auction.model.common.Entity;
 
 public abstract class Item extends Entity {
     private String name;
-    private double price;
-    private String imagePath;
-    
+    private String description;
+
+    public Item(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
     public String getName() {
         return name;
     }
-    public Item(String name) {
-        this.name = name;
-    }
-
-    public String getCurrentPrice() {
-        return getCurrentPrice();
-    }
 
     public String getDescription() {
-        return getDescription();
+        return description;
     }
 }
