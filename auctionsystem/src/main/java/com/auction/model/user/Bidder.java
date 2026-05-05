@@ -19,7 +19,7 @@ public class Bidder extends UserDecorator implements IBidder,AuctionObserver{
     public boolean placeBid(String auctionId, double amount) {
         return AuctionManager.getINSTANCE().placeBid(auctionId, this.getId(), amount);
     }
-    /////test thử trong main
+    //test thử trong main
     public void update(Auction auction){
         System.out.println("[" + this.getName() + "] Thông báo: Vật phẩm '" + auction.getItem().getName() + "' vừa có mức giá mới là: " + auction.getHighestBid());
     }
