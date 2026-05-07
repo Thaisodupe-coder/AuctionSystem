@@ -44,7 +44,7 @@
             <Font name="System Bold" size="14.0" />
         </font>
     </Button>
-   <Button mnemonicParsing="false" text="Đăng kí" />
+   <Button onAction="#handleTransferToRegister" mnemonicParsing="false" text="Đăng kí" />
 
           <Label fx:id="lblMessage" textFill="RED" />
 

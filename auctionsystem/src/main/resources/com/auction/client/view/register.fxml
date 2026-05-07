@@ -41,15 +41,13 @@
     <TextField fx:id="txtUsername" prefHeight="35.0" promptText="Tên đăng nhập" />
 
     <PasswordField fx:id="txtPassword" prefHeight="35.0" promptText="Mật khẩu" />
-   <PasswordField promptText="Xác nhận mật khẩu" />
-   <TextField promptText="Thông tin giao dịch" />
+   <PasswordField fx:id="txtPasswordCheck" promptText="Xác nhận mật khẩu" />
 
     <Button mnemonicParsing="false" onAction="#handleRegisterAction" prefHeight="30.0" prefWidth="102.0" style="-fx-background-color: #007bff; -fx-text-fill: white;" text="Đăng kí">
         <font>
             <Font name="System Bold" size="14.0" />
         </font>
     </Button>
-
-    <Label fx:id="lblMessage" textFill="RED" />
+   <Button mnemonicParsing="false" onAction="#handleTransferToLogin" text="Đăng nhập" />
 
 </VBox>
