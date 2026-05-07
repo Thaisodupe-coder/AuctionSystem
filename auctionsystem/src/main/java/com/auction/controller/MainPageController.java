@@ -1,5 +1,5 @@
 package com.auction.controller;
-
+//sửa cũng được
 import com.auction.model.item.Item;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -33,8 +33,8 @@ public class MainPageController {
 
                 VBox itemNode = loader.load();
 
-                LotItemController controller = loader.getController();
-                controller.setData(item);
+                //LotItemController controller = loader.getController();
+                //controller.setData(item);
 
                 gridPaneAuctions.getChildren().add(itemNode);
             }

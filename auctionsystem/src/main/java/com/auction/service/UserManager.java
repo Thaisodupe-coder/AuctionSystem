@@ -7,7 +7,11 @@ import com.auction.model.user.*;
 public class UserManager {
     private Map<String,NormalUser> users = new ConcurrentHashMap<>();
     private static volatile UserManager INSTANCE;
-    private UserManager(){}
+    private UserManager(){
+        // Dữ liệu mồi (Seed data) để test chức năng Đăng nhập
+        NormalUser adminUser = new NormalUser("admin", "123");
+        users.put("admin", adminUser);
+    }
     public static UserManager getINSTANCE(){
         if (INSTANCE==null){
             synchronized(UserManager.class){
@@ -56,5 +60,6 @@ public class UserManager {
         return new Seller(user);}
     public Admin getAdminRole(NormalUser user) {
         if (user == null) throw new IllegalArgumentException("User không được để trống");
-        return new Admin(user);}
+        return new Admin(user);
+    }
 }

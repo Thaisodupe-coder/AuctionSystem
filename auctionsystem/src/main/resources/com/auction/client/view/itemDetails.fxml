@@ -78,7 +78,7 @@
                                 </HBox>
                                 <HBox>
                                     <children>
-                                        <Label prefWidth="120.0" text="Time Left:" textFill="#666666" />
+                                        <Label prefWidth="120.0" text="Time End:" textFill="#666666" />
                                         <Label text="Time" textFill="#ff2b2b">
                                             <font><Font name="System Bold" size="13.0" /></font>
                                         </Label>
@@ -99,7 +99,7 @@
                                 <HBox spacing="10.0">
                                     <children>
                                         <TextField fx:id="txtBidInput" prefHeight="40.0" prefWidth="200.0" promptText="Enter amount..." text="Nhập giá" />
-                                        <Button prefHeight="40.0" prefWidth="150.0" styleClass="btn-primary" text="PLACE BID">
+                                        <Button onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="btn-primary" text="PLACE BID">
                                             <font><Font name="System Bold" size="14.0" /></font>
                                         </Button>
                                     </children>
