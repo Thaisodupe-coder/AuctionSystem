@@ -1,7 +1,10 @@
 module com.auction {
+
     requires javafx.controls;
     requires javafx.fxml;
     requires com.google.gson;
+    requires java.sql;
+    requires org.postgresql.jdbc;
 
     exports com.auction;
     exports com.auction.controller;
