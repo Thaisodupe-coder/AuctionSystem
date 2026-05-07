@@ -5,10 +5,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import com.auction.network.ClientManager;
 
 public class AppClient extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
+        // Khởi tạo kết nối tới Server ngay khi ứng dụng khởi động
+        ClientManager.getINSTANCE().connect("localhost", 8888);
+
         FXMLLoader loader =  new FXMLLoader(getClass().getResource("/com/auction/client/view/login.fxml"));
 
         Parent root = loader.load();
@@ -31,4 +35,3 @@ public class AppClient extends Application {
         launch(args);
     }
 }
-
