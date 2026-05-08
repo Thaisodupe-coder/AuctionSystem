@@ -5,6 +5,8 @@ import com.auction.network.message.Response;
 import com.auction.service.UserManager;
 import com.auction.service.AuctionManager;
 import com.auction.model.user.NormalUser;
+import com.auction.util.PersistenceService;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -80,6 +82,8 @@ public class ClientHandler implements Runnable {
                 response.setMessage("Đăng ký thành công!");
                 response.addData("userId", user.getId());
                 response.addData("username", user.getName());
+                // Lưu dữ liệu sau khi đăng ký thành công
+                PersistenceService.saveData();
             } else if ("PLACE_BID".equals(command)) {
                 String auctionId = (String) request.getPayload().get("auctionId");
                 String bidderId = (String) request.getPayload().get("bidderId");
@@ -89,6 +93,8 @@ public class ClientHandler implements Runnable {
                 AuctionManager.getINSTANCE().placeBid(auctionId, bidderId, amount);
                 response.setStatus("SUCCESS");
                 response.setMessage("Đặt giá thành công!");
+                // Lưu dữ liệu sau khi đặt giá thành công
+                PersistenceService.saveData();
             } else {
                 response.setStatus("ERROR");
                 response.setMessage("Lệnh không được hỗ trợ: " + command);

@@ -6,6 +6,7 @@ public abstract class User extends Entity {
     private String name;
     private String password;
     private UserRole role;
+    private double balance;
     /**
      *
      * @param name tên tài khoản
@@ -16,6 +17,7 @@ public abstract class User extends Entity {
         super();
         this.name = name;
         this.password = password;
+        this.balance = 0.0; // Mặc định số dư ban đầu là 0
     }
 
     //getter & setter
@@ -36,5 +38,11 @@ public abstract class User extends Entity {
     }
     public void setRole(UserRole role) {
         this.role = role;
+    }
+    public double getBalance() {
+        return balance;
+    }
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 }

@@ -1,0 +1,28 @@
+{
+  "398d3dd3-27a2-4299-a906-e7c1f0fc5664": {
+    "item": {
+      "name": "Laptop Gaming",
+      "description": "Core i9, 32GB RAM",
+      "id": "e663a194-a4f0-40f4-bc46-0e6ed9fdf789"
+    },
+    "seller": {
+      "user": {
+        "name": "test_persistence_user_1778263245244",
+        "password": "password123",
+        "balance": 5000.0,
+        "id": "a71cb869-131d-400d-9441-81b687bee83b"
+      },
+      "name": "test_persistence_user_1778263245244",
+      "password": "password123",
+      "balance": 0.0,
+      "id": "23daada7-8a34-4286-b5ab-63c76719bac3"
+    },
+    "highestBid": 1000.0,
+    "startTime": "2026-05-10T01:00:45.2745103",
+    "endTime": "2026-05-11T01:00:45.2745103",
+    "bidHistory": [],
+    "observers": [],
+    "status": "OPEN",
+    "id": "398d3dd3-27a2-4299-a906-e7c1f0fc5664"
+  }
+}

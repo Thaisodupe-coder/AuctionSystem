@@ -17,5 +17,11 @@ module com.auction {
 
     opens com.auction to javafx.fxml, org.junit.platform.commons;
     opens com.auction.controller to javafx.fxml;
+
+    opens com.auction.model.user to com.google.gson;
+    opens com.auction.model.item to com.google.gson;
+    opens com.auction.model.auction to com.google.gson;
+    opens com.auction.model.common to com.google.gson;
+
     opens com.auction.network.message to com.google.gson;
 }

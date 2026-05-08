@@ -7,6 +7,8 @@ import com.auction.model.auction.Auction;
 import com.auction.model.auction.AuctionStatus;
 import com.auction.model.item.Item;
 import com.auction.model.user.Seller;
+import com.auction.model.user.NormalUser;
+import com.auction.exception.InvalidBidException;
 //quản lý các phiên đấu giá, xử lý các logic không thay đổi trạng thái của phiên đấu giá
 public class AuctionManager {
     private static volatile AuctionManager INSTANCE;
@@ -75,6 +77,7 @@ public class AuctionManager {
         if (auction == null) {
             throw new IllegalArgumentException("Auction with ID " + auctionId + " not found.");
         }
+
         // Ủy quyền xử lý đặt giá cho Auction
         // Auction sẽ tự kiểm tra trạng thái và tính hợp lệ của giá
         return auction.processBid(bidderId, amount);
@@ -87,6 +90,13 @@ public class AuctionManager {
         }
         // Auction sẽ tự kiểm tra quyền và trạng thái
         return auction.cancelAuction(sellerId);
+    }
+
+    /**
+     * Trả về danh sách tất cả phiên đấu giá (Dùng để kiểm tra/debug)
+     */
+    public Map<String, Auction> getAllAuctions() {
+        return auctions;
     }
 
 }

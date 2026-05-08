@@ -3,6 +3,8 @@ package com.auction.model.auction;
 import com.auction.model.common.Entity;
 import com.auction.model.item.Item;
 import com.auction.model.user.Seller;
+import com.auction.model.user.NormalUser;
+import com.auction.service.UserManager;
 import java.time.LocalDateTime;
 import com.auction.exception.AuctionClosedException;
 import com.auction.exception.InvalidBidException;
@@ -84,10 +86,19 @@ public class Auction extends Entity {
  */
     public synchronized boolean processBid(String bidderId, double amount) {
         updateAuctionStatus(); // Đảm bảo trạng thái hiện tại trước khi xử lý bid
-
+    
         if (this.status != AuctionStatus.RUNNING) {
             throw new AuctionClosedException("Chỉ có thể đặt giá khi phiên đấu giá đang RUNNING | Current status: " + this.status);
         }
+        // Kiểm tra số dư người dùng trước khi chấp nhận giá thầu
+        NormalUser user = UserManager.getINSTANCE().getUserById(bidderId);
+        if (user == null) {
+            throw new IllegalArgumentException("Không tìm thấy người dùng với ID: " + bidderId);
+        }
+        if (user.getBalance() < amount) {
+            throw new InvalidBidException("Số dư không đủ! (Yêu cầu: " + amount + ", Hiện có: " + user.getBalance() + ")");
+        }
+
         if (amount <= this.highestBid) {
             throw new InvalidBidException("Bid amount (" + amount + ") must be higher than current highest bid (" + this.highestBid + ").");
         }

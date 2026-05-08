@@ -1,5 +1,11 @@
 package com.auction.server;
 
+import com.auction.model.auction.Auction;
+import com.auction.model.user.NormalUser;
+import com.auction.service.AuctionManager;
+import com.auction.service.UserManager;
+import com.auction.util.PersistenceService;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,6 +22,22 @@ public class AuctionServer {
     private static final ExecutorService pool = Executors.newFixedThreadPool(10);
 
     public static void main(String[] args) {
+        // In ra thư mục làm việc để kiểm tra đường dẫn tương đối
+        System.out.println("Working Directory hiện tại: " + System.getProperty("user.dir"));
+
+        // Nạp dữ liệu cũ vào RAM trước khi server bắt đầu lắng nghe
+        PersistenceService.loadData();
+
+        System.out.println("\n========== KIỂM TRA DỮ LIỆU HỆ THỐNG ==========");
+        System.out.println("[USER] Danh sách người dùng:");
+        UserManager.getINSTANCE().getAllUsers().values().forEach(u -> 
+            System.out.println("  - ID: " + u.getId() + " | Tên: " + u.getName() + " | Số dư: " + u.getBalance()));
+
+        System.out.println("[AUCTION] Danh sách phiên đấu giá:");
+        AuctionManager.getINSTANCE().getAllAuctions().values().forEach(a -> 
+            System.out.println("  - ID: " + a.getId() + " | Vật phẩm: " + a.getItem().getName() + " | Trạng thái: " + a.getStatus()));
+        System.out.println("===============================================\n");
+
         System.out.println("port : " + PORT);
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Đang chờ kết nối từ Client...");
