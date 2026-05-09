@@ -35,7 +35,7 @@
    </HBox>
     <Label text="Vui lòng đăng nhập để tiếp tục" textFill="#666666" />
 
-    <TextField fx:id="txtUsername" prefHeight="35.0" promptText="Tên đăng nhập" />
+    <TextField fx:id="txtUsername" styleClass="input" prefHeight="35.0" promptText="Tên đăng nhập" />
 
     <PasswordField fx:id="txtPassword" prefHeight="35.0" promptText="Mật khẩu" />
 
