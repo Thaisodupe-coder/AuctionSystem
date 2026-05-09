@@ -29,7 +29,7 @@ public class AuctionSystemTest {
     @Test
     void bidSuccessWhenRunning() {
         // Expected output: Đặt giá thành công, cập nhật highestBid + highestBidderId, kiểm tra lịch sử đấu giá.
-        Item item = new Art("Mona Lisa", "null");
+        Item item = new Art("Mona Lisa", "Bức tranh nổi tiếng của Leonardo da Vinci");
         Seller seller = new Seller(new NormalUser("Nguyễn Quốc Thái", "123456"));
         Auction auction = new Auction(
                 item,
@@ -50,7 +50,7 @@ public class AuctionSystemTest {
     @Test
     void bidFailWhenLowerPrice() {
         // Expected output: Nem InvalidBidException khi giá đặt thấp hơn giá cao nhất hiện tại.
-        Item item = new Art("The Scream", "null");
+        Item item = new Art("The Scream", "Bức tranh nổi tiếng của Edvard Munch");
         Seller seller = new Seller(new NormalUser("Nguyễn Viết Thông", "36nemchua"));
         Auction auction = new Auction(
                 item,
@@ -66,7 +66,7 @@ public class AuctionSystemTest {
     @Test
     void bidFailWhenNotRunning() {
         // Expected output: Ném AuctionClosedException khi phiên đấu giá chưa RUNNING.
-        Item item = new Art("Starry Nights", "null");
+        Item item = new Art("Starry Nights", "Bức tranh nổi tiếng của Vincent van Gogh");
         Seller seller = new Seller(new NormalUser("Nguyễn Viết Thông", "Rauma"));
         Auction auction = new Auction(
                 item,
@@ -82,7 +82,7 @@ public class AuctionSystemTest {
     @Test
     void cancelSuccessForOwner() {
         // Expected output: Huỷ thành công, trạng thái = CANCELED.
-        Item item = new Vehicle("VinFast VF3", "null");
+        Item item = new Vehicle("VinFast VF3", "Xe máy điện của VinFast");
         Seller seller = new Seller(new NormalUser("Đinh Anh Vũ", "654321"));
         Auction auction = new Auction(
                 item,
@@ -100,7 +100,7 @@ public class AuctionSystemTest {
     @Test
     void cancelFailWhenNotOwner() {
         // Expected output: Huỷ thất bại do người dùng ko phải chủ phiên.
-        Item item = new Electronics("Điều hoà siêu mát", "null");
+        Item item = new Electronics("Điều hoà siêu mát", "Điều hoà công nghệ mới");
         Seller owner = new Seller(new NormalUser("Nguyễn Quốc Thái", "123456"));
         Seller otherSeller = new Seller(new NormalUser("Nguyễn Viết Thông", "363636"));
         Auction auction = new Auction(
@@ -119,7 +119,7 @@ public class AuctionSystemTest {
     @Test
     void createAuctionStoredInManager() {
         // Expected output: Tạo auction thành công và getAuction trả về đúng object.
-        Item item = new Electronics("Laptop", "null");
+        Item item = new Electronics("Laptop", "Laptop cao cấp");
         Seller seller = new Seller(new NormalUser("Đinh Anh Vũ", "presidentSVM"));
 
         Auction auction = auctionManager.createAuction(
@@ -142,7 +142,7 @@ public class AuctionSystemTest {
     @Test
     void winnerInfoWhenFinished() {
         // Expected output: Có winnerId và winningBid đúng sau khi FINISHED.
-        Item item = new Electronics("SamSung Galaxy S21", "null");
+        Item item = new Electronics("SamSung Galaxy S21", "Điện thoại cao cấp");
         Seller seller = new Seller(new NormalUser("Nguyễn Viết Thông", "thichrauma"));
 
         Auction auction = auctionManager.createAuction(
@@ -176,7 +176,7 @@ public class AuctionSystemTest {
         // Expected output: Bidder placeBid thành công và cập nhật giá cao nhất.
         Seller seller = new Seller(new NormalUser("Phạm Hữu Chí Thành", "camonquykhach"));
         Bidder bidder = new Bidder(new NormalUser("Nguyễn Quốc Thái", "thaidui123"));
-        Item item = new Electronics("Điện thoại iPhone 17 Pro Max", "null");
+        Item item = new Electronics("Điện thoại iPhone 17 Pro Max", "Điện thoại cao cấp");
 
         Auction auction = auctionManager.createAuction(
                 item,
@@ -197,7 +197,7 @@ public class AuctionSystemTest {
         // Expected output: Bidder placeBid ném AuctionClosedException khi phiên đấu giá đã đóng.
         Seller seller = new Seller(new NormalUser("Đinh Anh Vũ", "654321"));
         Bidder bidder = new Bidder(new NormalUser("Nguyễn Viết Thông", "rauma123"));
-        Item item = new Vehicle("Ferrari F8", "null");
+        Item item = new Vehicle("Ferrari F8", "Xe thể thao cao cấp");
 
         Auction auction = auctionManager.createAuction(
                 item,
