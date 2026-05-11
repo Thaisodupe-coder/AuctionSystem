@@ -1,5 +1,6 @@
 package com.auction.network;
 
+import com.auction.model.user.User;
 import com.auction.network.message.Request;
 import com.auction.network.message.Response;
 import com.google.gson.Gson;
@@ -20,6 +21,8 @@ public class ClientManager {
     private PrintWriter writer;
     private BufferedReader reader;
     private Consumer<Response> responseHandler; // Callback để báo cho Controller biết có kết quả
+
+    private User currentUser;
 
     private ClientManager(){}
     public static ClientManager getINSTANCE(){
@@ -95,5 +98,17 @@ public class ClientManager {
         request.addData("username", username);
         request.addData("password", password);
         sendRequest(request);
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public void clearUser() {
+        this.currentUser = null;
     }
 }

@@ -3,12 +3,17 @@
     -fx-font-family: "Segoe UI", Arial, sans-serif;
 }
 
+/* Ép mọi label mặc định có màu đen, tránh bị trắng chữ */
+.label {
+    -fx-text-fill: black;
+}
+
 .header-bar {
     -fx-background-color: #0c4b8e;
 }
 .header-link {
     -fx-background-color: transparent;
-    -fx-text-fill: white;
+    -fx-text-fill: black;
     -fx-font-size: 14px;
     -fx-cursor: hand;
 }
@@ -34,7 +39,7 @@
     -fx-background-radius: 0;
     -fx-border-color: white;
     -fx-border-width: 0 1 0 0;
-    -fx-text-fill: white;
+    -fx-text-fill: black;
     -fx-font-weight: bold;
     -fx-cursor: hand;
 }
@@ -50,7 +55,7 @@
 }
 .btn-primary {
     -fx-background-color: #33a1e0;
-    -fx-text-fill: white;
+    -fx-text-fill: black;
     -fx-cursor: hand;
 }
 .btn-primary:hover {
@@ -120,7 +125,7 @@
  }
  .btn-secondary {
      -fx-background-color: #6c757d;
-     -fx-text-fill: white;
+    -fx-text-fill: black;
  }
  .btn-secondary:hover {
      -fx-background-color: #5a6268;
