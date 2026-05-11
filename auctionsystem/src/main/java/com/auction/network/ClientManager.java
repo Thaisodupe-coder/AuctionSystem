@@ -3,8 +3,6 @@ package com.auction.network;
 import com.auction.network.message.Request;
 import com.auction.network.message.Response;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

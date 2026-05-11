@@ -1,107 +1,180 @@
 package com.auction.util;
 
 import com.auction.model.auction.Auction;
+import com.auction.model.auction.AuctionStatus;
+import com.auction.model.auction.BidTransaction;
 import com.auction.model.item.Art;
-import com.auction.model.item.Item;
 import com.auction.model.user.NormalUser;
-import com.auction.model.user.User;
+import com.auction.model.user.Seller;
 import com.auction.service.AuctionManager;
 import com.auction.service.UserManager;
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 
-import java.io.*;
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.sql.*;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class PersistenceService {
-    // Quy ước các file JSON sẽ nằm trong thư mục 'data' ở thư mục gốc của dự án
-    private static final String DATA_DIR = "data";
-    private static final String USER_FILE = DATA_DIR + "/users.json";
-    private static final String AUCTION_FILE = DATA_DIR + "/auctions.json";
+    private static final String DB_URL = "jdbc:postgresql://localhost:5432/auctionsystem";
+    private static final String DB_USER = "postgres";
+    private static final String DB_PASS = "admin"; 
+    private static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+    }
 
-    // Cấu hình Gson để xử lý được kiểu thời gian LocalDateTime của Java 8
-    private static final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>) (src, typeOfSrc, context) ->
-                    new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
-            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) ->
-                    LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-            // Xử lý đa hình cho Item: Tự động nhận diện loại Item dựa trên cấu trúc hoặc dữ liệu
-            .registerTypeAdapter(Item.class, (JsonDeserializer<Item>) (json, typeOfT, context) -> {
-                JsonObject jsonObject = json.getAsJsonObject();
-                // Nếu bạn có nhiều loại, bạn có thể kiểm tra các trường đặc trưng ở đây
-                // Ví dụ đơn giản: Nếu không có gì đặc biệt thì coi là Art, 
-                // hoặc dựa vào một field "className" nếu bạn muốn làm chuyên nghiệp hơn.
-                return context.deserialize(json, Art.class); 
-            })
-            // Xử lý lớp trừu tượng User: Mặc định coi là NormalUser
-            .registerTypeAdapter(User.class, (JsonDeserializer<User>) (json, typeOfT, context) -> 
-                    context.deserialize(json, NormalUser.class))
-            .setPrettyPrinting()
-            .create();
     /**
-     * Tự động nạp dữ liệu từ file vào các Map private của Manager
+     * Tự động nạp dữ liệu từ PostgreSQL vào các Map private của Manager
      */
     public static void loadData() {
-        ensureDataDirectoryExists(); // Đảm bảo thư mục data tồn tại
-        loadMapFromFile(USER_FILE, UserManager.getINSTANCE(), "users", new TypeToken<ConcurrentHashMap<String, NormalUser>>(){});
-        loadMapFromFile(AUCTION_FILE, AuctionManager.getINSTANCE(), "auctions", new TypeToken<ConcurrentHashMap<String, Auction>>(){});
-        System.out.println("[Persistence] Hoàn tất nạp dữ liệu hệ thống.");
+        try (Connection conn = getConnection()) {
+            // 1. Load Người dùng
+            Map<String, NormalUser> userMap = new HashMap<>();
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM users")) {
+                while (rs.next()) {
+                    NormalUser user = new NormalUser(rs.getString("username"), rs.getString("password"));
+                    setPrivateField(user, "id", rs.getString("id"));
+                    user.setBalance(rs.getDouble("balance")); // double không sợ null, mặc định là 0.0
+                    userMap.put(user.getName(), user);
+                }
+            }
+            injectToManager(UserManager.getINSTANCE(), "users", userMap);
+
+            // 2. Load Các phiên đấu giá
+            Map<String, Auction> auctionMap = new HashMap<>();
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM auctions")) {
+                while (rs.next()) {
+                    Art item = new Art(rs.getString("item_name"), rs.getString("item_description"));
+                    NormalUser owner = UserManager.getINSTANCE().getUserById(rs.getString("seller_id"));
+                    if (owner == null) continue;
+
+                    Seller seller = new Seller(owner);
+                    
+                    // Kiểm tra null cho Timestamp trước khi chuyển đổi
+                    Timestamp startTs = rs.getTimestamp("start_time");
+                    Timestamp endTs = rs.getTimestamp("end_time");
+                    
+                    Auction auction = new Auction(item, seller, rs.getDouble("highest_bid"),
+                            startTs != null ? startTs.toLocalDateTime() : null,
+                            endTs != null ? endTs.toLocalDateTime() : null);
+                    
+                    setPrivateField(auction, "id", rs.getString("id"));
+                    auction.setHighestBidderId(rs.getString("highest_bidder_id"));
+                    auction.setStatus(AuctionStatus.valueOf(rs.getString("status")));
+                    auctionMap.put(auction.getId(), auction);
+                }
+            }
+            injectToManager(AuctionManager.getINSTANCE(), "auctions", auctionMap);
+
+            // 3. Load Lịch sử đặt giá (Bids)
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM bids ORDER BY bid_time ASC")) {
+                while (rs.next()) {
+                    String auctionId = rs.getString("auction_id");
+                    Auction auction = AuctionManager.getINSTANCE().getAuction(auctionId);
+                    if (auction != null) {
+                        Timestamp bidTs = rs.getTimestamp("bid_time");
+                        BidTransaction bid = new BidTransaction(auctionId, rs.getString("bidder_id"), 
+                                                              rs.getDouble("amount"), 
+                                              bidTs != null ? bidTs.toLocalDateTime() : null);
+                        auction.addBidToHistory(bid);
+                    }
+                }
+            }
+
+            System.out.println("[Persistence] Hoàn tất nạp dữ liệu từ PostgreSQL.");
+        } catch (Exception e) {
+            System.err.println("[Persistence] Lỗi khi nạp dữ liệu từ DB: " + e.getMessage());
+            throw new RuntimeException(e); // Ném lỗi để bài Test bị Fail thay vì chạy tiếp
+        }
     }
+
     /**
-     * Lưu toàn bộ dữ liệu từ các Map trong Manager xuống file
+     * Đồng bộ dữ liệu từ RAM xuống các bảng trong Database
      */
     public static void saveData() {
-        ensureDataDirectoryExists(); // Đảm bảo thư mục data tồn tại
-        saveMapToFile(USER_FILE, UserManager.getINSTANCE(), "users");
-        saveMapToFile(AUCTION_FILE, AuctionManager.getINSTANCE(), "auctions");
-        System.out.println("[Persistence] Hoàn tất lưu dữ liệu hệ thống.");
-    }
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
 
-    /**
-     * Đảm bảo thư mục DATA_DIR tồn tại. Nếu không, sẽ tạo mới.
-     */
-    private static void ensureDataDirectoryExists() {
-        File directory = new File(DATA_DIR);
-        if (!directory.exists()) {
-            directory.mkdirs(); // Tạo thư mục và các thư mục cha nếu cần
-        }
-    }
-
-    private static void loadMapFromFile(String fileName, Object manager, String fieldName, TypeToken<?> typeToken) {
-        File file = new File(fileName);
-        if (!file.exists()) {
-            System.out.println("[Persistence] Không tìm thấy file: " + file.getAbsolutePath());
-            return;
-        }
-
-        System.out.println("[Persistence] Đang nạp từ: " + file.getAbsolutePath());
-
-        try (Reader reader = new FileReader(file)) {
-            Map<?, ?> loadedData = gson.fromJson(reader, typeToken.getType());
-            if (loadedData != null) {
-                // Kỹ thuật Reflection: Truy cập vào biến private Map
-                Field field = manager.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true);
-                Map targetMap = (Map) field.get(manager);
-                targetMap.putAll(loadedData);
+            // 1. Lưu Users
+            String userUpsert = "INSERT INTO users (id, username, password, balance) VALUES (?, ?, ?, ?) " +
+                               "ON CONFLICT (id) DO UPDATE SET balance = EXCLUDED.balance, password = EXCLUDED.password";
+            try (PreparedStatement pstmt = conn.prepareStatement(userUpsert)) {
+                for (NormalUser user : UserManager.getINSTANCE().getAllUsers().values()) {
+                    pstmt.setString(1, user.getId());
+                    pstmt.setString(2, user.getName());
+                    pstmt.setString(3, user.getPassword());
+                    pstmt.setDouble(4, user.getBalance());
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
             }
+
+            // 2. Lưu Auctions
+            String auctionUpsert = "INSERT INTO auctions (id, item_name, item_description, seller_id, highest_bidder_id, highest_bid, start_time, end_time, status) " +
+                                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                                  "ON CONFLICT (id) DO UPDATE SET highest_bidder_id = EXCLUDED.highest_bidder_id, highest_bid = EXCLUDED.highest_bid, status = EXCLUDED.status";
+            try (PreparedStatement pstmt = conn.prepareStatement(auctionUpsert)) {
+                for (Auction a : AuctionManager.getINSTANCE().getAllAuctions().values()) {
+                    pstmt.setString(1, a.getId());
+                    pstmt.setString(2, a.getItem().getName());
+                    pstmt.setString(3, a.getItem().getDescription());
+                    pstmt.setString(4, a.getSeller().getId());
+                    pstmt.setString(5, a.getHighestBidderId());
+                    pstmt.setDouble(6, a.getHighestBid());
+                    pstmt.setTimestamp(7, Timestamp.valueOf(a.getStartTime()));
+                    pstmt.setTimestamp(8, Timestamp.valueOf(a.getEndTime()));
+                    pstmt.setString(9, a.getStatus().name());
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
+            }
+
+            // 3. Lưu Bids (Chỉ thêm những bid mới, không cần update vì bid là lịch sử cố định)
+            String bidInsert = "INSERT INTO bids (auction_id, bidder_id, amount, bid_time) " +
+                               "SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM bids WHERE auction_id = ? AND bidder_id = ? AND amount = ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(bidInsert)) {
+                for (Auction a : AuctionManager.getINSTANCE().getAllAuctions().values()) {
+                    for (BidTransaction b : a.getBidHistory()) {
+                        pstmt.setString(1, b.getAuctionId());
+                        pstmt.setString(2, b.getBidderId());
+                        pstmt.setDouble(3, b.getAmount());
+                        pstmt.setTimestamp(4, Timestamp.valueOf(b.getTimestamp()));
+                        pstmt.setString(5, b.getAuctionId());
+                        pstmt.setString(6, b.getBidderId());
+                        pstmt.setDouble(7, b.getAmount());
+                        pstmt.addBatch();
+                    }
+                }
+                pstmt.executeBatch();
+            }
+
+            conn.commit();
+            System.out.println("[Persistence] Hoàn tất lưu dữ liệu vào PostgreSQL.");
         } catch (Exception e) {
-            System.err.println("Lỗi load " + fileName + ": " + e.getMessage());
+            System.err.println("[Persistence] Lỗi khi lưu dữ liệu DB: " + e.getMessage());
+            throw new RuntimeException(e); // Ném lỗi để bài Test bị Fail
         }
     }
 
-    private static void saveMapToFile(String fileName, Object manager, String fieldName) {
-        try (Writer writer = new FileWriter(fileName)) {
-            Field field = manager.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            Object data = field.get(manager);
-            gson.toJson(data, writer);
-        } catch (Exception e) {
-            System.err.println("Lỗi save " + fileName + ": " + e.getMessage());
+    private static void injectToManager(Object manager, String fieldName, Map<?, ?> data) throws Exception {
+        Field field = manager.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        Map targetMap = (Map) field.get(manager);
+        targetMap.clear();
+        targetMap.putAll(data);
+    }
+
+    private static void setPrivateField(Object obj, String fieldName, Object value) throws Exception {
+        Class<?> clazz = obj.getClass();
+        while (clazz != null) {
+            try {
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(obj, value);
+                return; // Đã tìm thấy và set xong
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass(); // Tìm tiếp ở class cha
+            }
         }
+        throw new NoSuchFieldException("Không tìm thấy trường " + fieldName + " trong đối tượng " + obj.getClass().getName());
     }
 }

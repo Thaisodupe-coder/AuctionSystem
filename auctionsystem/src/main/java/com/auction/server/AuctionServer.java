@@ -25,10 +25,10 @@ public class AuctionServer {
         // In ra thư mục làm việc để kiểm tra đường dẫn tương đối
         System.out.println("Working Directory hiện tại: " + System.getProperty("user.dir"));
 
-        // Nạp dữ liệu cũ vào RAM trước khi server bắt đầu lắng nghe
+        System.out.println("\n[Server] Khởi động hệ thống lưu trữ PostgreSQL...");
         PersistenceService.loadData();
 
-        System.out.println("\n========== KIỂM TRA DỮ LIỆU HỆ THỐNG ==========");
+        System.out.println("========== KIỂM TRA DỮ LIỆU HỆ THỐNG ==========");
         System.out.println("[USER] Danh sách người dùng:");
         UserManager.getINSTANCE().getAllUsers().values().forEach(u -> 
             System.out.println("  - ID: " + u.getId() + " | Tên: " + u.getName() + " | Số dư: " + u.getBalance()));

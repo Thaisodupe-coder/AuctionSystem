@@ -10,7 +10,6 @@ import com.auction.util.PersistenceService;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -20,11 +19,16 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PersistenceTest {
 
     @Test
-    void testSaveAndLoadIntegration() throws Exception {
-        // 1. Chuẩn bị dữ liệu mẫu trên RAM
+    void testPostgresSaveAndLoad() throws Exception {
+        // 0. Đảm bảo RAM sạch trước khi test để tránh nhiễu dữ liệu cũ
+        System.out.println("[Test] Bắt đầu dọn dẹp RAM...");
         UserManager userManager = UserManager.getINSTANCE();
         AuctionManager auctionManager = AuctionManager.getINSTANCE();
+        clearPrivateMap(userManager, "users");
+        clearPrivateMap(auctionManager, "auctions");
 
+        // 1. Chuẩn bị dữ liệu mẫu
+        System.out.println("[Test] Đang chuẩn bị dữ liệu mẫu...");
         String testUsername = "test_persistence_user_" + System.currentTimeMillis();
         NormalUser registeredUser = userManager.register(testUsername, "password123");
         userManager.addBalance(registeredUser.getId(), 5000.0);
@@ -34,14 +38,12 @@ public class PersistenceTest {
         Auction auction = auctionManager.createAuction(item, seller, 1000.0, 
                 LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2));
 
-        // 2. Thực hiện LƯU dữ liệu xuống JSON
+        // 2. Thực hiện LƯU dữ liệu xuống PostgreSQL (Upsert)
+        System.out.println("[Test] Đang lưu dữ liệu xuống PostgreSQL...");
         PersistenceService.saveData();
 
-        // Kiểm tra vật lý: File có tồn tại không?
-        assertTrue(new File("data/users.json").exists(), "File users.json phải tồn tại trong thư mục data");
-        assertTrue(new File("data/auctions.json").exists(), "File auctions.json phải tồn tại trong thư mục data");
-
         // 3. XÓA TRẮNG dữ liệu trên RAM (Sử dụng Reflection để clear các Map private)
+        System.out.println("[Test] Đang xóa trắng RAM để chuẩn bị nạp lại...");
         clearPrivateMap(userManager, "users");
         clearPrivateMap(auctionManager, "auctions");
 
@@ -49,20 +51,32 @@ public class PersistenceTest {
         assertNull(userManager.getUserById(registeredUser.getId()), "RAM phải trống sau khi clear map");
         assertNull(auctionManager.getAuction(auction.getId()), "RAM phải trống sau khi clear map");
 
-        // 4. Thực hiện NẠP lại dữ liệu từ JSON
+        // 4. Thực hiện NẠP lại dữ liệu từ PostgreSQL
+        System.out.println("[Test] Đang nạp lại dữ liệu từ PostgreSQL...");
         PersistenceService.loadData();
 
-        // 5. KIỂM TRA: Dữ liệu có quay trở lại RAM đúng như ban đầu không?
+        // 5. KIỂM TRA: Dữ liệu có được khôi phục chính xác không?
+        System.out.println("[Test] Đang kiểm tra dữ liệu sau khi nạp...");
         NormalUser restoredUser = userManager.getUserById(registeredUser.getId());
-        assertNotNull(restoredUser, "User phải được khôi phục từ file JSON");
-        assertEquals(5000.0, restoredUser.getBalance(), "Số dư phải được khôi phục đúng");
-        assertNotNull(auctionManager.getAuction(auction.getId()), "Phiên đấu giá phải được khôi phục từ file JSON");
+        assertNotNull(restoredUser, "User phải được khôi phục từ PostgreSQL");
+        assertEquals(5000.0, restoredUser.getBalance(), 0.001, "Số dư phải được khôi phục đúng");
+        assertNotNull(auctionManager.getAuction(auction.getId()), "Phiên đấu giá phải được khôi phục từ PostgreSQL");
+        
+        System.out.println("[Test] KẾT QUẢ: Test thành công rực rỡ!");
     }
 
     private void clearPrivateMap(Object manager, String fieldName) throws Exception {
-        Field field = manager.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        Map<?, ?> map = (Map<?, ?>) field.get(manager);
-        map.clear();
+        Class<?> clazz = manager.getClass();
+        while (clazz != null) {
+            try {
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                Map<?, ?> map = (Map<?, ?>) field.get(manager);
+                map.clear();
+                return;
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass();
+            }
+        }
     }
 }

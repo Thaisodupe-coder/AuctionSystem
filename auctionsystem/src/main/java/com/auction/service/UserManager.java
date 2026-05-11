@@ -7,11 +7,7 @@ import com.auction.model.user.*;
 public class UserManager {
     private Map<String,NormalUser> users = new ConcurrentHashMap<>();
     private static volatile UserManager INSTANCE;
-    private UserManager(){
-        // Dữ liệu mồi (Seed data) để test chức năng Đăng nhập
-        NormalUser adminUser = new NormalUser("admin", "123");
-        users.put("admin", adminUser);
-    }
+    private UserManager(){}
     public static UserManager getINSTANCE(){
         if (INSTANCE==null){
             synchronized(UserManager.class){
