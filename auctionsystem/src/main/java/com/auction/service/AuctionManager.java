@@ -107,7 +107,7 @@ public class AuctionManager {
         if (auction == null) return null;
 
         // Chỉ có người thắng khi trạng thái là FINISHED hoặc PAID
-        if (auction.getStatus() == AuctionStatus.FINISHED || auction.getStatus() == AuctionStatus.PAID) {
+        if (auction.getStatus() == AuctionStatus.FINISHED) {
             return auction.getHighestBidderId();
         }
         return null; 
@@ -118,7 +118,7 @@ public class AuctionManager {
         Auction auction = getAuction(auctionId);
         if (auction == null) return 0.0;
         
-        if (auction.getStatus() == AuctionStatus.FINISHED || auction.getStatus() == AuctionStatus.PAID) {
+        if (auction.getStatus() == AuctionStatus.FINISHED) {
             return auction.getHighestBid();
         }
         return 0.0;

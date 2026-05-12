@@ -58,7 +58,14 @@
                                 <TextField fx:id="txtStartPrice" promptText="Enter amount" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                                 <Label text="Time End:" GridPane.rowIndex="3" />
-                                <DatePicker fx:id="dpTimeEnd" prefWidth="250.0" promptText="Select end date" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <children>
+                                        <DatePicker fx:id="dpEndDate" prefWidth="140.0" promptText="Select date" />
+                                        <ComboBox fx:id="cbEndHour" prefWidth="70.0" promptText="HH" />
+                                        <Label text=":" />
+                                        <ComboBox fx:id="cbEndMinute" prefWidth="70.0" promptText="mm" />
+                                    </children>
+                                </HBox>
 
                                 <Label text="Description:" GridPane.rowIndex="4" />
                                 <TextArea fx:id="txtDescription" promptText="Detailed description of the item..." wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
