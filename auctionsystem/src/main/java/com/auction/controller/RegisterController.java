@@ -10,6 +10,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
+
+import com.auction.model.user.NormalUser;
 import com.auction.network.ClientManager;
 
 import java.io.IOException;
@@ -29,6 +31,7 @@ public class RegisterController {
             ClientManager.getINSTANCE().setResponseHandler(response -> {
                 if ("REGISTER_RES".equals(response.getCommand())) {
                     if ("SUCCESS".equals(response.getStatus())) {
+                        ClientManager.getINSTANCE().setCurrentUser(new NormalUser(txtUsername.getText(), txtPassword.getText()));
                         responseSuccess();
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Đăng ký thất bại", response.getMessage());

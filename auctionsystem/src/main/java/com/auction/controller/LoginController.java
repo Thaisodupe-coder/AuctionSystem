@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
+import com.auction.model.user.NormalUser;
 import com.auction.network.ClientManager;
 import java.io.IOException;
 
@@ -44,6 +45,7 @@ public class LoginController {
                 if ("LOGIN_RES".equals(response.getCommand())) {
                     if ("SUCCESS".equals(response.getStatus())) {
                         // Đăng nhập thành công
+                        ClientManager.getINSTANCE().setCurrentUser(new NormalUser(txtUsername.getText(), txtPassword.getText()));
                         responseSuccess();
                     } else {
                         // Thất bại -> Lấy thông báo lỗi từ Server và hiển thị
