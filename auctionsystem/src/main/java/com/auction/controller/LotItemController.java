@@ -48,11 +48,13 @@ public class LotItemController implements AuctionObserver {
     }
 
     private void updateUI() {
-        if (auction != null) {
-            lblStatus.setText(auction.getStatus().name());
-            lblTitle.setText(auction.getItem().getName());
-            txtPrice.setText(String.format("%.2f VND", auction.getHighestBid()));
-        }
+        if (auction == null) return;
+    
+        lblStatus.setText(auction.getStatus().name());
+        lblTitle.setText(auction.getItem().getName());
+
+        //Cập nhật giá dựa theo giá bid lớn nhất hiện tại
+        txtPrice.setText(String.format("%.2f VND", auction.getHighestBid()));
     }
 
     @FXML
