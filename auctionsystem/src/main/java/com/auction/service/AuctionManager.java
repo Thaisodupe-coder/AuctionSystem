@@ -3,6 +3,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.List;
 
 import com.auction.model.auction.Auction;
 import com.auction.model.auction.AuctionStatus;
@@ -55,6 +56,11 @@ public class AuctionManager {
         auctions.put(auction.getId(), auction);
     }
 
+    // Xóa toàn bộ phiên đấu giá (dùng cho Client khi đồng bộ lại từ Server)
+    public synchronized void clearAuctions() {
+        auctions.clear();
+    }
+
     // Hủy phiên đấu giá
     public synchronized boolean cancelAuction(String auctionId, String sellerId) {
         Auction auction = getAuction(auctionId);
@@ -76,7 +82,7 @@ public class AuctionManager {
     }
 
     // Lấy danh sách các phiên đấu giá do một Seller cụ thể tạo
-    public java.util.List<Auction> getAuctionsBySeller(String sellerId) {
+    public List<Auction> getAuctionsBySeller(String sellerId) {
         return auctions.values().stream()
                 .filter(auction -> auction.getSeller().getId().equals(sellerId))
                 .collect(Collectors.toList());
@@ -91,7 +97,7 @@ public class AuctionManager {
      * @param amount    giá trị được đặt
      * @return true nếu đặt giá thành công, false nếu đặt giá thất bại
      */
-    public synchronized boolean placeBid(String auctionId, String bidderId, double amount) {
+    public boolean placeBid(String auctionId, String bidderId, double amount) {
         Auction auction = getAuction(auctionId);
         if (auction == null) {
             throw new IllegalArgumentException("Auction with ID " + auctionId + " not found.");

@@ -21,7 +21,6 @@ public class LotItemController {
     private Label txtPrice;
 
     private Auction auction;
-
     public void setData(Auction auction) {
         this.auction = auction;
         
