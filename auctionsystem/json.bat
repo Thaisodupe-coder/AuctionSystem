@@ -77,3 +77,47 @@ II. CÁC KỊCH BẢN CHI TIẾT (VÍ DỤ)
     "newHighestBid": 1500000.0
   }
 }
+
+---------------------------------------------------------
+4. ĐĂNG KÝ TÀI KHOẢN (REGISTER)
+[Client -> Server]
+{
+  "command": "REGISTER",
+  "payload": {
+    "username": "nguyenvana",
+    "password": "123"
+  }
+}
+
+[Server -> Client] (Thành công)
+{
+  "command": "REGISTER_RES",
+  "status": "SUCCESS",
+  "payload": {
+    "userId": "user_02",
+    "username": "nguyenvana"
+  }
+}
+
+---------------------------------------------------------
+5. TẠO PHIÊN ĐẤU GIÁ (CREATE_AUCTION)
+[Client -> Server]
+{
+  "command": "CREATE_AUCTION",
+  "payload": {
+    "sellerId": "user_01",
+    "name": "Macbook Pro M3",
+    "startPrice": 30000000.0,
+    "category": "Electronics",
+    "description": "Laptop nguyên seal",
+    "endTime": "2024-12-31T23:59:00",
+    "imagePath": "C:\\images\\macbook.png" 
+  }
+}
+
+[Server -> Client] (Thành công)
+{
+  "command": "CREATE_AUCTION_RES",
+  "status": "SUCCESS",
+  "payload": null
+}

@@ -11,8 +11,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import com.auction.model.user.NormalUser;
 import com.auction.network.ClientManager;
+import com.auction.network.message.Request;
 import java.io.IOException;
 
 public class LoginController {
@@ -45,7 +45,12 @@ public class LoginController {
                 if ("LOGIN_RES".equals(response.getCommand())) {
                     if ("SUCCESS".equals(response.getStatus())) {
                         // Đăng nhập thành công
-                        ClientManager.getINSTANCE().setCurrentUser(new NormalUser(txtUsername.getText(), txtPassword.getText()));
+                        String serverUserId = (String) response.getPayload().get("userId");
+                        String serverUsername = txtUsername.getText();
+                        ClientManager.getINSTANCE().setUser(serverUserId, serverUsername);
+                        //
+                        //
+                        //
                         responseSuccess();
                     } else {
                         // Thất bại -> Lấy thông báo lỗi từ Server và hiển thị
@@ -54,8 +59,11 @@ public class LoginController {
                 }
             });
 
-            //Yêu cầu ClientManager gửi dữ liệu đăng nhập đi
-            ClientManager.getINSTANCE().login(txtUsername.getText(), txtPassword.getText());
+            // Controller tự đóng gói Request và nhờ ClientManager gửi đi
+            Request request = new Request("LOGIN");
+            request.addData("username", txtUsername.getText());
+            request.addData("password", txtPassword.getText());
+            ClientManager.getINSTANCE().sendRequest(request);
         }
     }
     private void responseSuccess(){
