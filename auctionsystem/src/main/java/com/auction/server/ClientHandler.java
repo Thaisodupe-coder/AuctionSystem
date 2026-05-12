@@ -1,5 +1,9 @@
 package com.auction.server;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import com.auction.network.message.Request;
 import com.auction.network.message.Response;
 import com.auction.service.UserManager;
@@ -87,6 +91,33 @@ public class ClientHandler implements Runnable {
                 response.setMessage("Đăng ký thành công!");
                 response.addData("userId", user.getId());
                 response.addData("username", user.getName());
+            } else if ("GET_ALL_AUCTIONS".equals(command)) {
+                List<Auction> allAuctions = AuctionManager.getINSTANCE().getAllAuctions();
+                
+                // Chuyển đổi List<Auction> thành List<Map> để Gson không bị lỗi đa hình
+                List<Map<String, Object>> auctionDataList = new ArrayList<>();
+                for (Auction auction : allAuctions) {
+                    Map<String, Object> auctionData = new HashMap<>();
+                    auctionData.put("auctionId", auction.getId());
+                    auctionData.put("itemId", auction.getItem().getId());
+                    auctionData.put("sellerId", auction.getSeller().getId());
+                    auctionData.put("sellerName", auction.getSeller().getName());
+                    auctionData.put("name", auction.getItem().getName());
+                    auctionData.put("startPrice", auction.getHighestBid()); // Giá hiện tại
+                    
+                    String category = "";
+                    if (auction.getItem() instanceof Art) category = "Art";
+                    else if (auction.getItem() instanceof Electronics) category = "Electronics";
+                    else if (auction.getItem() instanceof Vehicle) category = "Vehicle";
+                    auctionData.put("category", category);
+
+                    auctionData.put("description", auction.getItem().getDescription());
+                    auctionData.put("endTime", auction.getEndTime().toString());
+                    auctionDataList.add(auctionData);
+                }
+
+                response.setStatus("SUCCESS");
+                response.addData("auctions", auctionDataList);
             } else if ("PLACE_BID".equals(command)) {
                 String auctionId = (String) request.getPayload().get("auctionId");
                 String bidderId = (String) request.getPayload().get("bidderId");

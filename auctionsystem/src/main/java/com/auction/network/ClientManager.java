@@ -1,17 +1,13 @@
 package com.auction.network;
 
 import com.auction.model.auction.Auction;
-import com.auction.model.item.Art;
-import com.auction.model.item.Electronics;
-import com.auction.model.item.Item;
-import com.auction.model.item.Vehicle;
+import com.auction.model.item.*;
 import com.auction.model.user.NormalUser;
 import com.auction.model.user.Seller;
 import com.auction.service.AuctionManager;
 import com.auction.network.message.Request;
 import com.auction.network.message.Response;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +15,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 
@@ -61,7 +59,7 @@ public class ClientManager {
             System.err.println("Lỗi kết nối tới Server: " + e.getMessage());
         }
     }
-
+    // chờ nhận các json từ server gửi cho client
     private void startListening() {
         Thread listenerThread = new Thread(() -> {
             try {
@@ -73,32 +71,27 @@ public class ClientManager {
                         Response response = gson.fromJson(jsonResponse, Response.class);
                         
                         // Phân loại: Xử lý ngầm các lệnh Broadcast từ Server
-                        if ("NEW_AUCTION_BROADCAST".equals(response.getCommand())) {
-                            String aucId = String.valueOf(response.getPayload().get("auctionId"));
-                            String itmId = String.valueOf(response.getPayload().get("itemId"));
-                            String sellerId = String.valueOf(response.getPayload().get("sellerId"));
-                            String sellerName = String.valueOf(response.getPayload().get("sellerName"));
-                            String name = String.valueOf(response.getPayload().get("name"));
-                            double startPrice = Double.parseDouble(String.valueOf(response.getPayload().get("startPrice")));
-                            String category = String.valueOf(response.getPayload().get("category"));
-                            String desc = String.valueOf(response.getPayload().get("description"));
-                            LocalDateTime endT = LocalDateTime.parse(String.valueOf(response.getPayload().get("endTime")));
-                            //xử lý trên client
-                            Item localItem;
-                            if ("Art".equals(category)) localItem = new Art(name, desc);
-                            else if ("Electronics".equals(category)) localItem = new Electronics(name, desc);
-                            else if ("Vehicle".equals(category)) localItem = new Vehicle(name, desc);
-                            else throw new IllegalArgumentException("Danh mục không hợp lệ");
-                            localItem.setId(itmId);
-
-                            NormalUser baseUser = new NormalUser(sellerName, "");
-                            baseUser.setId(sellerId);
-                            Auction localAuction = new Auction(localItem, new Seller(baseUser), startPrice, LocalDateTime.now(), endT);
-                            localAuction.setId(aucId);
-
-                            // Nhét vào RAM của Client
-                            AuctionManager.getINSTANCE().addAuction(localAuction);
+                        if ("NEW_AUCTION_BROADCAST".equals(response.getCommand())) { // PUSH
+                            addLocalAuction(response.getPayload());
                             System.out.println("Đã đồng bộ phiên đấu giá mới vào RAM Client thành công!");
+                        } else if ("GET_ALL_AUCTIONS_RES".equals(response.getCommand())) { // PULL
+                            // Xóa dữ liệu cũ trước khi nạp dữ liệu thật
+                            AuctionManager.getINSTANCE().clearAuctions();
+
+                            // Dữ liệu trả về là một List các Map
+                            List<Map<String, Object>> auctionDataList = (List<Map<String, Object>>) response.getPayload().get("auctions");
+                            
+                            if (auctionDataList != null) {
+                                for (Map<String, Object> auctionData : auctionDataList) {
+                                    addLocalAuction(auctionData);
+                                }
+                                System.out.println("Đã đồng bộ " + auctionDataList.size() + " phiên đấu giá từ Server.");
+                            }
+
+                            // Sau khi đồng bộ xong, báo cho Controller (Login/Register) để tiếp tục luồng
+                            if (responseHandler != null) {
+                                Platform.runLater(() -> responseHandler.accept(response));
+                            }
                         } else {
                             // Trả về cho Controller (với các Request 1-1 thông thường)
                             if (responseHandler != null) {
@@ -116,6 +109,37 @@ public class ClientManager {
         });
         listenerThread.setDaemon(true); // Đảm bảo thread tự tắt khi ứng dụng đóng
         listenerThread.start();
+    }
+
+    /**
+     * Tái tạo đối tượng Auction từ dữ liệu Map (payload) và thêm vào AuctionManager của Client.
+     * Dùng chung cho cả PUSH (broadcast) và PULL (get all).
+     */
+    private void addLocalAuction(Map<String, Object> payload) {
+        String aucId = String.valueOf(payload.get("auctionId"));
+        String itmId = String.valueOf(payload.get("itemId"));
+        String sellerId = String.valueOf(payload.get("sellerId"));
+        String sellerName = String.valueOf(payload.get("sellerName"));
+        String name = String.valueOf(payload.get("name"));
+        double startPrice = Double.parseDouble(String.valueOf(payload.get("startPrice")));
+        String category = String.valueOf(payload.get("category"));
+        String desc = String.valueOf(payload.get("description"));
+        LocalDateTime endT = LocalDateTime.parse(String.valueOf(payload.get("endTime")));
+        
+        Item localItem;
+        if ("Art".equals(category)) localItem = new Art(name, desc);
+        else if ("Electronics".equals(category)) localItem = new Electronics(name, desc);
+        else if ("Vehicle".equals(category)) localItem = new Vehicle(name, desc);
+        else throw new IllegalArgumentException("Danh mục không hợp lệ: " + category);
+        localItem.setId(itmId);
+
+        NormalUser baseUser = new NormalUser(sellerName, "");
+        baseUser.setId(sellerId);
+        Auction localAuction = new Auction(localItem, new Seller(baseUser), startPrice, LocalDateTime.now(), endT);
+        localAuction.setId(aucId);
+
+        // Nhét vào RAM của Client
+        AuctionManager.getINSTANCE().addAuction(localAuction);
     }
 
     public void sendRequest(Request request) {

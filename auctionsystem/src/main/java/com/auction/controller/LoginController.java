@@ -44,18 +44,21 @@ public class LoginController {
                 //kiểm tra xem có đúng là LOGIN_RES không
                 if ("LOGIN_RES".equals(response.getCommand())) {
                     if ("SUCCESS".equals(response.getStatus())) {
-                        // Đăng nhập thành công
+                        // 1. Đăng nhập thành công, lưu thông tin user
                         String serverUserId = (String) response.getPayload().get("userId");
                         String serverUsername = txtUsername.getText();
                         ClientManager.getINSTANCE().setUser(serverUserId, serverUsername);
-                        //
-                        //
-                        //
-                        responseSuccess();
+
+                        // 2. Gửi yêu cầu PULL toàn bộ dữ liệu phiên đấu giá
+                        Request getAuctionsRequest = new Request("GET_ALL_AUCTIONS");
+                        ClientManager.getINSTANCE().sendRequest(getAuctionsRequest);
                     } else {
                         // Thất bại -> Lấy thông báo lỗi từ Server và hiển thị
                         showAlert(Alert.AlertType.ERROR, "Đăng nhập thất bại", response.getMessage());
                     }
+                } else if ("GET_ALL_AUCTIONS_RES".equals(response.getCommand())) {
+                    // 3. Dữ liệu đã được đồng bộ xong, chuyển sang màn hình chính
+                    responseSuccess();
                 }
             });
 

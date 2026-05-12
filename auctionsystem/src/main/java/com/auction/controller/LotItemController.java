@@ -28,7 +28,6 @@ public class LotItemController implements AuctionObserver {
     private Label txtPrice;
 
     private Auction auction;
-
     public void setData(Auction auction) {
         // Nếu controller này đang theo dõi một auction khác, hãy hủy đăng ký trước
         if (this.auction != null) {
