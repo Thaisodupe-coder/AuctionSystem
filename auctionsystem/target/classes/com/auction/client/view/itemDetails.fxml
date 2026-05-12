@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<VBox prefHeight="700.0" prefWidth="900.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.ItemDetailsController">
+    <children>
+        <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="header-bar">
+            <children>
+                <Label text="Hệ thống đấu giá" textFill="WHITE">
+                    <font><Font name="System Bold" size="18.0" /></font>
+                    <HBox.margin><Insets left="20.0" /></HBox.margin>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#handleBackToMain" styleClass="header-link" text="⬅ Quay lại" />
+            </children>
+            <padding><Insets right="20.0" /></padding>
+        </HBox>
+
+        <HBox spacing="40.0" VBox.vgrow="ALWAYS">
+            <children>
+                <VBox prefHeight="266.0" prefWidth="400.0" spacing="15.0">
+                    <children>
+                        <ImageView fx:id="imgDetail" fitHeight="300.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" style="-fx-border-color: #ddd; -fx-border-width: 1;" />
+                        <Label text="Ảnh tham khảo" textFill="#666666">
+                            <font><Font name="System Italic" size="12.0" /></font>
+                        </Label>
+                  <ListView prefHeight="252.0" prefWidth="400.0" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label fx:id="lblDetailTitle" text="Item" textFill="#0c4b8e">
+                            <font><Font name="System Bold" size="28.0" /></font>
+                        </Label>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Label styleClass="badge-danger" text="LIVE AUCTION" textFill="WHITE">
+                                    <padding><Insets bottom="3.0" left="8.0" right="8.0" top="3.0" /></padding>
+                                </Label>
+                                <Label fx:id="txtUID" text="UID:" textFill="#999999" />
+                            </children>
+                        </HBox>
+
+                        <Separator prefWidth="200.0" />
+
+                        <VBox spacing="10.0" style="-fx-background-color: #f9f9f9; -fx-padding: 20; -fx-border-color: #eee;">
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="120.0" text="Current Price:" textFill="#666666" />
+                                        <Label fx:id="lblDetailPrice" text="Price" textFill="#d9534f">
+                                            <font><Font name="System Bold" size="20.0" /></font>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="120.0" text="Condition:" textFill="#666666" />
+                                        <Label fx:id="lblDetailCondition" text="Status" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="120.0" text="Time End:" textFill="#666666" />
+                                        <Label fx:id="lblTimeEnd" text="Time" textFill="#ff2b2b">
+                                            <font><Font name="System Bold" size="13.0" /></font>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                        <HBox prefHeight="15.0" prefWidth="358.0">
+                           <children>
+                              <Label prefHeight="15.0" prefWidth="120.0" text="Started on:" textFill="#666666" />
+                              <Label fx:id="lblTimestart" text="Time" textFill="#00ff11" />
+                           </children>
+                        </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0">
+                            <children>
+                                <Label text="Đặt bid của bạn :" />
+                                <HBox spacing="10.0">
+                                    <children>                                        
+                                        <TextField fx:id="txtBidInput" prefHeight="40.0" prefWidth="200.0" promptText="Enter amount..." />
+                                        <Button onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="btn-primary" text="PLACE BID">
+                                            <font><Font name="System Bold" size="14.0" /></font>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="5.0">
+                            <children>
+                                <Label text="Description:">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                                <Label fx:id="lblDetailDescription" text="Mô tả" wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            </padding>
+        </HBox>
+    </children>
+</VBox>

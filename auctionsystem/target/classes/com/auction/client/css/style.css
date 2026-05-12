@@ -1,0 +1,132 @@
+.root {
+    -fx-background-color: #f4f4f4;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Ép mọi label mặc định có màu đen, tránh bị trắng chữ */
+.label {
+    -fx-text-fill: black;
+}
+
+.header-bar {
+    -fx-background-color: #0c4b8e;
+}
+.header-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+.header-link:hover {
+    -fx-text-fill: #cccccc;
+}
+.notification-box {
+    -fx-background-color: #fff3cd;
+    -fx-border-color: #ffeeba;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 10 15 10 15;
+}
+
+.btn-white-outline {
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 3px;
+    -fx-cursor: hand;
+}
+.filter-btn {
+    -fx-background-radius: 0;
+    -fx-border-color: white;
+    -fx-border-width: 0 1 0 0;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.filter-btn-blue { -fx-background-color: #4da6ff; }
+.filter-btn-green { -fx-background-color: #5cb85c; }
+.filter-btn-dark { -fx-background-color: #0c4b8e; }
+.filter-combo { -fx-background-color: white; -fx-border-color: #ccc; }
+.item-card {
+    -fx-background-color: white;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+.btn-primary {
+    -fx-background-color: #33a1e0;
+    -fx-text-fill: black;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: #288bcb;
+}
+.badge-danger {
+    -fx-background-color: #c9302c;
+    -fx-background-radius: 3px;
+}
+.input-group {
+    -fx-border-color: #ccc;
+    -fx-background-color: white;
+}
+.input {
+  border: none;
+  outline: none;
+  border-radius: 15px;
+  padding: 1em;
+  background-color: #ccc;
+  box-shadow: inset 2px 5px 10px rgba(0,0,0,0.3);
+  transition: 300ms ease-in-out;
+}
+
+.input:focus {
+  background-color: white;
+  transform: scale(1.05);
+  box-shadow: 13px 13px 100px #969696,
+             -13px -13px 100px #ffffff;
+}
+.input-group-addon {
+    -fx-background-color: #eeeeee;
+    -fx-border-color: transparent #ccc transparent transparent;
+    -fx-padding: 5 10 5 10;
+}
+.input-group .text-field {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+/* Xóa viền của ListView */
+.no-border-list {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+}
+.no-border-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 15 0;
+}
+\.badge-danger {
+     -fx-background-color: #d9534f;
+     -fx-background-radius: 4px;
+     -fx-font-size: 11px;
+ }
+
+ .separator {
+     -fx-background-color: #eeeeee;
+ }
+
+ #txtBidInput {
+     -fx-border-color: #cccccc;
+     -fx-border-radius: 4px;
+     -fx-background-radius: 4px;
+ }
+
+ #txtBidInput:focused {
+     -fx-border-color: #0c4b8e;
+ }
+ .btn-secondary {
+     -fx-background-color: #6c757d;
+    -fx-text-fill: black;
+ }
+ .btn-secondary:hover {
+     -fx-background-color: #5a6268;
+ }
