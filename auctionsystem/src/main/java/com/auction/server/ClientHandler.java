@@ -112,7 +112,6 @@ public class ClientHandler implements Runnable {
 
     public void sendResponse(Response response) {
         String jsonResponse = gson.toJson(response);
-        // PrintWriter tự động thêm dấu xuống dòng và flush dữ liệu đi
         writer.println(jsonResponse);
         System.out.println("[Server gửi]: " + jsonResponse);
     }

@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS auctions (
     id VARCHAR(255) PRIMARY KEY,
     item_name VARCHAR(255),
+    item_type VARCHAR(50),
     item_description TEXT,
     seller_id VARCHAR(255) REFERENCES users(id) ON DELETE RESTRICT, -- Người bán không thể bị xóa nếu còn đấu giá
     highest_bidder_id VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL, -- Nếu người đặt giá cao nhất bị xóa, ID sẽ được đặt thành NULL

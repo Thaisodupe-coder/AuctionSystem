@@ -4,6 +4,9 @@ import com.auction.model.auction.Auction;
 import com.auction.model.auction.AuctionStatus;
 import com.auction.model.auction.BidTransaction;
 import com.auction.model.item.Art;
+import com.auction.model.item.Electronics;
+import com.auction.model.item.Item;
+import com.auction.model.item.Vehicle;
 import com.auction.model.user.NormalUser;
 import com.auction.model.user.Seller;
 import com.auction.service.AuctionManager;
@@ -29,10 +32,10 @@ public class PersistenceService {
         try (Connection conn = getConnection()) {
             // 1. Load Người dùng
             Map<String, NormalUser> userMap = new HashMap<>();
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM users")) {
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM users")) {// tạo đối tượng resultset chứa dữ liệu dạng bảng ảo
                 while (rs.next()) {
                     NormalUser user = new NormalUser(rs.getString("username"), rs.getString("password"));
-                    setPrivateField(user, "id", rs.getString("id"));
+                    setPrivateField(user, "id", rs.getString("id"));// lấy id của Entity
                     user.setBalance(rs.getDouble("balance")); // double không sợ null, mặc định là 0.0
                     userMap.put(user.getName(), user);
                 }
@@ -42,12 +45,24 @@ public class PersistenceService {
             // 2. Load Các phiên đấu giá
             Map<String, Auction> auctionMap = new HashMap<>();
             try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM auctions")) {
-                while (rs.next()) {
-                    Art item = new Art(rs.getString("item_name"), rs.getString("item_description"));
-                    NormalUser owner = UserManager.getINSTANCE().getUserById(rs.getString("seller_id"));
+                while (rs.next()) {// chạy lần lượt mỗi hàng trong DB và lấy thông tin tạo auction rồi tiêm vào manager
+                    String itemType = rs.getString("item_type");
+                    String name = rs.getString("item_name");
+                    String desc = rs.getString("item_description");
+                    
+                    Item item;
+                    if ("Electronics".equalsIgnoreCase(itemType)) {
+                        item = new Electronics(name, desc);
+                    } else if ("Vehicle".equalsIgnoreCase(itemType)) {
+                        item = new Vehicle(name, desc);
+                    } else {
+                        item = new Art(name, desc);
+                    }
+
+                    NormalUser owner = UserManager.getINSTANCE().getUserById(rs.getString("seller_id"));// lấy user bằng id vì đã load user vào usermanager trước rồi 
                     if (owner == null) continue;
 
-                    Seller seller = new Seller(owner);
+                    Seller seller = new Seller(owner);// tạo đối tượng seller từ đối tượng lấy về từ database
                     
                     // Kiểm tra null cho Timestamp trước khi chuyển đổi
                     Timestamp startTs = rs.getTimestamp("start_time");
@@ -63,9 +78,9 @@ public class PersistenceService {
                     auctionMap.put(auction.getId(), auction);
                 }
             }
-            injectToManager(AuctionManager.getINSTANCE(), "auctions", auctionMap);
+            injectToManager(AuctionManager.getINSTANCE(), "auctions", auctionMap);// tiêm vào thuộc tính auctionMap của manager
 
-            // 3. Load Lịch sử đặt giá (Bids)
+            // 3. Load Lịch sử đặt giá (Bids) chuyển vào lớp auction
             try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM bids ORDER BY bid_time ASC")) {
                 while (rs.next()) {
                     String auctionId = rs.getString("auction_id");
@@ -80,9 +95,9 @@ public class PersistenceService {
                 }
             }
 
-            System.out.println("[Persistence] Hoàn tất nạp dữ liệu từ PostgreSQL.");
+            Logger.info("Hoàn tất nạp dữ liệu từ PostgreSQL.");
         } catch (Exception e) {
-            System.err.println("[Persistence] Lỗi khi nạp dữ liệu từ DB: " + e.getMessage());
+            Logger.error("Lỗi khi nạp dữ liệu từ DB: " + e.getMessage());
             throw new RuntimeException(e); // Ném lỗi để bài Test bị Fail thay vì chạy tiếp
         }
     }
@@ -96,7 +111,7 @@ public class PersistenceService {
 
             // 1. Lưu Users
             String userUpsert = "INSERT INTO users (id, username, password, balance) VALUES (?, ?, ?, ?) " +
-                               "ON CONFLICT (id) DO UPDATE SET balance = EXCLUDED.balance, password = EXCLUDED.password";
+                               "ON CONFLICT (id) DO UPDATE SET balance = EXCLUDED.balance, password = EXCLUDED.password";// nếu chưa có thì tạo mới có rồi thì cập nhật balance
             try (PreparedStatement pstmt = conn.prepareStatement(userUpsert)) {
                 for (NormalUser user : UserManager.getINSTANCE().getAllUsers().values()) {
                     pstmt.setString(1, user.getId());
@@ -105,24 +120,25 @@ public class PersistenceService {
                     pstmt.setDouble(4, user.getBalance());
                     pstmt.addBatch();
                 }
-                pstmt.executeBatch();
+                pstmt.executeBatch();// đóng gói các lệnh ghi vào DB thành 1 lần và gửi vào DB
             }
 
             // 2. Lưu Auctions
-            String auctionUpsert = "INSERT INTO auctions (id, item_name, item_description, seller_id, highest_bidder_id, highest_bid, start_time, end_time, status) " +
-                                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+            String auctionUpsert = "INSERT INTO auctions (id, item_name, item_description, item_type, seller_id, highest_bidder_id, highest_bid, start_time, end_time, status) " +
+                                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                                   "ON CONFLICT (id) DO UPDATE SET highest_bidder_id = EXCLUDED.highest_bidder_id, highest_bid = EXCLUDED.highest_bid, status = EXCLUDED.status";
             try (PreparedStatement pstmt = conn.prepareStatement(auctionUpsert)) {
-                for (Auction a : AuctionManager.getINSTANCE().getAllAuctions().values()) {
+                for (Auction a : AuctionManager.getINSTANCE().getAllAuctions()) {
                     pstmt.setString(1, a.getId());
                     pstmt.setString(2, a.getItem().getName());
                     pstmt.setString(3, a.getItem().getDescription());
-                    pstmt.setString(4, a.getSeller().getId());
-                    pstmt.setString(5, a.getHighestBidderId());
-                    pstmt.setDouble(6, a.getHighestBid());
-                    pstmt.setTimestamp(7, Timestamp.valueOf(a.getStartTime()));
-                    pstmt.setTimestamp(8, Timestamp.valueOf(a.getEndTime()));
-                    pstmt.setString(9, a.getStatus().name());
+                    pstmt.setString(4, a.getItem().getClass().getSimpleName());
+                    pstmt.setString(5, a.getSeller().getId());
+                    pstmt.setString(6, a.getHighestBidderId());
+                    pstmt.setDouble(7, a.getHighestBid());
+                    pstmt.setTimestamp(8, a.getStartTime() != null ? Timestamp.valueOf(a.getStartTime()) : null);
+                    pstmt.setTimestamp(9, a.getEndTime() != null ? Timestamp.valueOf(a.getEndTime()) : null);
+                    pstmt.setString(10, a.getStatus().name());
                     pstmt.addBatch();
                 }
                 pstmt.executeBatch();
@@ -132,7 +148,7 @@ public class PersistenceService {
             String bidInsert = "INSERT INTO bids (auction_id, bidder_id, amount, bid_time) " +
                                "SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM bids WHERE auction_id = ? AND bidder_id = ? AND amount = ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(bidInsert)) {
-                for (Auction a : AuctionManager.getINSTANCE().getAllAuctions().values()) {
+                for (Auction a : AuctionManager.getINSTANCE().getAllAuctions()) {
                     for (BidTransaction b : a.getBidHistory()) {
                         pstmt.setString(1, b.getAuctionId());
                         pstmt.setString(2, b.getBidderId());
@@ -148,21 +164,26 @@ public class PersistenceService {
             }
 
             conn.commit();
-            System.out.println("[Persistence] Hoàn tất lưu dữ liệu vào PostgreSQL.");
+            Logger.info("Hoàn tất lưu dữ liệu vào PostgreSQL.");
         } catch (Exception e) {
-            System.err.println("[Persistence] Lỗi khi lưu dữ liệu DB: " + e.getMessage());
+            Logger.error("Lỗi khi lưu dữ liệu DB (Đang thực hiện Rollback): " + e.getMessage());
+            try (Connection conn = getConnection()) {
+                if (conn != null && !conn.getAutoCommit()) conn.rollback();
+            } catch (SQLException ex) {
+                Logger.error("Lỗi khi Rollback: " + ex.getMessage());
+            }
             throw new RuntimeException(e); // Ném lỗi để bài Test bị Fail
         }
     }
-
+    // method này phục vụ việc tiêm vào các mânger dữ liệu cập nhật từ DB
     private static void injectToManager(Object manager, String fieldName, Map<?, ?> data) throws Exception {
-        Field field = manager.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
+        Field field = manager.getClass().getDeclaredField(fieldName); // khởi tạo đối tượng Field đại diện cho thuộc tính fieldName
+        field.setAccessible(true);// làm cho có thể truy cập thuộc tính private
         Map targetMap = (Map) field.get(manager);
         targetMap.clear();
-        targetMap.putAll(data);
+        targetMap.putAll(data);// bỏ toàn bộ map từ DB vào các thuộc tính cần thiết của manager
     }
-
+    // method phục vụ việc truy cập và cài đặt các thuộc tính private để set thành các value được lấy về từ Database 
     private static void setPrivateField(Object obj, String fieldName, Object value) throws Exception {
         Class<?> clazz = obj.getClass();
         while (clazz != null) {

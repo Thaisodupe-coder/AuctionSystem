@@ -34,7 +34,7 @@ public class AuctionServer {
             System.out.println("  - ID: " + u.getId() + " | Tên: " + u.getName() + " | Số dư: " + u.getBalance()));
 
         System.out.println("[AUCTION] Danh sách phiên đấu giá:");
-        AuctionManager.getINSTANCE().getAllAuctions().values().forEach(a -> 
+        AuctionManager.getINSTANCE().getAllAuctions().forEach(a -> 
             System.out.println("  - ID: " + a.getId() + " | Vật phẩm: " + a.getItem().getName() + " | Trạng thái: " + a.getStatus()));
         System.out.println("===============================================\n");
 
