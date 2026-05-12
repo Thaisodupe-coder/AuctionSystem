@@ -2,22 +2,19 @@ package com.auction.controller;
 
 import com.auction.model.auction.Auction;
 import com.auction.model.auction.AuctionObserver;
+import com.auction.model.auction.AuctionStatus;
 import com.auction.network.ClientManager;
 import com.auction.network.message.Request;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import java.time.format.DateTimeFormatter;
 import javafx.stage.Stage;
-import javafx.stage.Modality;
-import java.io.IOException;
 
 public class ItemDetailsController implements AuctionObserver {
     @FXML
@@ -47,6 +44,16 @@ public class ItemDetailsController implements AuctionObserver {
 
     private Auction auction;
 
+    @FXML
+    public void initialize() {
+        // Chỉ cho phép nhập số nguyên (chỉ chấp nhận các ký tự từ 0-9)
+        txtBidInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                txtBidInput.setText(oldValue);
+            }
+        });
+    }
+
     public void setData(Auction auction) {
         // Nếu đang theo dõi auction cũ, hủy đăng ký trước khi nhận auction mới
         if (this.auction != null) {
@@ -70,8 +77,10 @@ public class ItemDetailsController implements AuctionObserver {
         lblDetailTitle.setText(auction.getItem().getName());
         txtUID.setText(auction.getId());
         lblDetailCondition.setText(auction.getStatus().name());
-        lblTimestart.setText(auction.getStartTime().toString());
-        lblTimeEnd.setText(auction.getEndTime().toString());
+        
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        lblTimestart.setText(auction.getStartTime().format(timeFormatter));
+        lblTimeEnd.setText(auction.getEndTime().format(timeFormatter));
         lblDetailDescription.setText(auction.getItem().getDescription());
         
         //Cập nhật giá dựa theo giá bid lớn nhất hiện tại
@@ -87,23 +96,49 @@ public class ItemDetailsController implements AuctionObserver {
     @FXML
     public void handlePlaceBid(ActionEvent event) {
         try {
-            double amount = Double.parseDouble(txtBidInput.getText());
-
-            // Kiểm tra nghiệp vụ cơ bản tại Client
-            if (amount <= auction.getHighestBid()) {
-                showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá đặt phải cao hơn giá hiện tại!");
+            String input = txtBidInput.getText();
+            if (input == null || input.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Thông báo", "Vui lòng nhập giá tiền muốn đặt!");
                 return;
             }
 
-            // Gửi Request lên Server thông qua ClientManager
+            double amount = Double.parseDouble(input);
+
+            //Kiểm tra trạng thái phiên đấu giá
+            if (auction.getStatus() != AuctionStatus.RUNNING) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi đặt giá", "Chỉ có thể đặt giá khi phiên đấu giá đang diễn ra!");
+                return;
+            }
+
+            if (amount <= auction.getHighestBid()) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi đặt giá", "Giá đặt phải cao hơn giá hiện tại!");
+                return;
+            }
+            
+            // Đăng ký nhận phản hồi từ Server để cập nhật UI Realtime
+            ClientManager.getINSTANCE().setResponseHandler(response -> {
+                if ("PLACE_BID_RES".equals(response.getCommand())) {
+                    Platform.runLater(() -> {
+                        if ("SUCCESS".equals(response.getStatus())) {
+                            // Cập nhật dữ liệu vào model cục bộ. 
+                            // Phương thức processBid của Auction sẽ tự gọi notifyObservers() 
+                            // giúp trigger phương thức update() và làm mới UI.
+                            auction.processBid(ClientManager.getINSTANCE().getUserId(), amount);
+                            txtBidInput.clear();
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Đặt giá thất bại", response.getMessage());
+                        }
+                    });
+                }
+            });
+
+            // Gửi Request lên Server
             Request request = new Request("PLACE_BID");
             request.addData("auctionId", auction.getId());
             request.addData("bidderId", ClientManager.getINSTANCE().getUserId());
             request.addData("amount", amount);
             
             ClientManager.getINSTANCE().sendRequest(request);
-            txtBidInput.clear();
-
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.ERROR, "Lỗi nhập liệu", "Vui lòng nhập số tiền hợp lệ!");
         }
