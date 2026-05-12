@@ -3,8 +3,14 @@ package com.auction.controller;
 import com.auction.model.auction.Auction;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
+import javafx.stage.Modality;
+import java.io.IOException;
 
 public class LotItemController {
 
@@ -32,5 +38,23 @@ public class LotItemController {
     @FXML
     public void handleDetails(ActionEvent event) {
         System.out.println("Xem chi tiết phiên đấu giá: " + auction.getId());
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/view/itemDetails.fxml"));
+            Parent detailsView = loader.load();
+
+            // Lấy controller của màn hình chi tiết
+            ItemDetailsController detailsController = loader.getController();
+            
+            detailsController.setData(this.auction);
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Chi tiết: " + auction.getItem().getName());
+            stage.setScene(new Scene(detailsView));
+            stage.show();
+        } catch (Exception e) {
+            // In toàn bộ lỗi ra để biết chính xác lỗi ở dòng nào, file nào
+            e.printStackTrace();
+        }
     }
 }
