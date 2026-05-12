@@ -60,10 +60,10 @@
                                 <Label text="Time End:" GridPane.rowIndex="3" />
                                 <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                     <children>
-                                        <DatePicker fx:id="dpTimeEnd" prefWidth="140.0" promptText="Select date" />
-                                        <ComboBox fx:id="cbHour" prefWidth="70.0" promptText="HH" />
+                                        <DatePicker fx:id="dpEndDate" prefWidth="140.0" promptText="Select date" />
+                                        <ComboBox fx:id="cbEndHour" prefWidth="70.0" promptText="HH" />
                                         <Label text=":" />
-                                        <ComboBox fx:id="cbMinute" prefWidth="70.0" promptText="mm" />
+                                        <ComboBox fx:id="cbEndMinute" prefWidth="70.0" promptText="mm" />
                                     </children>
                                 </HBox>
 

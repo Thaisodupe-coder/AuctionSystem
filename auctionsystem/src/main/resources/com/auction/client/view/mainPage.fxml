@@ -20,8 +20,8 @@
                 <Region HBox.hgrow="ALWAYS" />
                 <Button fx:id="txtusename" styleClass="header-link" text="Username" />
 
-                <Button styleClass="header-link" text="🏠 Home" />
-                <Button layoutX="755.0" layoutY="21.0" onAction="#handleSellerViewTransfer" styleClass="header-link" text="❒Inventory" />
+                <Button onAction="#handleHomeAction" styleClass="header-link" text="🏠 Home" />
+                <Button onAction="#handleSellerViewTransfer" layoutX="755.0" layoutY="21.0" styleClass="header-link" text="❒Inventory" />
                 <Button onAction="#handleLogoutAction" styleClass="header-link" text="🔑 Logout" />
             </children>
             <padding>

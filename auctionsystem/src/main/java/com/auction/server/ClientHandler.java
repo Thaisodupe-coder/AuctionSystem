@@ -5,12 +5,19 @@ import com.auction.network.message.Response;
 import com.auction.service.UserManager;
 import com.auction.service.AuctionManager;
 import com.auction.model.user.NormalUser;
+import com.auction.model.user.Seller;
+import com.auction.model.item.Item;
+import com.auction.model.item.Art;
+import com.auction.model.item.Electronics;
+import com.auction.model.item.Vehicle;
+import com.auction.model.auction.Auction;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.time.LocalDateTime;
 
 import com.google.gson.Gson;
 
@@ -83,12 +90,60 @@ public class ClientHandler implements Runnable {
             } else if ("PLACE_BID".equals(command)) {
                 String auctionId = (String) request.getPayload().get("auctionId");
                 String bidderId = (String) request.getPayload().get("bidderId");
-            
                 double amount = (Double) request.getPayload().get("amount");
                 
                 AuctionManager.getINSTANCE().placeBid(auctionId, bidderId, amount);
+
                 response.setStatus("SUCCESS");
                 response.setMessage("Đặt giá thành công!");
+            } else if ("CREATE_AUCTION".equals(command)) {
+                String sellerId = (String) request.getPayload().get("sellerId");
+                String name = (String) request.getPayload().get("name");
+                double startPrice = Double.parseDouble(String.valueOf(request.getPayload().get("startPrice")));
+                String category = (String) request.getPayload().get("category");
+                String description = (String) request.getPayload().get("description");
+                String endTimeStr = (String) request.getPayload().get("endTime");
+                LocalDateTime endTime = LocalDateTime.parse(endTimeStr);
+                LocalDateTime startTime = LocalDateTime.now();
+                
+                // Lấy User gốc từ bộ nhớ Server dựa vào ID
+                NormalUser baseUser = UserManager.getINSTANCE().getUserById(sellerId);
+                if (baseUser == null) {
+                    throw new IllegalArgumentException("Không tìm thấy thông tin người dùng hợp lệ để tạo phiên!");
+                }
+                Seller seller = UserManager.getINSTANCE().getSellerRole(baseUser);
+                Item item;
+                if ("Art".equals(category)) {
+                    item = new Art(name, description);
+                } else if ("Electronics".equals(category)) {
+                    item = new Electronics(name, description);
+                } else if ("Vehicle".equals(category)) {
+                    item = new Vehicle(name, description);
+                } else {
+                    throw new IllegalArgumentException("Danh mục không hợp lệ");
+                }
+                
+                Auction auction = AuctionManager.getINSTANCE().createAuction(item, seller, startPrice, startTime, endTime);
+                response.setStatus("SUCCESS");
+                response.setMessage("Tạo phiên đấu giá thành công!");
+                response.addData("auctionId", auction.getId());
+                response.addData("itemId", item.getId());
+
+                //Ibroadcast response cho tất cả các clienthandler đang hoạt động
+                Response broadcastRes = new Response();
+                broadcastRes.setCommand("NEW_AUCTION_BROADCAST");
+                broadcastRes.setStatus("SUCCESS");
+                broadcastRes.addData("auctionId", auction.getId());
+                broadcastRes.addData("itemId", item.getId());
+                broadcastRes.addData("sellerId", seller.getId());
+                broadcastRes.addData("sellerName", seller.getName());
+                broadcastRes.addData("name", name);
+                broadcastRes.addData("startPrice", startPrice);
+                broadcastRes.addData("category", category);
+                broadcastRes.addData("description", description);
+                broadcastRes.addData("endTime", endTimeStr);
+                
+                AuctionServer.broadcast(broadcastRes);
             } else {
                 response.setStatus("ERROR");
                 response.setMessage("Lệnh không được hỗ trợ: " + command);
@@ -100,6 +155,7 @@ public class ClientHandler implements Runnable {
         } catch (Exception e) {
             response.setStatus("ERROR");
             response.setMessage("Lỗi Server nội bộ: " + e.getMessage());
+            e.printStackTrace(); // In lỗi ra console Server để dễ debug
         }
         return response;
     }

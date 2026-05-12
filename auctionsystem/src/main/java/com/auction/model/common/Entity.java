@@ -16,4 +16,8 @@ public abstract class Entity {
     public String getId() {
         return id;
     }
+    // để tạo các bản sao
+    public void setId(String id){
+        this.id = id;
+    }
 }

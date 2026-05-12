@@ -29,8 +29,8 @@ public class MainPageController {
 
     @FXML
     public void initialize() {
-        String username = ClientManager.getINSTANCE().getCurrentUser().getName();
-        String userId = ClientManager.getINSTANCE().getCurrentUser().getId();
+        String username = ClientManager.getINSTANCE().getUserName();
+        String userId = ClientManager.getINSTANCE().getUserId();
         double balance = 100;//ClientManager.getINSTANCE().getCurrentUser().getBalance();
         int myAuctionCount = AuctionManager.getINSTANCE().getAuctionsBySeller(userId).size();
 
@@ -39,7 +39,7 @@ public class MainPageController {
         }
 
         List<Auction> auctions = AuctionManager.getINSTANCE().getAllAuctions();
-        auctions.sort(Comparator.comparing(Auction::getStartTime).reversed());
+        auctions.sort(Comparator.comparing(Auction::getEndTime).reversed());
         
         renderAuctions(auctions);
     }
@@ -62,6 +62,10 @@ public class MainPageController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    @FXML
+    private void handleHomeAction(){
+        initialize();
     }
 
     @FXML
@@ -91,7 +95,10 @@ public class MainPageController {
             stage.initModality(Modality.APPLICATION_MODAL); // Ép cửa sổ này nằm đè lên MainPage
             stage.setScene(new Scene(addItemView));
             stage.setTitle("Create New Auction");
-            stage.show();
+            
+            // Dùng showAndWait() để ứng dụng chờ bạn thao tác xong và đóng cửa sổ
+            stage.showAndWait();
+            initialize();
         } catch (IOException e) {
             e.printStackTrace();
         }
