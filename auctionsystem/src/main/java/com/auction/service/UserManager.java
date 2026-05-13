@@ -43,6 +43,15 @@ public class UserManager {
         return user;
     }
     
+    // Hàm tìm kiếm User theo ID
+    public NormalUser getUserById(String id) {
+        for (NormalUser user : users.values()) {
+            if (user.getId().equals(id)) {
+                return user;
+            }
+        }
+        return null;
+    }
 
     
     // Các hàm cấp phát vai trò cụ thể
@@ -58,15 +67,7 @@ public class UserManager {
         if (user == null) throw new IllegalArgumentException("User không được để trống");
         return new Admin(user);
     }
-    /**
-     * Tìm kiếm người dùng dựa trên ID (sử dụng trong logic đấu giá)
-     */
-    public NormalUser getUserById(String id) {
-        return users.values().stream()
-                .filter(u -> u.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
+
 
     public void addBalance(String userId, double amount) {
         NormalUser user = getUserById(userId);

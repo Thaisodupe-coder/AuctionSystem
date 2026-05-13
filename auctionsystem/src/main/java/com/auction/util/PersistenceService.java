@@ -103,6 +103,73 @@ public class PersistenceService {
     }
 
     /**
+     * Lưu duy nhất một người dùng mới hoặc cập nhật thông tin người dùng hiện tại.
+     * Giúp tối ưu hiệu năng so với việc lưu toàn bộ hệ thống.
+     */
+    public static void saveUser(NormalUser user) {
+        String userUpsert = "INSERT INTO users (id, username, password, balance) VALUES (?, ?, ?, ?) " +
+                           "ON CONFLICT (id) DO UPDATE SET balance = EXCLUDED.balance, password = EXCLUDED.password";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(userUpsert)) {
+            
+            pstmt.setString(1, user.getId());
+            pstmt.setString(2, user.getName());
+            pstmt.setString(3, user.getPassword());
+            pstmt.setDouble(4, user.getBalance());
+            
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                Logger.info("Đã đồng bộ User [" + user.getName() + "] vào DB.");
+            }
+        } catch (SQLException e) {
+            Logger.error("Lỗi khi lưu User đơn lẻ: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Lưu hoặc cập nhật thông tin một phiên đấu giá duy nhất và các Bid liên quan.
+     */
+    public static void saveAuction(Auction a) {
+        String auctionUpsert = "INSERT INTO auctions (id, item_name, item_description, item_type, seller_id, highest_bidder_id, highest_bid, start_time, end_time, status) " +
+                              "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                              "ON CONFLICT (id) DO UPDATE SET highest_bidder_id = EXCLUDED.highest_bidder_id, highest_bid = EXCLUDED.highest_bid, status = EXCLUDED.status";
+        
+        String bidInsert = "INSERT INTO bids (auction_id, bidder_id, amount, bid_time) " +
+                           "SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM bids WHERE auction_id = ? AND bidder_id = ? AND amount = ?)";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement(auctionUpsert)) {
+                pstmt.setString(1, a.getId());
+                pstmt.setString(2, a.getItem().getName());
+                pstmt.setString(3, a.getItem().getDescription());
+                pstmt.setString(4, a.getItem().getClass().getSimpleName());
+                pstmt.setString(5, a.getSeller().getId());
+                pstmt.setString(6, a.getHighestBidderId());
+                pstmt.setDouble(7, a.getHighestBid());
+                pstmt.setTimestamp(8, a.getStartTime() != null ? Timestamp.valueOf(a.getStartTime()) : null);
+                pstmt.setTimestamp(9, a.getEndTime() != null ? Timestamp.valueOf(a.getEndTime()) : null);
+                pstmt.setString(10, a.getStatus().name());
+                pstmt.executeUpdate();
+            }
+            // Lưu lịch sử giá (chỉ những cái chưa có)
+            try (PreparedStatement pstmt = conn.prepareStatement(bidInsert)) {
+                for (BidTransaction b : a.getBidHistory()) {
+                    pstmt.setString(1, b.getAuctionId()); pstmt.setString(2, b.getBidderId());
+                    pstmt.setDouble(3, b.getAmount()); pstmt.setTimestamp(4, Timestamp.valueOf(b.getTimestamp()));
+                    pstmt.setString(5, b.getAuctionId()); pstmt.setString(6, b.getBidderId()); pstmt.setDouble(7, b.getAmount());
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            Logger.error("Lỗi khi lưu Auction đơn lẻ: " + e.getMessage());
+        }
+    }
+
+    /**
      * Đồng bộ dữ liệu từ RAM xuống các bảng trong Database
      */
     public static void saveData() {

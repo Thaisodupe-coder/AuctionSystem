@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.auction.network.message.Response;
 
 public class AuctionServer {
     private static final int PORT = 8888;
@@ -57,6 +58,13 @@ public class AuctionServer {
         }
     }
     
+    // Hàm Broadcast: Gửi một thông báo tới toàn bộ Client đang kết nối
+    public static void broadcast(Response response) {
+        for (ClientHandler client : clients) {
+            client.sendResponse(response);
+        }
+    }
+
     public static void removeClient(ClientHandler clientHandler) {
         clients.remove(clientHandler);
     }

@@ -11,8 +11,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import com.auction.model.user.NormalUser;
 import com.auction.network.ClientManager;
+import com.auction.network.message.Request;
 import java.io.IOException;
 
 public class LoginController {
@@ -44,18 +44,29 @@ public class LoginController {
                 //kiểm tra xem có đúng là LOGIN_RES không
                 if ("LOGIN_RES".equals(response.getCommand())) {
                     if ("SUCCESS".equals(response.getStatus())) {
-                        // Đăng nhập thành công
-                        ClientManager.getINSTANCE().setCurrentUser(new NormalUser(txtUsername.getText(), txtPassword.getText()));
-                        responseSuccess();
+                        // 1. Đăng nhập thành công, lưu thông tin user
+                        String serverUserId = (String) response.getPayload().get("userId");
+                        String serverUsername = txtUsername.getText();
+                        ClientManager.getINSTANCE().setUser(serverUserId, serverUsername);
+
+                        // 2. Gửi yêu cầu PULL toàn bộ dữ liệu phiên đấu giá
+                        Request getAuctionsRequest = new Request("GET_ALL_AUCTIONS");
+                        ClientManager.getINSTANCE().sendRequest(getAuctionsRequest);
                     } else {
                         // Thất bại -> Lấy thông báo lỗi từ Server và hiển thị
                         showAlert(Alert.AlertType.ERROR, "Đăng nhập thất bại", response.getMessage());
                     }
+                } else if ("GET_ALL_AUCTIONS_RES".equals(response.getCommand())) {
+                    // 3. Dữ liệu đã được đồng bộ xong, chuyển sang màn hình chính
+                    responseSuccess();
                 }
             });
 
-            //Yêu cầu ClientManager gửi dữ liệu đăng nhập đi
-            ClientManager.getINSTANCE().login(txtUsername.getText(), txtPassword.getText());
+            // Controller tự đóng gói Request và nhờ ClientManager gửi đi
+            Request request = new Request("LOGIN");
+            request.addData("username", txtUsername.getText());
+            request.addData("password", txtPassword.getText());
+            ClientManager.getINSTANCE().sendRequest(request);
         }
     }
     private void responseSuccess(){

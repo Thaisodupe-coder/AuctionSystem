@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 
 import com.auction.model.user.NormalUser;
 import com.auction.network.ClientManager;
+import com.auction.network.message.Request;
 
 import java.io.IOException;
 
@@ -31,15 +32,36 @@ public class RegisterController {
             ClientManager.getINSTANCE().setResponseHandler(response -> {
                 if ("REGISTER_RES".equals(response.getCommand())) {
                     if ("SUCCESS".equals(response.getStatus())) {
-                        ClientManager.getINSTANCE().setCurrentUser(new NormalUser(txtUsername.getText(), txtPassword.getText()));
+                        String serverUserId = (String) response.getPayload().get("userId");
+                        String serverUsername = txtUsername.getText();
+                        ClientManager.getINSTANCE().setUser(serverUserId, serverUsername);
+
+                        //Gửi yêu cầu PULL dữ liệu trước khi responseSucces
+                        Request pullRequest = new Request("GET_ALL_AUCTIONS");
+                        ClientManager.getINSTANCE().sendRequest(pullRequest);
+                        String userId = (String) response.getPayload().get("userId");
+                        String username = (String) response.getPayload().get("username");
+                        ClientManager.getINSTANCE().setUser(userId, username);
                         responseSuccess();
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Đăng ký thất bại", response.getMessage());
                     }
+                } else if ("GET_ALL_AUCTIONS_RES".equals(response.getCommand())) {
+                    // Đồng bộ xong -> Mở màn hình chính
+                    responseSuccess();
                 }
             });
 
-            ClientManager.getINSTANCE().register(txtUsername.getText(), txtPassword.getText());
+            // Controller tự đóng gói Request và nhờ ClientManager gửi đi
+            Request request = new Request("REGISTER");
+            request.addData("username", txtUsername.getText());
+            request.addData("password", txtPassword.getText());
+            ClientManager.getINSTANCE().sendRequest(request);
+            // Gửi request REGISTER thông qua sendRequest
+            Request regReq = new Request("REGISTER");
+            regReq.addData("username", txtUsername.getText());
+            regReq.addData("password", txtPassword.getText());
+            ClientManager.getINSTANCE().sendRequest(regReq);
         }
     }
     

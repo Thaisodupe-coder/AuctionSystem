@@ -61,7 +61,6 @@ public class Auction extends Entity {
     private void updateAuctionStatus() {
         // Không thay đổi trạng thái nếu đã ở trạng thái cuối cùng
         if (this.status == AuctionStatus.CANCELED || 
-            this.status == AuctionStatus.PAID || 
             this.status == AuctionStatus.FINISHED) {
             return;
         }

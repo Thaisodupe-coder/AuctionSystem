@@ -53,7 +53,7 @@ public class sellerViewController {
         });
 
         // 2. Lấy dữ liệu của User hiện tại và đưa vào bảng
-        String currentUserId = ClientManager.getINSTANCE().getCurrentUser().getId();
+        String currentUserId = ClientManager.getINSTANCE().getUserId();
         List<Auction> myAuctions = AuctionManager.getINSTANCE().getAuctionsBySeller(currentUserId);
         
         ObservableList<Auction> observableAuctions = FXCollections.observableArrayList(myAuctions);
