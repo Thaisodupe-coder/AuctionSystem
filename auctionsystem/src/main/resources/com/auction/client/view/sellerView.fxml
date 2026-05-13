@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" spacing="20.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.sellerViewController">
+<VBox prefHeight="600.0" prefWidth="900.0" spacing="20.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.SellerViewController">
     <children>
         <HBox alignment="CENTER_LEFT" prefHeight="60.0" styleClass="header-bar">
             <children>

@@ -18,10 +18,10 @@
             <children>
 
                 <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="txtusename" styleClass="header-link" text="Username" />
 
-                <Button styleClass="header-link" text="🏠 Home" />
+                <Button onAction="#handleHomeAction" styleClass="header-link" text="🏠 Home" />
                 <Button onAction="#handleSellerViewTransfer" layoutX="755.0" layoutY="21.0" styleClass="header-link" text="❒Inventory" />
-                <Button styleClass="header-link" text="Username" />
                 <Button onAction="#handleLogoutAction" styleClass="header-link" text="🔑 Logout" />
             </children>
             <padding>
@@ -35,7 +35,7 @@
                     <children>
                         <Label prefHeight="15.0" prefWidth="554.0" text="CREATE NEW AUCTION LOT" textAlignment="CENTER" textFill="#856404" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button prefHeight="27.0" prefWidth="231.0" styleClass="btn-white-outline" text="Open Active Auction" />
+                        <Button onAction="#handleAddItemTransfer" prefHeight="27.0" prefWidth="231.0" styleClass="btn-white-outline" text="+ Create Auction" />
                     </children>
                 </HBox>
 
@@ -45,7 +45,10 @@
                             <ToggleGroup fx:id="filterGroup" />
                         </fx:define>
                         <ToggleButton prefWidth="150.0" selected="true" styleClass="filter-btn, filter-btn-blue" text="All Lots" />
-                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-green" text="Active Lots" toggleGroup="$filterGroup"/>
+                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-green" text="Active Lots">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="filterGroup" />
+                     </toggleGroup></ToggleButton>
                         <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-dark" text="Preparing Lots" toggleGroup="$filterGroup" />
                         <ComboBox prefWidth="150.0" promptText="Categories" styleClass="filter-combo" />
                     </children>

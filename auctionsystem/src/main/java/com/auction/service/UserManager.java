@@ -47,6 +47,15 @@ public class UserManager {
         return user;
     }
     
+    // Hàm tìm kiếm User theo ID
+    public NormalUser getUserById(String id) {
+        for (NormalUser user : users.values()) {
+            if (user.getId().equals(id)) {
+                return user;
+            }
+        }
+        return null;
+    }
 
     
     // Các hàm cấp phát vai trò cụ thể
