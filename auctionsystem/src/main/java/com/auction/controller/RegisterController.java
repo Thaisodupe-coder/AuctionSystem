@@ -57,11 +57,7 @@ public class RegisterController {
             request.addData("username", txtUsername.getText());
             request.addData("password", txtPassword.getText());
             ClientManager.getINSTANCE().sendRequest(request);
-            // Gửi request REGISTER thông qua sendRequest
-            Request regReq = new Request("REGISTER");
-            regReq.addData("username", txtUsername.getText());
-            regReq.addData("password", txtPassword.getText());
-            ClientManager.getINSTANCE().sendRequest(regReq);
+           
         }
     }
     
