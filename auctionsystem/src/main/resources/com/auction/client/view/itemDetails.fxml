@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+
 <VBox prefHeight="700.0" prefWidth="900.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.ItemDetailsController">
     <children>
         <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="header-bar">
@@ -33,7 +34,7 @@
                         <Label text="Ảnh tham khảo" textFill="#666666">
                             <font><Font name="System Italic" size="12.0" /></font>
                         </Label>
-                  <ListView prefHeight="252.0" prefWidth="400.0" />
+                  <ListView prefHeight="252.0" prefWidth="400.0" styleClass="list-view-card" />
                     </children>
                 </VBox>
 
@@ -92,8 +93,8 @@
                                 <Label text="Đặt bid của bạn :" />
                                 <HBox spacing="10.0">
                                     <children>                                        
-                                        <TextField fx:id="txtBidInput" prefHeight="40.0" prefWidth="200.0" promptText="Enter amount..." />
-                                        <Button onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="btn-primary" text="PLACE BID">
+                                        <TextField fx:id="txtBidInput" prefHeight="60.0" prefWidth="200.0" promptText="Enter amount..." styleClass="input-harmonious" />
+                                        <Button onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="custom-button" text="PLACE BID">
                                             <font><Font name="System Bold" size="14.0" /></font>
                                         </Button>
                                     </children>

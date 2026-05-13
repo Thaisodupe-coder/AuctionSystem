@@ -21,8 +21,8 @@
     -fx-text-fill: #cccccc;
 }
 .notification-box {
-    -fx-background-color: #fff3cd;
-    -fx-border-color: #ffeeba;
+    -fx-background-color: #DAEBF5;
+       -fx-border-color: #DAEBF5;
     -fx-border-width: 1px;
     -fx-border-radius: 4px;
     -fx-background-radius: 4px;
@@ -70,20 +70,26 @@
     -fx-background-color: white;
 }
 .input {
-  border: none;
-  outline: none;
-  border-radius: 15px;
-  padding: 1em;
-  background-color: #ccc;
-  box-shadow: inset 2px 5px 10px rgba(0,0,0,0.3);
-  transition: 300ms ease-in-out;
+  -fx-background-color: #ccc;
+     -fx-background-radius: 15px;
+     -fx-border-radius: 15px;
+     -fx-padding: 1em;
+     /* JavaFX dùng innershadow thay cho inset box-shadow */
+     -fx-effect: innershadow(gaussian, rgba(0,0,0,0.3), 10, 0, 2, 5);
 }
 
-.input:focus {
-  background-color: white;
-  transform: scale(1.05);
-  box-shadow: 13px 13px 100px #969696,
-             -13px -13px 100px #ffffff;
+/* Trạng thái khi click chuột vào (Focus) */
+/* Lưu ý: JavaFX dùng :focused thay vì :focus như web */
+.input:focused {
+    -fx-background-color: white;
+
+    /* Phóng to 1.05 lần */
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+
+    /* JavaFX chỉ hỗ trợ 1 lớp dropshadow trong CSS.
+       Mình lấy lớp bóng xám làm chủ đạo để tạo cảm giác nổi lên */
+    -fx-effect: dropshadow(gaussian, #969696, 50, 0, 13, 13);
 }
 .input-group-addon {
     -fx-background-color: #eeeeee;
@@ -93,6 +99,206 @@
 .input-group .text-field {
     -fx-background-color: transparent;
     -fx-border-width: 0;
+}
+.custom-button {
+    -fx-pref-width: 125px;
+    -fx-pref-height: 60px;
+
+    -fx-border-color: #315cfd;
+    -fx-border-width: 3px;
+
+    -fx-background-radius: 45px;
+    -fx-border-radius: 45px;
+
+    -fx-background-color: white;
+    -fx-cursor: hand;
+
+    -fx-font-size: 1.2em;
+    -fx-font-weight: bold;
+    -fx-text-fill: black;
+}
+
+.custom-button:hover {
+    -fx-background-color: #315cfd;
+    -fx-text-fill: white;
+    -fx-font-size: 1.5em;
+}
+.toggle-left {
+    -fx-background-color: #4da6ff;
+    -fx-background-radius: 15 0 0 15;
+    -fx-border-radius: 15 0 0 15;
+
+    -fx-border-color: transparent white transparent transparent;
+    -fx-border-width: 1px;
+}
+
+.toggle-center {
+    -fx-background-color: #5cb85c;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+
+    -fx-border-color: transparent white transparent transparent;
+    -fx-border-width: 1px;
+}
+
+.toggle-right {
+    -fx-background-color: #0c4b8e;
+    -fx-background-radius: 0 15 15 0;
+    -fx-border-radius: 0 15 15 0;
+
+    -fx-border-color: transparent;
+}
+.combo-box-rounded {
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+}
+.card {
+    /* Kích thước theo thiết kế */
+    -fx-pref-width: 190px;
+    -fx-pref-height: 254px;
+
+    /* Bo góc 50px */
+    -fx-background-radius: 50px;
+
+    /* Màu nền xám nhạt đặc trưng của Neumorphism */
+    -fx-background-color: #e0e0e0;
+
+    /* Đổ bóng trong JavaFX:
+       Cú pháp: dropshadow(loại-bóng, màu-sắc, bán-kính-mờ, độ-lan-tỏa, lệch-X, lệch-Y)
+    */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 60, 0, 20, 20);
+}
+.table-view-card {
+    -fx-pref-width: 190px; /* Theo thiết kế web */
+    -fx-pref-height: 254px; /* Theo thiết kế web */
+    -fx-background-color: rgb(236, 236, 236);
+    -fx-background-radius: 10px;
+
+    /* Đổ bóng JavaFX mô phỏng box-shadow */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 10, 0, 0, 4);
+
+    /* Loại bỏ viền mặc định của TableView */
+    -fx-border-color: transparent;
+    -fx-padding: 5px;
+}
+
+/* Tùy chỉnh phần nền của tiêu đề cột */
+.table-view-card .column-header-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #ccc transparent; /* Đường kẻ dưới tiêu đề */
+}
+
+/* Tùy chỉnh các ô tiêu đề */
+.table-view-card .column-header {
+    -fx-background-color: transparent;
+    -fx-text-fill: #333;
+    -fx-font-weight: bold;
+}
+
+/* Tùy chỉnh các hàng và ô dữ liệu để khớp với màu nền card */
+.table-view-card .table-row-cell {
+    -fx-background-color: transparent;
+}
+
+.table-view-card .table-cell {
+    -fx-border-color: transparent;
+    -fx-text-fill: #555;
+    -fx-alignment: CENTER_LEFT;
+}
+/* Hiệu ứng khi chọn hàng */
+.table-view-card .table-row-cell:selected {
+    -fx-background-color: rgba(0, 0, 0, 0.05);
+}
+/* Áp dụng phong cách card cho toàn bộ ListView */
+.list-view-card {
+    -fx-pref-width: 190px;
+    -fx-pref-height: 254px;
+    -fx-background-color: rgb(236, 236, 236);
+    -fx-background-radius: 10px;
+
+    /* Hiệu ứng đổ bóng mô phỏng nhiều lớp từ web */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 15, 0, 0, 5);
+
+    /* Loại bỏ viền mặc định */
+    -fx-border-color: transparent;
+    -fx-padding: 5px;
+}
+
+/* Tùy chỉnh các ô phần tử bên trong ListView */
+.list-view-card .list-cell {
+    -fx-background-color: transparent; /* Để lộ nền card phía dưới */
+    -fx-text-fill: #333;
+    -fx-padding: 10px;
+    -fx-border-color: transparent transparent #dcdcdc transparent; /* Đường kẻ mờ ngăn cách */
+}
+
+/* Hiệu ứng khi di chuột qua phần tử (Hover) */
+.list-view-card .list-cell:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Hiệu ứng khi chọn phần tử (Selected) */
+.list-view-card .list-cell:selected {
+    -fx-background-color: rgba(0, 0, 0, 0.08);
+    -fx-text-fill: black;
+}
+
+/* Loại bỏ màu nền mặc định của thanh cuộn nếu cần */
+.list-view-card .virtual-flow {
+    -fx-background-color: transparent;
+}
+/* Trạng thái bình thường: Nền xám và bóng đổ chìm (Inset shadow) */
+.input-harmonious {
+    -fx-background-color: #e0e0e0; /* Trùng với màu nền ứng dụng */
+    -fx-background-radius: 15;
+    -fx-control-inner-background: #e0e0e0;
+    -fx-highlight-fill: #315cfd; /* Màu xanh khi bôi đen text giống button của bạn */
+    -fx-padding: 10;
+    -fx-border-width: 0;
+    /* Bóng chìm cực nhẹ */
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.15), 8, 0, 2, 2);
+}
+
+.input-harmonious:focused {
+    -fx-background-color: #e8e8e8;
+    /* Khi focus, giảm độ chìm để tạo cảm giác input đang tương tác */
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 1, 1);
+}
+/* 1. Định dạng tổng thể cho DatePicker */
+.date-picker {
+    -fx-background-color: #cccccc; /* Màu nền trùng với TextArea/TextField của bạn */
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+    -fx-padding: 3px;
+    /* Hiệu ứng bóng chìm tạo chiều sâu giống các input khác */
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 2, 2);
+}
+
+/* 2. Định dạng ô nhập văn bản bên trong */
+.date-picker > .text-field {
+    -fx-background-color: transparent; /* Để lộ nền và bóng của component cha */
+    -fx-background-radius: 15px 0 0 15px; /* Bo tròn góc trái */
+    -fx-padding: 8px 12px;
+    -fx-text-fill: #333;
+}
+
+/* 3. Định dạng nút bấm mở lịch (Arrow Button) */
+.date-picker > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 15px 15px 0; /* Bo tròn góc phải */
+    -fx-cursor: hand;
+}
+
+/* Đổi màu biểu tượng cuốn lịch bên trong nút */
+.date-picker > .arrow-button > .arrow {
+    -fx-background-color: #555; /* Màu xám đậm cho icon */
+    -fx-shape: "M7 11h2v2H7zm0 4h2v2H7zm4-4h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm0 4h2v2h-2zM9 2v2H7V2H5v2H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-1V2h-2v2H9V2z"; /* Icon lịch tối giản */
+}
+
+/* Hiệu ứng khi được chọn (Focus) */
+.date-picker:focused {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
 }
 
 /* Xóa viền của ListView */

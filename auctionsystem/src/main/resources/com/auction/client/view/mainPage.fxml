@@ -18,11 +18,11 @@
             <children>
 
                 <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="txtusename" styleClass="header-link" text="Username" />
+                <Button fx:id="txtusename" styleClass="header-link" text="Username" textFill="WHITE" />
 
-                <Button onAction="#handleHomeAction" styleClass="header-link" text="🏠 Home" />
-                <Button onAction="#handleSellerViewTransfer" layoutX="755.0" layoutY="21.0" styleClass="header-link" text="❒Inventory" />
-                <Button onAction="#handleLogoutAction" styleClass="header-link" text="🔑 Logout" />
+                <Button onAction="#handleHomeAction" styleClass="header-link" text="🏠 Home" textFill="WHITE" />
+                <Button layoutX="755.0" layoutY="21.0" onAction="#handleSellerViewTransfer" styleClass="header-link" text="❒Inventory" textFill="WHITE" />
+                <Button onAction="#handleLogoutAction" styleClass="header-link" text="🔑 Logout" textFill="WHITE" />
             </children>
             <padding>
                 <Insets right="20.0" />
@@ -35,7 +35,7 @@
                     <children>
                         <Label prefHeight="15.0" prefWidth="554.0" text="CREATE NEW AUCTION LOT" textAlignment="CENTER" textFill="#856404" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button onAction="#handleAddItemTransfer" prefHeight="27.0" prefWidth="231.0" styleClass="btn-white-outline" text="+ Create Auction" />
+                        <Button onAction="#handleAddItemTransfer" prefHeight="27.0" prefWidth="231.0" styleClass="custom-button" text="+ NEW" />
                     </children>
                 </HBox>
 
@@ -44,13 +44,13 @@
                         <fx:define>
                             <ToggleGroup fx:id="filterGroup" />
                         </fx:define>
-                        <ToggleButton prefWidth="150.0" selected="true" styleClass="filter-btn, filter-btn-blue" text="All Lots" />
-                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-green" text="Active Lots">
+                        <ToggleButton prefWidth="150.0" selected="true" styleClass="toggle-left" text="All Lots" />
+                        <ToggleButton prefWidth="150.0" styleClass="toggle-center" text="Active Lots">
                      <toggleGroup>
                         <ToggleGroup fx:id="filterGroup" />
                      </toggleGroup></ToggleButton>
-                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-dark" text="Preparing Lots" toggleGroup="$filterGroup" />
-                        <ComboBox prefWidth="150.0" promptText="Categories" styleClass="filter-combo" />
+                        <ToggleButton prefWidth="150.0" styleClass="toggle-right" text="Preparing Lots" textFill="WHITE" toggleGroup="$filterGroup" />
+                        <ComboBox prefHeight="23.0" prefWidth="99.0" promptText="Categories" styleClass="combo-box-rounded" />
                     </children>
                 </HBox>
 

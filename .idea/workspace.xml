@@ -7,8 +7,13 @@
     <list default="true" id="57215f92-0275-486f-add7-863dac722dc0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/addItem.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/addItem.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/itemDetails.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/itemDetails.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/itemView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/itemView.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/login.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/login.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/mainPage.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/mainPage.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/register.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/register.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/sellerView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/auctionsystem/src/main/resources/com/auction/client/view/sellerView.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,8 +23,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="FxmlFile" />
         <option value="Class" />
+        <option value="FxmlFile" />
       </list>
     </option>
   </component>
