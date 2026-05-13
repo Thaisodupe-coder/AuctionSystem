@@ -94,9 +94,9 @@ public class Auction extends Entity {
         if (user == null) {
             throw new IllegalArgumentException("Không tìm thấy người dùng với ID: " + bidderId);
         }
-        if (user.getBalance() < amount) {
-            throw new InvalidBidException("Số dư không đủ! (Yêu cầu: " + amount + ", Hiện có: " + user.getBalance() + ")");
-        }
+        // if (user.getBalance() < amount) {
+        //     throw new InvalidBidException("Số dư không đủ! (Yêu cầu: " + amount + ", Hiện có: " + user.getBalance() + ")");
+        // }
 
         if (amount <= this.highestBid) {
             throw new InvalidBidException("Bid amount (" + amount + ") must be higher than current highest bid (" + this.highestBid + ").");

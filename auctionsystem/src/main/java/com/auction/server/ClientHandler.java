@@ -15,6 +15,7 @@ import com.auction.model.item.Art;
 import com.auction.model.item.Electronics;
 import com.auction.model.item.Vehicle;
 import com.auction.model.auction.Auction;
+import com.auction.model.auction.BidTransaction;
 import com.auction.util.PersistenceService;
 
 import java.io.BufferedReader;
@@ -135,9 +136,15 @@ public class ClientHandler implements Runnable {
                 response.setStatus("SUCCESS");
                 response.setMessage("Đặt giá thành công!");
                 
-                // Tối ưu: Chỉ lưu user đặt giá và auction bị thay đổi
+                // Tối ưu: Lưu ngay lập tức lượt đặt giá mới và cập nhật trạng thái Auction
                 PersistenceService.saveUser(bidder);
-                PersistenceService.saveAuction(auction);
+                PersistenceService.saveAuction(auction); // Cập nhật Metadata (highest_bid, highest_bidder_id)
+                
+                // Lấy lượt bid cuối cùng trong lịch sử để lưu riêng lẻ
+                List<BidTransaction> history = auction.getBidHistory();
+                if (!history.isEmpty()) {
+                    PersistenceService.saveBid(history.get(history.size() - 1));
+                }
             } else if ("CREATE_AUCTION".equals(command)) {
                 String sellerId = (String) request.getPayload().get("sellerId");
                 String name = (String) request.getPayload().get("name");

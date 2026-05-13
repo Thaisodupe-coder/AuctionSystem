@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import com.auction.network.message.Response;
 
 public class AuctionServer {
@@ -21,6 +23,8 @@ public class AuctionServer {
     private static final List<ClientHandler> clients = new CopyOnWriteArrayList<>();
     // ThreadPool để quản lý và tái sử dụng các luồng, tránh quá tải server
     private static final ExecutorService pool = Executors.newFixedThreadPool(10);
+    // Dùng để chạy các tác vụ định kỳ
+    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public static void main(String[] args) {
         // In ra thư mục làm việc để kiểm tra đường dẫn tương đối
@@ -28,6 +32,20 @@ public class AuctionServer {
 
         System.out.println("\n[Server] Khởi động hệ thống lưu trữ PostgreSQL...");
         PersistenceService.loadData();
+
+        // Đăng ký Shutdown Hook: Tự động gọi saveData khi Server bị tắt
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("\n[Server] Đang tắt... Thực hiện lưu toàn bộ dữ liệu lần cuối.");
+            try {
+                PersistenceService.stopService();
+                PersistenceService.saveData();
+            } catch (Exception e) {
+                System.err.println("Lỗi khi lưu dữ liệu lúc shutdown: " + e.getMessage());
+            }
+        }));
+
+        // Khởi động dịch vụ lưu dữ liệu định kỳ (đã được đóng gói trong PersistenceService)
+        PersistenceService.startPeriodicSave(10);
 
         System.out.println("========== KIỂM TRA DỮ LIỆU HỆ THỐNG ==========");
         System.out.println("[USER] Danh sách người dùng:");

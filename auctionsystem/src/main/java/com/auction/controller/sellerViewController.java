@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class sellerViewController {
+public class SellerViewController {
 
     @FXML
     private TableView<Auction> soldItemsTable;

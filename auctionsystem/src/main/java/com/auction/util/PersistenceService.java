@@ -16,11 +16,35 @@ import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class PersistenceService {
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/auctionsystem";
     private static final String DB_USER = "postgres";
     private static final String DB_PASS = "admin"; 
+
+    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+    /**
+     * Khởi động trình lưu dữ liệu định kỳ.
+     */
+    public static void startPeriodicSave(int intervalMinutes) {
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                Logger.info("Hệ thống đang thực hiện lưu dữ liệu định kỳ (" + intervalMinutes + " phút)...");
+                saveData();
+            } catch (Exception e) {
+                Logger.error("Lỗi nghiêm trọng trong quá trình lưu định kỳ: " + e.getMessage());
+            }
+        }, intervalMinutes, intervalMinutes, TimeUnit.MINUTES);
+    }
+
+    public static void stopService() {
+        scheduler.shutdown();
+    }
+
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
     }
@@ -128,44 +152,51 @@ public class PersistenceService {
     }
 
     /**
-     * Lưu hoặc cập nhật thông tin một phiên đấu giá duy nhất và các Bid liên quan.
+     * Lưu hoặc cập nhật thông tin trạng thái của một phiên đấu giá duy nhất.
+     * Phương thức này giờ đây chỉ tập trung vào metadata của Auction để tối ưu hiệu năng.
      */
     public static void saveAuction(Auction a) {
         String auctionUpsert = "INSERT INTO auctions (id, item_name, item_description, item_type, seller_id, highest_bidder_id, highest_bid, start_time, end_time, status) " +
                               "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                               "ON CONFLICT (id) DO UPDATE SET highest_bidder_id = EXCLUDED.highest_bidder_id, highest_bid = EXCLUDED.highest_bid, status = EXCLUDED.status";
         
-        String bidInsert = "INSERT INTO bids (auction_id, bidder_id, amount, bid_time) " +
-                           "SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM bids WHERE auction_id = ? AND bidder_id = ? AND amount = ?)";
-
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(false);
-            try (PreparedStatement pstmt = conn.prepareStatement(auctionUpsert)) {
-                pstmt.setString(1, a.getId());
-                pstmt.setString(2, a.getItem().getName());
-                pstmt.setString(3, a.getItem().getDescription());
-                pstmt.setString(4, a.getItem().getClass().getSimpleName());
-                pstmt.setString(5, a.getSeller().getId());
-                pstmt.setString(6, a.getHighestBidderId());
-                pstmt.setDouble(7, a.getHighestBid());
-                pstmt.setTimestamp(8, a.getStartTime() != null ? Timestamp.valueOf(a.getStartTime()) : null);
-                pstmt.setTimestamp(9, a.getEndTime() != null ? Timestamp.valueOf(a.getEndTime()) : null);
-                pstmt.setString(10, a.getStatus().name());
-                pstmt.executeUpdate();
-            }
-            // Lưu lịch sử giá (chỉ những cái chưa có)
-            try (PreparedStatement pstmt = conn.prepareStatement(bidInsert)) {
-                for (BidTransaction b : a.getBidHistory()) {
-                    pstmt.setString(1, b.getAuctionId()); pstmt.setString(2, b.getBidderId());
-                    pstmt.setDouble(3, b.getAmount()); pstmt.setTimestamp(4, Timestamp.valueOf(b.getTimestamp()));
-                    pstmt.setString(5, b.getAuctionId()); pstmt.setString(6, b.getBidderId()); pstmt.setDouble(7, b.getAmount());
-                    pstmt.addBatch();
-                }
-                pstmt.executeBatch();
-            }
-            conn.commit();
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(auctionUpsert)) {
+            pstmt.setString(1, a.getId());
+            pstmt.setString(2, a.getItem().getName());
+            pstmt.setString(3, a.getItem().getDescription());
+            pstmt.setString(4, a.getItem().getClass().getSimpleName());
+            pstmt.setString(5, a.getSeller().getId());
+            pstmt.setString(6, a.getHighestBidderId());
+            pstmt.setDouble(7, a.getHighestBid());
+            pstmt.setTimestamp(8, a.getStartTime() != null ? Timestamp.valueOf(a.getStartTime()) : null);
+            pstmt.setTimestamp(9, a.getEndTime() != null ? Timestamp.valueOf(a.getEndTime()) : null);
+            pstmt.setString(10, a.getStatus().name());
+            pstmt.executeUpdate();
+            Logger.info("Đã đồng bộ trạng thái Auction [" + a.getId() + "] vào DB.");
         } catch (SQLException e) {
             Logger.error("Lỗi khi lưu Auction đơn lẻ: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Lưu một lượt đặt giá (Bid) duy nhất vào cơ sở dữ liệu.
+     */
+    public static void saveBid(BidTransaction b) {
+        String bidInsert = "INSERT INTO bids (auction_id, bidder_id, amount, bid_time) " +
+                           "SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM bids WHERE auction_id = ? AND bidder_id = ? AND amount = ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(bidInsert)) {
+            pstmt.setString(1, b.getAuctionId());
+            pstmt.setString(2, b.getBidderId());
+            pstmt.setDouble(3, b.getAmount());
+            pstmt.setTimestamp(4, Timestamp.valueOf(b.getTimestamp()));
+            pstmt.setString(5, b.getAuctionId());
+            pstmt.setString(6, b.getBidderId());
+            pstmt.setDouble(7, b.getAmount());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            Logger.error("Lỗi khi lưu Bid đơn lẻ: " + e.getMessage());
         }
     }
 

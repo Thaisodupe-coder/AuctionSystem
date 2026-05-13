@@ -1,5 +1,6 @@
 package com.auction;
 
+import com.auction.service.AuctionManager;
 import com.auction.util.PersistenceService;
 import org.junit.jupiter.api.Test;
 import java.sql.*;
@@ -68,6 +69,7 @@ public class DatabaseInspectorTest {
     
     @Test
     void quickCheckPersistence() {
+        AuctionManager mn= AuctionManager.getINSTANCE();
         // Test nhanh: Lưu dữ liệu hiện tại trong RAM xuống và xem kết quả ngay
         System.out.println("[QuickCheck] Đang lưu dữ liệu từ RAM xuống DB...");
         PersistenceService.saveData();

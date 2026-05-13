@@ -19,7 +19,16 @@ public class AuctionManager {
     private Map<String, Auction> auctions = new ConcurrentHashMap<>(); //lưu trữ các phiên đấu giá
     private AuctionManager() {
         // --- Dữ liệu mồi (Seed data) để test UI ---
-        Seller mockSeller = new Seller(new NormalUser("mockSeller", "123"));
+        NormalUser mockUser;
+        try {
+            // Đăng ký mock user vào UserManager để nó xuất hiện trong map 'users'
+            mockUser = UserManager.getINSTANCE().register("mockSeller", "123");
+        } catch (IllegalArgumentException e) {
+            // Nếu user đã tồn tại (ví dụ khi khởi tạo lại Manager), thực hiện lấy user cũ
+            mockUser = UserManager.getINSTANCE().login("mockSeller", "123");
+        }
+        Seller mockSeller = new Seller(mockUser);
+        
         Item item1 = new Art("Mona Lisa", "Bức tranh nổi tiếng của Leonardo da Vinci");
         Auction auction1 = new Auction(item1, mockSeller, 500000.0, LocalDateTime.now().minusMinutes(30), LocalDateTime.now().plusHours(2));
         
