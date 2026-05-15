@@ -101,12 +101,20 @@ public class Auction extends Entity {
         if (amount <= this.highestBid) {
             throw new InvalidBidException("Bid amount (" + amount + ") must be higher than current highest bid (" + this.highestBid + ").");
         }
+        syncBid(bidderId, amount); // Thông báo cho các observer về thay đổi
+        return true;
+    }
+
+    /**
+     * Đồng bộ dữ liệu giá thầu từ Server về Client (Bỏ qua các bước kiểm tra logic của Server).
+     * Hàm này được dùng khi Client nhận được tín hiệu Broadcast giá mới.
+     */
+    public synchronized void syncBid(String bidderId, double amount) {
         this.highestBid = amount;
         this.highestBidderId = bidderId;
         BidTransaction newBid = new BidTransaction(this.getId(), bidderId, amount, LocalDateTime.now());
         this.addBidToHistory(newBid);
-        notifyObservers(); // Thông báo cho các observer về thay đổi
-        return true;
+        notifyObservers();
     }
 
     public void addBidToHistory(BidTransaction transaction) {

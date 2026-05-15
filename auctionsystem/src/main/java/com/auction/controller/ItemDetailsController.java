@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import java.time.format.DateTimeFormatter;
 import javafx.stage.Stage;
+import java.awt.Toolkit;
 
 public class ItemDetailsController implements AuctionObserver {
     @FXML
@@ -59,14 +60,16 @@ public class ItemDetailsController implements AuctionObserver {
         if (this.auction != null) {
             this.auction.removeObserver(this);
         }
-        
+        //controller sẽ đăng kí theo dõi 1 auction (observer)
         this.auction = auction;
-        this.auction.addObserver(this); // Đăng ký Observer để cập nhật Realtime
+        this.auction.addObserver(this);
         updateUI();
     }
 
     @Override
     public void update(Auction auction) {
+        //sound
+        Toolkit.getDefaultToolkit().beep();;
         // Khi Auction có thay đổi (ví dụ: giá tăng), hàm này sẽ được gọi từ luồng mạng
         Platform.runLater(this::updateUI);
     }
@@ -120,10 +123,10 @@ public class ItemDetailsController implements AuctionObserver {
                 if ("PLACE_BID_RES".equals(response.getCommand())) {
                     Platform.runLater(() -> {
                         if ("SUCCESS".equals(response.getStatus())) {
-                            // Cập nhật dữ liệu vào model cục bộ. 
-                            // Phương thức processBid của Auction sẽ tự gọi notifyObservers() 
+                            // Cập nhật dữ liệu vào local. 
+                            // Phương thức syncBid của Auction sẽ tự gọi notifyObservers() 
                             // giúp trigger phương thức update() và làm mới UI.
-                            auction.processBid(ClientManager.getINSTANCE().getUserId(), amount);
+                            auction.syncBid(ClientManager.getINSTANCE().getUserId(), amount);
                             txtBidInput.clear();
                         } else {
                             showAlert(Alert.AlertType.ERROR, "Đặt giá thất bại", response.getMessage());

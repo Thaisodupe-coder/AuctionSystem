@@ -2,7 +2,7 @@ package com.auction.service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 //quản lý các logic liên quan đến người dùng
-
+import com.auction.util.PersistenceService;
 import com.auction.model.user.*;
 public class UserManager {
     private Map<String,NormalUser> users = new ConcurrentHashMap<>();
@@ -73,6 +73,7 @@ public class UserManager {
         NormalUser user = getUserById(userId);
         if (user != null) {
             user.setBalance(user.getBalance() + amount);
+            PersistenceService.saveUser(user);
         }
     }
 

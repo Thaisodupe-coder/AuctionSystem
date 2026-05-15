@@ -5,6 +5,7 @@ module com.auction {
     requires com.google.gson;
     requires java.sql;
     requires org.postgresql.jdbc;
+    requires java.desktop;
 
     exports com.auction;
     exports com.auction.controller;

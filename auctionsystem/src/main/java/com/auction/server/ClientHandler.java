@@ -145,6 +145,15 @@ public class ClientHandler implements Runnable {
                 if (!history.isEmpty()) {
                     PersistenceService.saveBid(history.get(history.size() - 1));
                 }
+                
+                // Broadcast giá mới cho toàn bộ các Client đang online để update UI Realtime
+                Response broadcastRes = new Response();
+                broadcastRes.setCommand("NEW_BID_BROADCAST");
+                broadcastRes.setStatus("SUCCESS");
+                broadcastRes.addData("auctionId", auctionId);
+                broadcastRes.addData("bidderId", bidderId);
+                broadcastRes.addData("amount", amount);
+                AuctionServer.broadcast(broadcastRes);
             } else if ("CREATE_AUCTION".equals(command)) {
                 String sellerId = (String) request.getPayload().get("sellerId");
                 String name = (String) request.getPayload().get("name");

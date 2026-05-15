@@ -11,7 +11,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
 
-import com.auction.model.user.NormalUser;
 import com.auction.network.ClientManager;
 import com.auction.network.message.Request;
 

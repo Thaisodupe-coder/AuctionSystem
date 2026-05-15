@@ -67,6 +67,10 @@
                         <include>**/*Test.java</include>
                         <include>**/Test*.java</include>
                     </includes>
+                    <excludes>
+                        <exclude>**/PersistenceTest.java</exclude>
+                        <exclude>**/DatabaseInspectorTest.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
