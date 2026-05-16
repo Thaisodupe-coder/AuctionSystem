@@ -38,6 +38,10 @@ public class RegisterController {
                         //Gửi yêu cầu PULL dữ liệu trước khi responseSucces
                         Request pullRequest = new Request("GET_ALL_AUCTIONS");
                         ClientManager.getINSTANCE().sendRequest(pullRequest);
+                        String userId = (String) response.getPayload().get("userId");
+                        String username = (String) response.getPayload().get("username");
+                        ClientManager.getINSTANCE().setUser(userId, username);
+                        responseSuccess();
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Đăng ký thất bại", response.getMessage());
                     }
@@ -52,6 +56,7 @@ public class RegisterController {
             request.addData("username", txtUsername.getText());
             request.addData("password", txtPassword.getText());
             ClientManager.getINSTANCE().sendRequest(request);
+           
         }
     }
     

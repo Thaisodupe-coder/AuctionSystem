@@ -3,6 +3,8 @@ package com.auction.model.auction;
 import com.auction.model.common.Entity;
 import com.auction.model.item.Item;
 import com.auction.model.user.Seller;
+import com.auction.model.user.NormalUser;
+import com.auction.service.UserManager;
 import java.time.LocalDateTime;
 import com.auction.exception.AuctionClosedException;
 import com.auction.exception.InvalidBidException;
@@ -24,7 +26,6 @@ public class Auction extends Entity {
     private AuctionStatus status;
     
     public Auction(Item item, Seller seller, double startBid, LocalDateTime startTime, LocalDateTime endTime) {
-        //super();  bỏ super
         this.item = item;
         this.seller = seller;
         this.highestBidderId = null;
@@ -84,19 +85,36 @@ public class Auction extends Entity {
  */
     public synchronized boolean processBid(String bidderId, double amount) {
         updateAuctionStatus(); // Đảm bảo trạng thái hiện tại trước khi xử lý bid
-
+    
         if (this.status != AuctionStatus.RUNNING) {
             throw new AuctionClosedException("Chỉ có thể đặt giá khi phiên đấu giá đang RUNNING | Current status: " + this.status);
         }
+        // Kiểm tra số dư người dùng trước khi chấp nhận giá thầu
+        NormalUser user = UserManager.getINSTANCE().getUserById(bidderId);
+        if (user == null) {
+            throw new IllegalArgumentException("Không tìm thấy người dùng với ID: " + bidderId);
+        }
+        // if (user.getBalance() < amount) {
+        //     throw new InvalidBidException("Số dư không đủ! (Yêu cầu: " + amount + ", Hiện có: " + user.getBalance() + ")");
+        // }
+
         if (amount <= this.highestBid) {
             throw new InvalidBidException("Bid amount (" + amount + ") must be higher than current highest bid (" + this.highestBid + ").");
         }
+        syncBid(bidderId, amount); // Thông báo cho các observer về thay đổi
+        return true;
+    }
+
+    /**
+     * Đồng bộ dữ liệu giá thầu từ Server về Client (Bỏ qua các bước kiểm tra logic của Server).
+     * Hàm này được dùng khi Client nhận được tín hiệu Broadcast giá mới.
+     */
+    public synchronized void syncBid(String bidderId, double amount) {
         this.highestBid = amount;
         this.highestBidderId = bidderId;
         BidTransaction newBid = new BidTransaction(this.getId(), bidderId, amount, LocalDateTime.now());
         this.addBidToHistory(newBid);
-        notifyObservers(); // Thông báo cho các observer về thay đổi
-        return true;
+        notifyObservers();
     }
 
     public void addBidToHistory(BidTransaction transaction) {

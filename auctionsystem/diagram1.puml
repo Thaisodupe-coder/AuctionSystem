@@ -1,0 +1,149 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam nodesep 100
+skinparam ranksep 100
+
+package "com.auction.model.common" {
+    abstract class Entity {
+        - String id
+        + String getId()
+    }
+}
+
+package "com.auction.model.auction" {
+    class Auction {
+        - Item item
+        - Seller seller
+        - String highestBidderId
+        - double highestBid
+        - LocalDateTime startTime
+        - LocalDateTime endTime
+        - List<BidTransaction> bidHistory
+        - List<AuctionObserver> observers
+        - AuctionStatus status
+        + processBid(bidderId: String, amount: double): boolean
+        + cancelAuction(sellerId: String): boolean
+        - updateAuctionStatus()
+        + addObserver(observer: AuctionObserver)
+        + notifyObservers()
+    }
+
+    class BidTransaction {
+        - String auctionId
+        - String bidderId
+        - double amount
+        - LocalDateTime timestamp
+    }
+
+    interface AuctionObserver {
+        + update(auction: Auction)
+    }
+
+    enum AuctionStatus {
+        OPEN
+        RUNNING
+        FINISHED
+        PAID
+        CANCELED
+    }
+}
+
+package "com.auction.model.user" {
+    abstract class User {
+        - String name
+        - String password
+        - UserRole role
+    }
+
+    class NormalUser {
+    }
+
+    abstract class UserDecorator {
+        # User user
+        + getUser(): User
+    }
+
+    class Bidder {
+        + placeBid(auctionId: String, amount: double): boolean
+        + update(auction: Auction)
+    }
+
+    class Seller {
+        + postItem(item: Item, ...): Auction
+        + cancelAuction(auctionId: String): boolean
+    }
+
+    class Admin {
+    }
+
+    enum UserRole {
+        SELLER
+        BIDDER
+        ADMIN
+    }
+
+    interface IBidder {
+        + placeBid(auctionId: String, amount: double): boolean
+    }
+
+    interface ISeller {
+        + postItem(item: Item, ...): Auction
+        + cancelAuction(auctionId: String): boolean
+    }
+}
+
+package "com.auction.service" {
+    class AuctionManager <<Singleton>> {
+        - {static} AuctionManager INSTANCE
+        - Map<String, Auction> auctions
+        + createAuction(...): Auction
+        + placeBid(...): boolean
+    }
+
+    class UserManager <<Singleton>> {
+        - {static} UserManager INSTANCE
+        - Map<String, NormalUser> users
+        + register(...): NormalUser
+        + login(...): NormalUser
+    }
+}
+
+package "com.auction.model.item" {
+    abstract class Item {
+        - String name
+    }
+    class Art extends Item
+    class Electronics extends Item
+    class Vehicle extends Item
+}
+
+' Relationships
+Entity <|-- Auction
+Entity <|-- User
+Entity <|-- BidTransaction
+
+User <|-- NormalUser
+User <|-- UserDecorator
+UserDecorator <|-- Bidder
+UserDecorator <|-- Seller
+UserDecorator <|-- Admin
+
+UserDecorator o-- User : decorates
+
+IBidder <|.. Bidder
+ISeller <|.. Seller
+AuctionObserver <|.. Bidder
+
+Auction o-- Item
+Auction o-- Seller
+Auction *-- BidTransaction : contains
+Auction o-- AuctionObserver : notifies
+Auction ..> AuctionStatus : uses
+
+AuctionManager --> Auction : manages
+UserManager --> NormalUser : manages
+
+Bidder ..> AuctionManager : uses
+Seller ..> AuctionManager : uses
+
+@enduml

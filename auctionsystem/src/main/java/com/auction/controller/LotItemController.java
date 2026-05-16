@@ -30,14 +30,19 @@ public class LotItemController implements AuctionObserver {
     private Auction auction;
     public void setData(Auction auction) {
         // Nếu controller này đang theo dõi một auction khác, hãy hủy đăng ký trước
-        if (this.auction != null) {
-            this.auction.removeObserver(this);
-        }
+        cleanup();
         
         this.auction = auction;
         this.auction.addObserver(this); // Đăng ký để nhận thông báo khi auction thay đổi
         
         updateUI();
+    }
+
+    // Hàm dọn dẹp Observer để tránh rò rỉ bộ nhớ
+    public void cleanup() {
+        if (this.auction != null) {
+            this.auction.removeObserver(this);
+        }
     }
 
     @Override
@@ -72,6 +77,10 @@ public class LotItemController implements AuctionObserver {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle(auction.getItem().getName());
             stage.setScene(new Scene(detailsView));
+            
+            // Bắt sự kiện khi người dùng bấm nút "X" tắt cửa sổ để dọn dẹp
+            stage.setOnHidden(e -> detailsController.cleanup());
+            
             stage.show();
         } catch (Exception e) {
             // In toàn bộ lỗi ra để biết chính xác lỗi ở dòng nào, file nào
