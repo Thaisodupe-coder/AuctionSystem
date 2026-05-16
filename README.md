@@ -1,63 +1,57 @@
-# Hướng Dẫn Tải và Cài Đặt Docker Desktop
+# 🚀 Hướng Dẫn Khởi Chạy Dự Án AuctionSystem
 
-Tài liệu này hướng dẫn nhanh cách tải và cài đặt Docker Desktop trên các hệ điều hành Windows, Mac và Linux.
-
----
-
-## 🚀 Bước 1: Tải bộ cài đặt
-
-Bạn luôn luôn nên tải Docker Desktop từ trang chủ để có phiên bản mới nhất và an toàn nhất:
-
-👉 **[Tải Docker Desktop tại đây](https://docker.com)**
-
-*Chọn phiên bản phù hợp với hệ điều hành của bạn (Windows, Mac chip Intel/Apple Silicon, hoặc Linux).*
+Tài liệu này hướng dẫn chi tiết từ bước chuẩn bị Docker cho đến khi khởi chạy thành công ứng dụng Java kết nối cơ sở dữ liệu PostgreSQL.
 
 ---
 
-## 🛠️ Bước 2: Cài đặt theo hệ điều hành
+## 🛠️ Bước 1: Tải và Khởi Động Docker
 
-### 1. Microsoft Windows
-> **Yêu cầu bắt buộc**: Đảm bảo máy tính đã bật tính năng **Hyper-V** hoặc **WSL 2** (khuyến khích dùng WSL 2).
+Ứng dụng sử dụng PostgreSQL chạy trên môi trường ảo hóa, do đó bạn cần chuẩn bị Docker trước.
 
-1. Nhấp đúp vào tệp `Docker Desktop Installer.exe` vừa tải về.
-2. Tích chọn **"Use WSL 2 instead of Hyper-V"** (nếu có hệ thống hỗ trợ).
-3. Bấm **OK** và chờ quá trình giải nén hoàn tất.
-4. Bấm **Close and restart** để khởi động lại máy tính.
+### 1. Tải xuống Docker Desktop
+* Truy cập trang chủ [Docker Desktop](https://docker.com).
+* Chọn phiên bản phù hợp với hệ điều hành của bạn (**Windows**, **Mac**, hoặc **Linux**).
+* Tải về và tiến hành cài đặt theo hướng dẫn.
 
-### 2. Apple macOS
-1. Nhấp đúp vào tệp `.dmg` đã tải về để mở.
-2. Kéo và thả biểu tượng **Docker** vào thư mục **Applications**.
-3. Mở **Applications** và nhấp đúp vào **Docker** để chạy lần đầu tiên.
-4. Xác nhận quyền bảo mật của macOS nếu được hệ thống hỏi.
-
-### 3. Linux (Ubuntu / Debian)
-1. Cập nhật kho ứng dụng:
-   ```bash
-   sudo apt-get update
-   ```
-2. Cài đặt gói tệp `.deb` vừa tải về:
-   ```bash
-   sudo apt-get install ./docker-desktop-<phiên_bản>-amd64.deb
-   ```
-3. Khởi động dịch vụ:
-   ```bash
-   systemctl --user start docker-desktop
-   ```
+### 2. Mở ứng dụng Docker
+* Tìm kiếm và mở ứng dụng **Docker Desktop** trên máy tính.
+* Chờ cho trạng thái ứng dụng báo **Engine running** (màu xanh lá cây).
+* *Lưu ý: Giữ Docker Desktop chạy trong suốt quá trình chạy dự án.*
 
 ---
 
-## ✅ Bước 3: Kiểm tra cài đặt
+## 📋 Bước 2: Di Chuyển Thư Mục và Chạy Lệnh
 
-Sau khi cài đặt xong, hãy mở công cụ dòng lệnh (Terminal, Command Prompt hoặc PowerShell) và chạy lệnh sau để kiểm tra:
+Hãy mở **Terminal / Command Prompt** trên máy tính của bạn và thực hiện theo đúng thứ tự sau:
 
+### 1. Di chuyển vào thư mục chứa mã nguồn dự án
+Bạn bắt buộc phải đứng tại thư mục `AuctionSystem/auctionsystem` (nơi chứa file `pom.xml` và `docker-compose.yml`) thì các lệnh Maven mới hoạt động:
 ```bash
-docker --version
+cd AuctionSystem/auctionsystem
 ```
 
-Nếu màn hình hiển thị thông tin phiên bản (Ví dụ: `Docker version 27.x.x`), bạn đã cài đặt thành công!
+### 2. Khởi động cơ sở dữ liệu PostgreSQL
+Lệnh này tự động kích hoạt container chứa database PostgreSQL ngầm định:
+```bash
+mvn docker-compose:up
+```
+
+### 3. Biên dịch mã nguồn Java
+Lệnh này thực hiện kiểm tra và biên dịch toàn bộ code Java của hệ thống đấu giá:
+```bash
+mvn compile
+```
+
+### 4. Chạy ứng dụng
+Lệnh này khởi chạy ứng dụng Java AuctionSystem để kết nối trực tiếp vào database PostgreSQL:
+```bash
+mvn exec:java
+```
 
 ---
 
-## 📝 Tài liệu tham khảo thêm
-* [Tài liệu hướng dẫn chính thức của Docker](https://docker.com)
-* [Khắc phục lỗi cài đặt Docker Desktop](https://docker.comdesktop/troubleshoot/overview/)
+## 🛑 Cách Dừng Dự Án
+Khi muốn tắt ứng dụng và giải phóng tài nguyên, hãy chạy lệnh sau tại thư mục dự án:
+```bash
+mvn docker-compose:down
+```
