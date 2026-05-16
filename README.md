@@ -1,56 +1,83 @@
-# 🚀 Hướng Dẫn Khởi Chạy Dự Án AuctionSystem
+# 🔨 Auction System (Hệ Thống Đấu Giá Trực Tuyến)
 
-Tài liệu này hướng dẫn chi tiết từ bước chuẩn bị Docker cho đến khi khởi chạy thành công ứng dụng Java kết nối cơ sở dữ liệu PostgreSQL.
-
----
-
-## 🛠️ Bước 1: Tải và Khởi Động Docker (BẮT BUỘC)
-
-Ứng dụng sử dụng PostgreSQL chạy trên Docker. **Bạn phải bật Docker trước khi chạy các lệnh Maven ở Bước 2**, nếu không lệnh sẽ bị lỗi.
-
-### 1. Tải xuống Docker Desktop (Nếu chưa có)
-* Truy cập trang chủ [Docker Desktop](https://docker.com).
-* Tải về và cài đặt phiên bản phù hợp với hệ điều hành của bạn.
-
-### 2. Mở ứng dụng Docker
-* Tìm kiếm và mở ứng dụng **Docker Desktop** trên máy tính của bạn.
-* Chờ cho ứng dụng khởi động xong và báo trạng thái **Engine running** (màu xanh lá cây).
-* *Lưu ý: Luôn giữ Docker Desktop chạy trong suốt quá trình chạy dự án.*
+Hệ thống đấu giá trực tuyến xây dựng bằng **Java Core (Socket)**, giao diện **JavaFX** và cơ sở dữ liệu **PostgreSQL** (chạy qua Docker Maven Plugin).
 
 ---
 
-## 📋 Bước 2: Di Chuyển Thư Mục và Chạy Lệnh
+## 🚀 Hướng Dẫn Khởi Chạy (How to run)
 
-Mở **Terminal / Command Prompt**, di chuyển vào đúng thư mục dự án và chạy các lệnh theo thứ tự sau:
+Hệ thống áp dụng kiến trúc Database-First và Client-Server, vui lòng khởi động theo đúng trình tự **Từ dưới lên (Database -> Biên dịch -> Server -> Client)**.
 
-### 1. Di chuyển vào thư mục chứa dự án
-Bạn bắt buộc phải đứng tại thư mục này (nơi chứa file `pom.xml`) thì lệnh Maven mới hoạt động:
+### 🚨 Lưu ý quan trọng trước khi chạy:
+Bạn **phải mở ứng dụng Docker Desktop** trên máy tính trước. Chờ cho biểu tượng cá voi chuyển sang **màu xanh lá cây** (Engine running) rồi mới tiến hành chạy các lệnh bên dưới.
+
+### Bước 1: Khởi động Database (PostgreSQL)
+Mở Terminal, di chuyển vào đúng thư mục `auctionsystem` (nơi chứa file `pom.xml`) và kích hoạt database thông qua Maven:
 ```bash
 cd AuctionSystem/auctionsystem
-```
-
-### 2. Khởi động cơ sở dữ liệu PostgreSQL
-*(Yêu cầu Docker Desktop đã được mở ở Bước 1)*. Lệnh này sẽ tự động kích hoạt database:
-```bash
 mvn docker-compose:up
 ```
+*Lưu ý: Lệnh này sẽ tự động kích hoạt container PostgreSQL ngầm định theo cấu hình hệ thống.*
 
-### 3. Biên dịch mã nguồn Java
-Lệnh này thực hiện kiểm tra và biên dịch toàn bộ code Java của hệ thống:
+### Bước 2: Biên dịch mã nguồn Java
+Mở một Terminal mới (hoặc dùng tiếp terminal trên nếu lệnh trước chạy ngầm), đảm bảo đang đứng tại thư mục `auctionsystem` và chạy lệnh biên dịch:
 ```bash
+cd AuctionSystem/auctionsystem
 mvn compile
 ```
 
-### 4. Chạy ứng dụng
-Lệnh này khởi chạy ứng dụng Java AuctionSystem và kết nối vào database PostgreSQL:
+### Bước 3: Khởi động Server
+Tại thư mục `auctionsystem`, chạy lệnh sau để khởi chạy server:
 ```bash
 mvn exec:java
 ```
+*💡 **Dấu hiệu thành công:** Khi terminal hiển thị thông báo khởi tạo server thành công (hoặc đứng im giữ luồng chạy ổn định). Server sẽ kết nối với Database và mở cổng kết nối để chờ Client.*
+
+### Bước 4: Khởi động Client (Giao diện người dùng)
+Mở thêm một Terminal mới, di chuyển vào thư mục `auctionsystem` và chạy lệnh:
+```bash
+cd AuctionSystem/auctionsystem
+mvn javafx:run
+```
+*Bạn có thể mở nhiều Terminal và chạy lệnh này nhiều lần để giả lập nhiều người dùng cùng tham gia đấu giá.*
 
 ---
 
-## 🛑 Cách Dừng Dự Án
-Khi muốn tắt ứng dụng và giải phóng tài nguyên, hãy chạy lệnh sau tại thư mục dự án:
+## 🛠️ Hướng Dẫn Tải & Cấu Hình Môi Trường (Setup Prerequisites)
+
+Nếu máy tính của bạn chưa cài đặt các công cụ cần thiết, hãy thực hiện nhanh theo hướng dẫn sau:
+
+### 1. Cài đặt Java JDK 11 (hoặc mới hơn)
+* **Tải xuống**: Truy cập trang chủ [Oracle JDK 11](https://oracle.com) hoặc [Amazon Corretto 11](https://amazon.com) để tải bản cài đặt phù hợp (.exe cho Windows, .pkg cho Mac).
+* **Thiết lập**: Chạy file vừa tải để cài đặt. Đảm bảo bạn đã thêm đường dẫn JDK vào biến môi trường `JAVA_HOME`.
+* **Kiểm tra**: Mở Terminal gõ `java -version` nếu hiển thị đúng phiên bản là thành công.
+
+### 2. Cài đặt Apache Maven
+* **Tải xuống**: Truy cập [Maven Download](https://apache.org), tải file Zip (Binary zip archive).
+* **Thiết lập**: Giải nén vào một thư mục cố định (ví dụ: `C:\maven`). Thêm đường dẫn thư mục `bin` vào biến môi trường `PATH` của hệ thống.
+* **Kiểm tra**: Mở Terminal gõ `mvn -v` để xác nhận hệ thống đã nhận diện được lệnh Maven.
+
+### 3. Cài đặt & Khởi động Docker Desktop
+* **Tải xuống**: Truy cập trang chủ [Docker Desktop](https://docker.com) để tải bộ cài đặt phù hợp với hệ điều hành.
+* **Cài đặt**: Tiến hành nhấn Next theo trình duyệt cài đặt mặc định (đối với Windows nên tích chọn cài đặt WSL 2 nếu hệ thống yêu cầu).
+* **Mở Docker**: Sau khi cài xong, tìm và khởi chạy phần mềm **Docker Desktop**. Chờ vài phút cho đến khi biểu tượng cá voi ở góc dưới màn hình sáng xanh (Engine running). Luôn giữ Docker chạy ngầm khi chạy dự án này.
+
+---
+
+## 🛑 Hướng Dẫn Tắt Hệ Thống An Toàn (Graceful Shutdown)
+
+Để tránh mất mát dữ liệu và lỗi treo hệ thống, vui lòng tắt theo trình tự **Từ trên xuống**:
+
+1. **Tắt Client:** Đóng tất cả các cửa sổ ứng dụng JavaFX (Nhấn nút X trên giao diện).
+2. **Tắt Server:** Trở lại Terminal đang chạy Server, nhấn tổ hợp phím `Ctrl + C` để đóng server.
+3. **Tắt Database:** Tại terminal đang đứng ở thư mục `auctionsystem`, chạy lệnh sau để dọn dẹp và dừng Container PostgreSQL:
 ```bash
 mvn docker-compose:down
 ```
+
+---
+## 💻 Công nghệ sử dụng
+- Backend: Java 11, Socket, Đa luồng (Thread Pool, Concurrency).
+- Frontend: JavaFX.
+- Database: PostgreSQL, JDBC.
+- DevOps: Docker, Docker Compose Maven Plugin, Maven.
