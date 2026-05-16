@@ -79,13 +79,10 @@ public class ClientManager {
                             String bidderId = String.valueOf(response.getPayload().get("bidderId"));
                             double amount = Double.parseDouble(String.valueOf(response.getPayload().get("amount")));
                             
-                            // Bỏ qua người đặt giá (vì Controller đã tự cập nhật UI lúc nhận PLACE_BID_RES rồi)
-                            if (userId == null || !userId.equals(bidderId)) {
-                                Auction localAuction = AuctionManager.getINSTANCE().getAuction(auctionId);
-                                if (localAuction != null) {
-                                    
-                                    localAuction.syncBid(bidderId, amount);
-                                }
+                            Auction localAuction = AuctionManager.getINSTANCE().getAuction(auctionId);
+                            // Cập nhật từ Broadcast cho tất cả các Client (kể cả client vừa gửi)
+                            if (localAuction != null) {
+                                localAuction.syncBid(bidderId, amount);
                             }
                         } else if ("GET_ALL_AUCTIONS_RES".equals(response.getCommand())) { // PULL
                             // Xóa dữ liệu cũ trước khi nạp dữ liệu thật

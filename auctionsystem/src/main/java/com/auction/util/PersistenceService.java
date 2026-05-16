@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +27,15 @@ public class PersistenceService {
     private static final String DB_PASS = getEnvOrDefault("DB_PASSWORD", "admin");
 
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+    public static volatile boolean isShuttingDown = false;
+
+    // Cấu hình TimeZone chuẩn trước khi kết nối Database
+    static {
+        if ("Asia/Saigon".equals(TimeZone.getDefault().getID())) {
+            TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        }
+    }
 
     /**
      * Khởi động trình lưu dữ liệu định kỳ.
@@ -51,7 +61,8 @@ public class PersistenceService {
     }
 
     public static Connection getConnection() throws SQLException {
-        int maxRetries = 10;
+        // Nếu đang trong quá trình tắt máy, chỉ thử lại 1 lần để tránh treo hệ thống
+        int maxRetries = isShuttingDown ? 1 : 10;
         for (int i = 0; i < maxRetries; i++) {
             try {
                 return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);

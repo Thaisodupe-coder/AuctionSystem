@@ -57,13 +57,19 @@ public class ItemDetailsController implements AuctionObserver {
 
     public void setData(Auction auction) {
         // Nếu đang theo dõi auction cũ, hủy đăng ký trước khi nhận auction mới
-        if (this.auction != null) {
-            this.auction.removeObserver(this);
-        }
+        cleanup();
+        
         //controller sẽ đăng kí theo dõi 1 auction (observer)
         this.auction = auction;
         this.auction.addObserver(this);
         updateUI();
+    }
+
+    // Hàm dọn dẹp Observer để tránh rò rỉ bộ nhớ
+    public void cleanup() {
+        if (this.auction != null) {
+            this.auction.removeObserver(this);
+        }
     }
 
     @Override
@@ -92,6 +98,7 @@ public class ItemDetailsController implements AuctionObserver {
 
     @FXML
     public void handleBackToMain(ActionEvent event) {
+        cleanup(); // Dọn dẹp trước khi đóng bằng nút Back
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.close();
     }
@@ -123,10 +130,8 @@ public class ItemDetailsController implements AuctionObserver {
                 if ("PLACE_BID_RES".equals(response.getCommand())) {
                     Platform.runLater(() -> {
                         if ("SUCCESS".equals(response.getStatus())) {
-                            // Cập nhật dữ liệu vào local. 
-                            // Phương thức syncBid của Auction sẽ tự gọi notifyObservers() 
-                            // giúp trigger phương thức update() và làm mới UI.
-                            auction.syncBid(ClientManager.getINSTANCE().getUserId(), amount);
+                            // Chỉ cần xóa ô nhập khi có phản hồi SUCCESS.
+                            // Việc cập nhật giá và UI sẽ được lắng nghe thông qua NEW_BID_BROADCAST trong ClientManager.
                             txtBidInput.clear();
                         } else {
                             showAlert(Alert.AlertType.ERROR, "Đặt giá thất bại", response.getMessage());

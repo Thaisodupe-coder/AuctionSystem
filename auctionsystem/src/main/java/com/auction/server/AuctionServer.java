@@ -37,6 +37,7 @@ public class AuctionServer {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("\n[Server] Đang tắt... Thực hiện lưu toàn bộ dữ liệu lần cuối.");
             try {
+                PersistenceService.isShuttingDown = true; // Bật cờ báo hiệu đang tắt máy
                 PersistenceService.stopService();
                 PersistenceService.saveData();
             } catch (Exception e) {

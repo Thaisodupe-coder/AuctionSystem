@@ -45,6 +45,11 @@ public class MainPageController {
     }
     //load các itemView vào trong mainpage
     private void renderAuctions(List<Auction> auctions) {
+        // 1. Dọn dẹp các Observer cũ trước khi xóa các Node để giải phóng RAM
+        for (Node node : gridPaneAuctions.getChildren()) {
+            LotItemController controller = (LotItemController) node.getUserData();
+            if (controller != null) controller.cleanup();
+        }
         gridPaneAuctions.getChildren().clear();
 
         try {
@@ -56,6 +61,9 @@ public class MainPageController {
 
                 LotItemController controller = loader.getController();
                 controller.setData(auction);
+
+                // Lưu tham chiếu controller vào Node để sau này có thể gọi hàm cleanup()
+                itemNode.setUserData(controller);
 
                 gridPaneAuctions.getChildren().add(itemNode);
             }
@@ -106,6 +114,12 @@ public class MainPageController {
 
     public void handleLogoutAction(ActionEvent actionEvent) {
         try {
+            // Dọn dẹp Observer cho tất cả các LotItemController khi đăng xuất
+            for (Node node : gridPaneAuctions.getChildren()) {
+                LotItemController controller = (LotItemController) node.getUserData();
+                if (controller != null) controller.cleanup();
+            }
+
             // Xóa thông tin đăng nhập khi người dùng nhấn Logout
             ClientManager.getINSTANCE().clearUser();
 
