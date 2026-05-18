@@ -3,17 +3,24 @@ package com.auction.controller;
 import com.auction.model.auction.Auction;
 import com.auction.model.auction.AuctionObserver;
 import com.auction.model.auction.AuctionStatus;
+import com.auction.model.user.NormalUser;
+import com.auction.service.UserManager;
 import com.auction.network.ClientManager;
 import com.auction.network.message.Request;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import javafx.stage.Stage;
 import java.awt.Toolkit;
 
@@ -49,10 +56,21 @@ public class ItemDetailsController implements AuctionObserver {
     @FXML
     private Label lblWinner; // Tạo 1 Label mới trong SceneBuilder và gắn fx:id="lblWinner" để hiện tên người thắng
 
+    @FXML
+    private ListView<String> lvBidHistory;
+
+    // Khai báo danh sách để lưu trữ các dòng log đấu giá
+    private final ObservableList<String> bidLogItems = FXCollections.observableArrayList();
+
     private Auction auction;
 
     @FXML
     public void initialize() {
+        // Kết nối danh sách dữ liệu với giao diện ListView
+        if (lvBidHistory != null) {
+            lvBidHistory.setItems(bidLogItems);
+        }
+
         // Chỉ cho phép nhập số nguyên (chỉ chấp nhận các ký tự từ 0-9)
         txtBidInput.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
@@ -65,6 +83,9 @@ public class ItemDetailsController implements AuctionObserver {
         // Nếu đang theo dõi auction cũ, hủy đăng ký trước khi nhận auction mới
         cleanup();
         
+        // Xóa lịch sử cũ của sản phẩm trước đó để không bị lẫn dữ liệu
+        bidLogItems.clear();
+
         //controller sẽ đăng kí theo dõi 1 auction (observer)
         this.auction = auction;
         this.auction.addObserver(this);
@@ -100,6 +121,29 @@ public class ItemDetailsController implements AuctionObserver {
         //Cập nhật giá dựa theo giá bid lớn nhất hiện tại
         lblDetailPrice.setText(String.format("%.2f VND", auction.getHighestBid()));
 
+        // Cập nhật lịch sử đặt giá vào ListView
+        List<com.auction.model.auction.BidTransaction> history = auction.getBidHistory();
+        
+        // Chỉ thêm những bid mới mà UI chưa có
+        if (history.size() > bidLogItems.size()) { //Kiểm tra nếu tổng bid từ sv lớn hơn bid hiện có trên màn hình
+            // Duyệt từ vị trí hiện tại của UI đến hết lịch sử mới
+            for (int i = bidLogItems.size(); i < history.size(); i++) {
+                com.auction.model.auction.BidTransaction bid = history.get(i);
+                
+                // Tìm thông tin người dùng từ UserManager để lấy tên
+                NormalUser bidder = UserManager.getINSTANCE().getUserById(bid.getBidderId());
+                String bidderName = (bidder != null) ? bidder.getName() : "Người dùng " + bid.getBidderId();
+
+                String log = String.format("[%s] %s: %.2f VND",
+                        bid.getTimestamp().format(timeFormatter),
+                        bidderName,
+                        bid.getAmount());
+                
+                // Thêm vào vị trí 0 (đầu danh sách) để bid mới nhất luôn ở trên cùng
+                bidLogItems.add(0, log);
+            }
+        }
+
         // Thay đổi giao diện tùy thuộc vào trạng thái phiên đấu giá
         if (auction.getStatus() == AuctionStatus.FINISHED) {
             lblDetailCondition.setText("ĐÃ KẾT THÚC");
@@ -109,16 +153,23 @@ public class ItemDetailsController implements AuctionObserver {
             if (btnPlaceBid != null) btnPlaceBid.setDisable(true);
             
             if (auction.getHighestBidderId() != null && !auction.getHighestBidderId().isEmpty()) {
+                // Lấy tên người thắng thay vì ID
+                NormalUser winner = UserManager.getINSTANCE().getUserById(auction.getHighestBidderId());
+                String winnerName = (winner != null) ? winner.getName() : auction.getHighestBidderId();
+
                 lblDetailPrice.setStyle("-fx-background-color: #d4edda; -fx-text-fill: #155724; -fx-padding: 3px 8px;"); // Nền xanh lá nhạt
                 if (lblWinner != null) {
-                    lblWinner.setText("Winner: " + auction.getHighestBidderId());
+                    lblWinner.setText("🏆 WINNER: " + winnerName);
+                    lblWinner.setStyle("-fx-text-fill: #155724; -fx-font-weight: bold;");
                     lblWinner.setVisible(true);
                 } else {
-                    lblDetailTitle.setText(auction.getItem().getName() + " - Winner: " + auction.getHighestBidderId());
+                    lblDetailTitle.setText(auction.getItem().getName() + " - Winner: " + winnerName);
                 }
+                lblDetailPrice.setStyle("-fx-background-color: #d4edda; -fx-text-fill: #155724; -fx-padding: 5px; -fx-background-radius: 5px;");
             } else {
                 if (lblWinner != null) {
-                    lblWinner.setText("Phiên đấu giá thất bại (Không có người mua)");
+                    lblWinner.setText("❌ Phiên đấu giá kết thúc (Không có người mua)");
+                    lblWinner.setStyle("-fx-text-fill: #721c24;");
                     lblWinner.setVisible(true);
                 } else {
                     lblDetailTitle.setText(auction.getItem().getName() + " - Thất bại");
