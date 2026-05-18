@@ -9,13 +9,17 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="360.0" prefWidth="260.0" spacing="10.0" styleClass="item-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.LotItemController">
+<VBox fx:id="lotCard" prefHeight="360.0" prefWidth="260.0" spacing="10.0" styleClass="item-card" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.LotItemController">
     <children>
         <ImageView fx:id="imgProduct" fitHeight="150.0" fitWidth="230.0" pickOnBounds="true" preserveRatio="true" style="-fx-border-color: #ddd;" />
 
-        <HBox alignment="CENTER_LEFT">
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
             <children>
                 <Label fx:id="lblStatus" styleClass="badge-danger" text="STATUS">
+                    <font><Font name="System Bold" size="10.0" /></font>
+                    <padding><Insets bottom="3.0" left="6.0" right="6.0" top="3.0" /></padding>
+                </Label>
+                <Label fx:id="lblMyLot" managed="false" style="-fx-background-color: #DAA520; -fx-background-radius: 3px;" text="MY LOT" textFill="WHITE" visible="false">
                     <font><Font name="System Bold" size="10.0" /></font>
                     <padding><Insets bottom="3.0" left="6.0" right="6.0" top="3.0" /></padding>
                 </Label>

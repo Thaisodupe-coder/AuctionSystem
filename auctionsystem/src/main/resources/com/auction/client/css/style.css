@@ -130,3 +130,18 @@
  .btn-secondary:hover {
      -fx-background-color: #5a6268;
  }
+
+/* Thẻ item của chính user tạo */
+.my-auction-card {
+    -fx-border-color: #DAA520; /* Vàng gold */
+    -fx-border-width: 2px;
+    -fx-border-style: dashed;
+}
+
+/* Giá tiền của thẻ item user đang bid */
+.my-bid-price {
+    -fx-text-fill: #0c4b8e; /* Chữ màu xanh đậm hơn một chút */
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 2px 5px;
+}

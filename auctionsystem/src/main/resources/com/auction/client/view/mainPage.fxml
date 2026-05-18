@@ -44,13 +44,11 @@
                         <fx:define>
                             <ToggleGroup fx:id="filterGroup" />
                         </fx:define>
-                        <ToggleButton prefWidth="150.0" selected="true" styleClass="filter-btn, filter-btn-blue" text="All Lots" />
-                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-green" text="Active Lots">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="filterGroup" />
-                     </toggleGroup></ToggleButton>
-                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-dark" text="Preparing Lots" toggleGroup="$filterGroup" />
-                        <ComboBox prefWidth="150.0" promptText="Categories" styleClass="filter-combo" />
+                        <ToggleButton prefWidth="150.0" selected="true" styleClass="filter-btn, filter-btn-blue" text="All Lots" toggleGroup="$filterGroup" />
+                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-green" text="Active Lots" toggleGroup="$filterGroup" />
+                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-dark" text="My Lots" toggleGroup="$filterGroup" />
+                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-blue" text="My Bids" toggleGroup="$filterGroup" />
+                        <ComboBox fx:id="cbCategory" prefWidth="150.0" promptText="Categories" styleClass="filter-combo" />
                     </children>
                 </HBox>
 

@@ -84,6 +84,9 @@
                               <Label fx:id="lblTimestart" text="Time" textFill="#00ff11" />
                            </children>
                         </HBox>
+                        <Label fx:id="lblWinner" text="Winner: " textFill="#155724" visible="false" wrapText="true">
+                            <font><Font name="System Bold" size="14.0" /></font>
+                        </Label>
                             </children>
                         </VBox>
 
@@ -93,7 +96,7 @@
                                 <HBox spacing="10.0">
                                     <children>                                        
                                         <TextField fx:id="txtBidInput" prefHeight="40.0" prefWidth="200.0" promptText="Enter amount..." />
-                                        <Button onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="btn-primary" text="PLACE BID">
+                                        <Button fx:id="btnPlaceBid" onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="btn-primary" text="PLACE BID">
                                             <font><Font name="System Bold" size="14.0" /></font>
                                         </Button>
                                     </children>

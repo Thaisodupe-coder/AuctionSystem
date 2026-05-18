@@ -15,6 +15,8 @@ import com.auction.model.item.Art;
 import com.auction.model.item.Electronics;
 import com.auction.model.item.Vehicle;
 import com.auction.model.auction.Auction;
+import com.auction.model.auction.BidTransaction;
+import com.auction.util.PersistenceService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -91,6 +93,10 @@ public class ClientHandler implements Runnable {
                 response.setMessage("Đăng ký thành công!");
                 response.addData("userId", user.getId());
                 response.addData("username", user.getName());
+                // Lưu dữ liệu sau khi đăng ký thành công
+            
+                PersistenceService.saveUser(user);
+
             } else if ("GET_ALL_AUCTIONS".equals(command)) {
                 List<Auction> allAuctions = AuctionManager.getINSTANCE().getAllAuctions();
                 
@@ -112,7 +118,24 @@ public class ClientHandler implements Runnable {
                     auctionData.put("category", category);
 
                     auctionData.put("description", auction.getItem().getDescription());
+                    auctionData.put("startTime", auction.getStartTime().toString());
                     auctionData.put("endTime", auction.getEndTime().toString());
+                    
+                    if (auction.getHighestBidderId() != null) {
+                        auctionData.put("highestBidderId", auction.getHighestBidderId());
+                    }
+                    
+                    // Thêm dữ liệu lịch sử đặt giá vào gói tin
+                    List<Map<String, Object>> historyData = new ArrayList<>();
+                    for (BidTransaction bid : auction.getBidHistory()) {
+                        Map<String, Object> bidMap = new HashMap<>();
+                        bidMap.put("bidderId", bid.getBidderId());
+                        bidMap.put("amount", bid.getAmount());
+                        bidMap.put("timestamp", bid.getTimestamp().toString());
+                        historyData.add(bidMap);
+                    }
+                    auctionData.put("bidHistory", historyData);
+
                     auctionDataList.add(auctionData);
                 }
 
@@ -124,9 +147,30 @@ public class ClientHandler implements Runnable {
                 double amount = (Double) request.getPayload().get("amount");
                 
                 AuctionManager.getINSTANCE().placeBid(auctionId, bidderId, amount);
+                Auction auction = AuctionManager.getINSTANCE().getAuction(auctionId);
+                NormalUser bidder = UserManager.getINSTANCE().getUserById(bidderId);
 
                 response.setStatus("SUCCESS");
                 response.setMessage("Đặt giá thành công!");
+                
+                // Tối ưu: Lưu ngay lập tức lượt đặt giá mới và cập nhật trạng thái Auction
+                PersistenceService.saveUser(bidder);
+                PersistenceService.saveAuction(auction); // Cập nhật Metadata (highest_bid, highest_bidder_id)
+                
+                // Lấy lượt bid cuối cùng trong lịch sử để lưu riêng lẻ
+                List<BidTransaction> history = auction.getBidHistory();
+                if (!history.isEmpty()) {
+                    PersistenceService.saveBid(history.get(history.size() - 1));
+                }
+                
+                // Broadcast giá mới cho toàn bộ các Client đang online để update UI Realtime
+                Response broadcastRes = new Response();
+                broadcastRes.setCommand("NEW_BID_BROADCAST");
+                broadcastRes.setStatus("SUCCESS");
+                broadcastRes.addData("auctionId", auctionId);
+                broadcastRes.addData("bidderId", bidderId);
+                broadcastRes.addData("amount", amount);
+                AuctionServer.broadcast(broadcastRes);
             } else if ("CREATE_AUCTION".equals(command)) {
                 String sellerId = (String) request.getPayload().get("sellerId");
                 String name = (String) request.getPayload().get("name");
@@ -172,9 +216,13 @@ public class ClientHandler implements Runnable {
                 broadcastRes.addData("startPrice", startPrice);
                 broadcastRes.addData("category", category);
                 broadcastRes.addData("description", description);
+                broadcastRes.addData("startTime", startTime.toString());
                 broadcastRes.addData("endTime", endTimeStr);
                 
                 AuctionServer.broadcast(broadcastRes);
+
+                // Tối ưu: Chỉ lưu auction mới tạo
+                PersistenceService.saveAuction(auction);
             } else {
                 response.setStatus("ERROR");
                 response.setMessage("Lệnh không được hỗ trợ: " + command);

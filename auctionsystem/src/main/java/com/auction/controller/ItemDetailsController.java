@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import java.time.format.DateTimeFormatter;
 import javafx.stage.Stage;
+import java.awt.Toolkit;
 
 public class ItemDetailsController implements AuctionObserver {
     @FXML
@@ -42,6 +43,12 @@ public class ItemDetailsController implements AuctionObserver {
     @FXML
     private Label lblDetailDescription;
 
+    @FXML
+    private javafx.scene.control.Button btnPlaceBid; // Gắn fx:id="btnPlaceBid" cho nút "PLACE BID" trong SceneBuilder
+
+    @FXML
+    private Label lblWinner; // Tạo 1 Label mới trong SceneBuilder và gắn fx:id="lblWinner" để hiện tên người thắng
+
     private Auction auction;
 
     @FXML
@@ -56,17 +63,25 @@ public class ItemDetailsController implements AuctionObserver {
 
     public void setData(Auction auction) {
         // Nếu đang theo dõi auction cũ, hủy đăng ký trước khi nhận auction mới
+        cleanup();
+        
+        //controller sẽ đăng kí theo dõi 1 auction (observer)
+        this.auction = auction;
+        this.auction.addObserver(this);
+        updateUI();
+    }
+
+    // Hàm dọn dẹp Observer để tránh rò rỉ bộ nhớ
+    public void cleanup() {
         if (this.auction != null) {
             this.auction.removeObserver(this);
         }
-        
-        this.auction = auction;
-        this.auction.addObserver(this); // Đăng ký Observer để cập nhật Realtime
-        updateUI();
     }
 
     @Override
     public void update(Auction auction) {
+        //sound
+        Toolkit.getDefaultToolkit().beep();;
         // Khi Auction có thay đổi (ví dụ: giá tăng), hàm này sẽ được gọi từ luồng mạng
         Platform.runLater(this::updateUI);
     }
@@ -76,7 +91,6 @@ public class ItemDetailsController implements AuctionObserver {
 
         lblDetailTitle.setText(auction.getItem().getName());
         txtUID.setText(auction.getId());
-        lblDetailCondition.setText(auction.getStatus().name());
         
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         lblTimestart.setText(auction.getStartTime().format(timeFormatter));
@@ -85,10 +99,53 @@ public class ItemDetailsController implements AuctionObserver {
         
         //Cập nhật giá dựa theo giá bid lớn nhất hiện tại
         lblDetailPrice.setText(String.format("%.2f VND", auction.getHighestBid()));
+
+        // Thay đổi giao diện tùy thuộc vào trạng thái phiên đấu giá
+        if (auction.getStatus() == AuctionStatus.FINISHED) {
+            lblDetailCondition.setText("ĐÃ KẾT THÚC");
+            lblDetailCondition.setStyle("-fx-background-color: #8B0000; -fx-text-fill: white; -fx-padding: 3px 8px; -fx-background-radius: 5px;");
+            
+            txtBidInput.setDisable(true);
+            if (btnPlaceBid != null) btnPlaceBid.setDisable(true);
+            
+            if (auction.getHighestBidderId() != null && !auction.getHighestBidderId().isEmpty()) {
+                lblDetailPrice.setStyle("-fx-background-color: #d4edda; -fx-text-fill: #155724; -fx-padding: 3px 8px;"); // Nền xanh lá nhạt
+                if (lblWinner != null) {
+                    lblWinner.setText("Winner: " + auction.getHighestBidderId());
+                    lblWinner.setVisible(true);
+                } else {
+                    lblDetailTitle.setText(auction.getItem().getName() + " - Winner: " + auction.getHighestBidderId());
+                }
+            } else {
+                if (lblWinner != null) {
+                    lblWinner.setText("Phiên đấu giá thất bại (Không có người mua)");
+                    lblWinner.setVisible(true);
+                } else {
+                    lblDetailTitle.setText(auction.getItem().getName() + " - Thất bại");
+                }
+            }
+        } else { // Trạng thái OPEN hoặc RUNNING
+            lblDetailCondition.setText(auction.getStatus().name());
+            lblDetailCondition.setStyle(""); // Đặt lại style mặc định
+            
+            // Kiểm tra nếu user hiện tại là người tạo phiên đấu giá thì vô hiệu hóa nút đặt giá
+            if (auction.getSeller().getId().equals(ClientManager.getINSTANCE().getUserId())) {
+                txtBidInput.setDisable(true);
+                txtBidInput.setPromptText("Sản phẩm của bạn");
+                if (btnPlaceBid != null) btnPlaceBid.setDisable(true);
+            } else {
+                txtBidInput.setDisable(false);
+                txtBidInput.setPromptText("Enter amount...");
+                if (btnPlaceBid != null) btnPlaceBid.setDisable(false);
+            }
+            lblDetailPrice.setStyle("");
+            if (lblWinner != null) lblWinner.setVisible(false);
+        }
     }
 
     @FXML
     public void handleBackToMain(ActionEvent event) {
+        cleanup(); // Dọn dẹp trước khi đóng bằng nút Back
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.close();
     }
@@ -120,10 +177,8 @@ public class ItemDetailsController implements AuctionObserver {
                 if ("PLACE_BID_RES".equals(response.getCommand())) {
                     Platform.runLater(() -> {
                         if ("SUCCESS".equals(response.getStatus())) {
-                            // Cập nhật dữ liệu vào model cục bộ. 
-                            // Phương thức processBid của Auction sẽ tự gọi notifyObservers() 
-                            // giúp trigger phương thức update() và làm mới UI.
-                            auction.processBid(ClientManager.getINSTANCE().getUserId(), amount);
+                            // Chỉ cần xóa ô nhập khi có phản hồi SUCCESS.
+                            // Việc cập nhật giá và UI sẽ được lắng nghe thông qua NEW_BID_BROADCAST trong ClientManager.
                             txtBidInput.clear();
                         } else {
                             showAlert(Alert.AlertType.ERROR, "Đặt giá thất bại", response.getMessage());

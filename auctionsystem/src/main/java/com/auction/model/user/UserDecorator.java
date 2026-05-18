@@ -18,6 +18,14 @@ public abstract class UserDecorator extends User {
     public String getName() {
         return user.getName();
     }
+    @Override
+    public double getBalance() {
+        return user.getBalance();
+    }
+    @Override
+    public void setBalance(double balance) {
+        user.setBalance(balance);
+    }
     // Cho phép lấy lại đối tượng gốc nếu cần thiết
     public User getUser() {
         return user;

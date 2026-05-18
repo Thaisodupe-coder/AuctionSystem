@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13 # Sử dụng phiên bản PostgreSQL 13
+    container_name: auctionsystem_db
+    environment:
+      POSTGRES_DB: auctionsystem
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      # Lưu trữ dữ liệu cơ sở dữ liệu một cách bền vững
+      - db_data:/var/lib/postgresql/data
+      # Khởi tạo schema cơ sở dữ liệu khi container khởi động lần đầu
+      - ./auctionsystem/src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432" # Mở cổng PostgreSQL ra máy host để ứng dụng Java có thể kết nối
+
+volumes:
+  db_data: # Định nghĩa một volume có tên để lưu trữ dữ liệu cơ sở dữ liệu

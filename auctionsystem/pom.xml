@@ -33,9 +33,45 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
+        <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>42.7.2</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
+            <!-- Plugin quản lý Docker Compose: Tự động bật DB khi chạy Maven -->
+            <plugin>
+                <groupId>com.dkanejs.maven.plugins</groupId>
+                <artifactId>docker-compose-maven-plugin</artifactId>
+                <version>4.0.0</version>
+                <configuration>
+                    <!-- Chỉ trỏ tới file compose ở thư mục cha -->
+                    <composeFile>${project.basedir}/../docker-compose.yml</composeFile>
+                    <detachedMode>true</detachedMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>up</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>up</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Plugin chạy Server: Giúp m chạy app bằng lệnh mvn exec:java -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.auction.server.AuctionServer</mainClass>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -62,6 +98,10 @@
                         <include>**/*Test.java</include>
                         <include>**/Test*.java</include>
                     </includes>
+                    <excludes>
+                        <exclude>**/PersistenceTest.java</exclude>
+                        <exclude>**/DatabaseInspectorTest.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
