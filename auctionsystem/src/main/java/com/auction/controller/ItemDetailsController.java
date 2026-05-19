@@ -3,6 +3,7 @@ package com.auction.controller;
 import com.auction.model.auction.Auction;
 import com.auction.model.auction.AuctionObserver;
 import com.auction.model.auction.AuctionStatus;
+import com.auction.model.auction.BidTransaction;
 import com.auction.network.ClientManager;
 import com.auction.network.message.Request;
 import javafx.scene.chart.CategoryAxis;
@@ -208,20 +209,23 @@ public class ItemDetailsController implements AuctionObserver {
         lblDetailPrice.setText(String.format("%.2f VND", auction.getHighestBid()));
 
         // Cập nhật lịch sử đặt giá vào ListView
-        List<com.auction.model.auction.BidTransaction> history = auction.getBidHistory();
+        List<BidTransaction> history = auction.getBidHistory();
         
         String currentUserId = ClientManager.getINSTANCE().getUserId();
         // Chỉ thêm những bid mới mà UI chưa có
         if (history.size() > bidLogItems.size()) { //Kiểm tra nếu tổng bid từ sv lớn hơn bid hiện có trên màn hình
             // Duyệt từ vị trí hiện tại của UI đến hết lịch sử mới
             for (int i = bidLogItems.size(); i < history.size(); i++) {
-                com.auction.model.auction.BidTransaction bid = history.get(i);
+                BidTransaction bid = history.get(i);
                 
                 String timeStr = bid.getTimestamp().format(timeFormatter);
                 String priceStr = String.format("%,.2f", bid.getAmount());
                 
+                String bidderName = (bid.getBidderName() != null && !bid.getBidderName().isEmpty()) 
+                                    ? bid.getBidderName() : "Người đấu giá";
+
                 // Thêm vào bảng dưới dạng Object thay vì String
-                bidLogItems.add(0, new BidDisplayItem(timeStr, bid.getBidderName(), priceStr));
+                bidLogItems.add(0, new BidDisplayItem(timeStr, bidderName, priceStr));
 
                 // Đồ thị: Trục hoành chỉ hiển thị thời gian
                 LocalDate currentBidDate = bid.getTimestamp().toLocalDate();
