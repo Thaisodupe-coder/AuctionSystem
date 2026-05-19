@@ -95,16 +95,46 @@
     -fx-border-width: 0;
 }
 
-/* Xóa viền của ListView */
-.no-border-list {
-    -fx-background-color: transparent;
-    -fx-control-inner-background: transparent;
+/* Định dạng bảng lịch sử */
+.history-table {
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1px;
 }
-.no-border-list .list-cell {
-    -fx-background-color: transparent;
-    -fx-padding: 0 0 15 0;
+
+/* Làm nổi bật tiêu đề bảng (In đậm) */
+.history-table .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #0c4b8e;
+    -fx-font-size: 12px;
 }
-\.badge-danger {
+
+/* Làm nổi bật nhãn trục (Thời gian, Giá VND) trong đồ thị */
+.axis-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #0c4b8e;
+}
+
+/* Làm nổi bật các mốc giá trị trên trục tọa độ */
+.axis {
+    -fx-tick-label-font-weight: bold;
+    -fx-tick-label-fill: #555555;
+}
+
+/* Làm nổi bật cột Thời gian (In đậm) */
+.time-column {
+    -fx-alignment: CENTER;
+    -fx-font-weight: bold;
+}
+
+/* Làm nổi bật cột Giá VND (In đậm và màu đỏ nổi bật) */
+.price-column {
+    -fx-alignment: CENTER-RIGHT;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d9534f;
+}
+.badge-danger {
      -fx-background-color: #d9534f;
      -fx-background-radius: 4px;
      -fx-font-size: 11px;
@@ -130,6 +160,22 @@
  .btn-secondary:hover {
      -fx-background-color: #5a6268;
  }
+
+/* Style cho nút chuyển đổi đồ thị/danh sách */
+.btn-toggle-view {
+    -fx-background-color: #0c4b8e;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-background-radius: 20px;
+    -fx-padding: 8 20 8 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+.btn-toggle-view:hover {
+    -fx-background-color: #1a66b8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);
+}
 
 /* Thẻ item của chính user tạo */
 .my-auction-card {

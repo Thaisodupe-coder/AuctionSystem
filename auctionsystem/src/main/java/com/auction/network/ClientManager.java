@@ -78,12 +78,13 @@ public class ClientManager {
                         else if ("NEW_BID_BROADCAST".equals(response.getCommand())) { // PUSH: Nhận lượt bid mới
                             String auctionId = String.valueOf(response.getPayload().get("auctionId"));
                             String bidderId = String.valueOf(response.getPayload().get("bidderId"));
+                            String bidderName = String.valueOf(response.getPayload().get("bidderName"));
                             double amount = Double.parseDouble(String.valueOf(response.getPayload().get("amount")));
                             
                             Auction localAuction = AuctionManager.getINSTANCE().getAuction(auctionId);
                             // Cập nhật từ Broadcast cho tất cả các Client (kể cả client vừa gửi)
                             if (localAuction != null) {
-                                localAuction.syncBid(bidderId, amount);
+                                localAuction.syncBid(bidderId, bidderName, amount);
                             }
                         } else if ("GET_ALL_AUCTIONS_RES".equals(response.getCommand())) { // PULL
                             // Xóa dữ liệu cũ trước khi nạp dữ liệu thật
@@ -162,9 +163,10 @@ public class ClientManager {
             List<Map<String, Object>> historyList = (List<Map<String, Object>>) payload.get("bidHistory");
             for (Map<String, Object> bidMap : historyList) {
                 String bId = String.valueOf(bidMap.get("bidderId"));
+                String bidName = String.valueOf(bidMap.get("bidderName"));
                 double amt = Double.parseDouble(String.valueOf(bidMap.get("amount")));
                 LocalDateTime ts = LocalDateTime.parse(String.valueOf(bidMap.get("timestamp")));
-                localAuction.addBidToHistory(new BidTransaction(auctionId, bId, amt, ts));
+                localAuction.addBidToHistory(new BidTransaction(auctionId, bId, bidName, amt, ts));
             }
         }
 
