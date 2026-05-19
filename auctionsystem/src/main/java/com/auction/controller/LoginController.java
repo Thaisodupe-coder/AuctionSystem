@@ -47,7 +47,8 @@ public class LoginController {
                         // 1. Đăng nhập thành công, lưu thông tin user
                         String serverUserId = (String) response.getPayload().get("userId");
                         String serverUsername = txtUsername.getText();
-                        ClientManager.getINSTANCE().setUser(serverUserId, serverUsername);
+                        double balance = Double.parseDouble(String.valueOf(response.getPayload().get("balance")));
+                        ClientManager.getINSTANCE().setUser(serverUserId, serverUsername, balance);
 
                         // 2. Gửi yêu cầu PULL toàn bộ dữ liệu phiên đấu giá
                         Request getAuctionsRequest = new Request("GET_ALL_AUCTIONS");

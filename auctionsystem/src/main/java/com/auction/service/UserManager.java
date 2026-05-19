@@ -24,6 +24,7 @@ public class UserManager {
     //chỉ tập trung xử lý logic nghiệp vụ lõi (chống trùng lặp dữ liệu)
     public NormalUser register(String username, String password) throws IllegalArgumentException {
         NormalUser newUser = new NormalUser(username, password);
+        newUser.setBalance(10000);
         // putIfAbsent(ConcurrentHashMap) :Trả về null nếu chưa có ai lấy tên này, trả về user cũ nếu đã tồn tại
         NormalUser existingUser = users.putIfAbsent(username, newUser);
         //kiểm tra nhiều luồng cùng lúc register cùng tên đăng nhập

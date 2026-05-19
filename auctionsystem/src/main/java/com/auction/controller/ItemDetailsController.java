@@ -245,7 +245,9 @@ public class ItemDetailsController implements AuctionObserver {
         }
 
         // Thay đổi giao diện tùy thuộc vào trạng thái phiên đấu giá
-        if (auction.getStatus() == AuctionStatus.FINISHED) {
+        if (auction.getStatus() == AuctionStatus.FINISHED || 
+            auction.getStatus() == AuctionStatus.PAID || 
+            auction.getStatus() == AuctionStatus.CANCELED) {
             lblDetailCondition.setText("ĐÃ KẾT THÚC");
             lblDetailCondition.setStyle("-fx-background-color: #8B0000; -fx-text-fill: white; -fx-padding: 3px 8px; -fx-background-radius: 5px;");
             

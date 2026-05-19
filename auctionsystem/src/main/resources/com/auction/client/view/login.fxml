@@ -17,14 +17,17 @@
     </padding>
    <HBox centerShape="false" styleClass="header-bar">
       <children>
-         <Region prefHeight="200.0" prefWidth="200.0" />
+         <Region prefHeight="38.0" prefWidth="214.0" />
       
-          <Label prefHeight="54.0" prefWidth="302.0" text="HỆ THỐNG ĐẤU GIÁ" textFill="WHITE">
+          <Label prefHeight="38.0" prefWidth="272.0" text="HỆ THỐNG ĐẤU GIÁ" textFill="WHITE">
               <font>
-                  <Font name="System Bold" size="20.0" />
+                  <Font name="System Bold" size="19.0" />
               </font>
+            <padding>
+               <Insets top="10.0" />
+            </padding>
           </Label>
-         <Region prefHeight="200.0" prefWidth="200.0" />
+         <Region prefHeight="38.0" prefWidth="189.0" />
       </children>
       <opaqueInsets>
          <Insets />
@@ -35,16 +38,16 @@
    </HBox>
     <Label text="Vui lòng đăng nhập để tiếp tục" textFill="#666666" />
 
-    <TextField fx:id="txtUsername" styleClass="input" prefHeight="35.0" promptText="Tên đăng nhập" />
+    <TextField fx:id="txtUsername" prefHeight="35.0" promptText="Tên đăng nhập" styleClass="input-harmonious" />
 
-    <PasswordField fx:id="txtPassword" prefHeight="35.0" promptText="Mật khẩu" />
+    <PasswordField fx:id="txtPassword" prefHeight="35.0" promptText="Mật khẩu" styleClass="input-harmonious" />
 
-    <Button mnemonicParsing="false" onAction="#handleLoginAction" prefHeight="30.0" prefWidth="102.0" style="-fx-background-color: #007bff; -fx-text-fill: white;" text="Đăng nhập">
+    <Button mnemonicParsing="false" onAction="#handleLoginAction" prefHeight="30.0" prefWidth="102.0" style="-fx-background-color: #007bff; -fx-text-fill: white;" styleClass="custom-button" text="Đăng nhập">
         <font>
             <Font name="System Bold" size="14.0" />
         </font>
     </Button>
-   <Button onAction="#handleTransferToRegister" mnemonicParsing="false" text="Đăng kí" />
+   <Button mnemonicParsing="false" onAction="#handleTransferToRegister" styleClass="custom-button" text="Đăng kí" />
 
           <Label fx:id="lblMessage" textFill="RED" />
 

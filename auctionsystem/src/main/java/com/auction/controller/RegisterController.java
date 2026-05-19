@@ -33,15 +33,12 @@ public class RegisterController {
                     if ("SUCCESS".equals(response.getStatus())) {
                         String serverUserId = (String) response.getPayload().get("userId");
                         String serverUsername = txtUsername.getText();
-                        ClientManager.getINSTANCE().setUser(serverUserId, serverUsername);
+                        double balance = 10000;
+                        ClientManager.getINSTANCE().setUser(serverUserId, serverUsername, balance);
 
                         //Gửi yêu cầu PULL dữ liệu trước khi responseSucces
                         Request pullRequest = new Request("GET_ALL_AUCTIONS");
                         ClientManager.getINSTANCE().sendRequest(pullRequest);
-                        String userId = (String) response.getPayload().get("userId");
-                        String username = (String) response.getPayload().get("username");
-                        ClientManager.getINSTANCE().setUser(userId, username);
-                        responseSuccess();
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Đăng ký thất bại", response.getMessage());
                     }

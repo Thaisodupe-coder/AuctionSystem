@@ -2,6 +2,7 @@ package com.auction.server;
 
 import com.auction.model.auction.Auction;
 import com.auction.model.user.NormalUser;
+import com.auction.model.auction.AuctionStatus;
 import com.auction.service.AuctionManager;
 import com.auction.service.UserManager;
 import com.auction.util.PersistenceService;
@@ -48,6 +49,9 @@ public class AuctionServer {
         // Khởi động dịch vụ lưu dữ liệu định kỳ (đã được đóng gói trong PersistenceService)
         PersistenceService.startPeriodicSave(10);
 
+        // Khởi động luồng ngầm giám sát thời gian thực toàn bộ các phiên đấu giá
+        startAuctionMonitor();
+
         System.out.println("========== KIỂM TRA DỮ LIỆU HỆ THỐNG ==========");
         System.out.println("[USER] Danh sách người dùng:");
         UserManager.getINSTANCE().getAllUsers().values().forEach(u -> 
@@ -75,6 +79,30 @@ public class AuctionServer {
         } finally {
             pool.shutdown();
         }
+    }
+    
+    // Luồng ngầm giám sát mọi trạng thái (Bắt đầu, Kết thúc, Thanh toán) của phiên đấu giá
+    private static void startAuctionMonitor() {
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                for (Auction auction : AuctionManager.getINSTANCE().getAllAuctions()) {
+                    AuctionStatus oldStatus = auction.getStatus();
+                    auction.monitorState(); 
+                    AuctionStatus newStatus = auction.getStatus();
+                    
+                    if (oldStatus != newStatus) {
+                        Response broadcastRes = new Response();
+                        broadcastRes.setCommand("STATUS_UPDATE_BROADCAST");
+                        broadcastRes.setStatus("SUCCESS");
+                        broadcastRes.addData("auctionId", auction.getId());
+                        broadcastRes.addData("newStatus", newStatus.name());
+                        broadcast(broadcastRes);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Lỗi trong luồng giám sát phiên đấu giá: " + e.getMessage());
+            }
+        }, 1, 1, TimeUnit.SECONDS); // Chạy mỗi 1 giây để phản ứng theo thời gian thực
     }
     
     // Hàm Broadcast: Gửi một thông báo tới toàn bộ Client đang kết nối

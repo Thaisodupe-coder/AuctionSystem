@@ -7,5 +7,6 @@ public enum AuctionStatus {
     OPEN,       // Vừa tạo, chưa bắt đầu
     RUNNING,    // Đang trong thời gian đấu giá
     FINISHED,   // Đã kết thúc thời gian
-    CANCELED    // Phiên đấu giá bị hủy
+    CANCELED,   // Phiên đấu giá bị hủy
+    PAID   // Đã kết thúc và ĐÃ THANH TOÁN tiền cho người bán
 }

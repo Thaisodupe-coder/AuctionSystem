@@ -83,6 +83,7 @@ public class ClientHandler implements Runnable {
                 response.setMessage("Đăng nhập thành công!");
                 response.addData("userId", user.getId());
                 response.addData("username", user.getName());
+                response.addData("balance", user.getBalance());
             } else if ("REGISTER".equals(command)) {
                 String regUsername = (String) request.getPayload().get("username");
                 String regPassword = (String) request.getPayload().get("password");
@@ -120,6 +121,7 @@ public class ClientHandler implements Runnable {
                     auctionData.put("description", auction.getItem().getDescription());
                     auctionData.put("startTime", auction.getStartTime().toString());
                     auctionData.put("endTime", auction.getEndTime().toString());
+                    auctionData.put("status", auction.getStatus().name());
                     
                     if (auction.getHighestBidderId() != null) {
                         auctionData.put("highestBidderId", auction.getHighestBidderId());
@@ -141,6 +143,7 @@ public class ClientHandler implements Runnable {
 
                 response.setStatus("SUCCESS");
                 response.addData("auctions", auctionDataList);
+                
             } else if ("PLACE_BID".equals(command)) {
                 String auctionId = (String) request.getPayload().get("auctionId");
                 String bidderId = (String) request.getPayload().get("bidderId");

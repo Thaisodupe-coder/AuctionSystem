@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" spacing="20.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.SellerViewController">
+<VBox prefHeight="600.0" prefWidth="900.0" spacing="20.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.SellerViewController">
     <children>
         <HBox alignment="CENTER_LEFT" prefHeight="60.0" styleClass="header-bar">
             <children>
@@ -37,7 +37,7 @@
                     </font>
                 </Label>
 
-                <TableView fx:id="soldItemsTable" VBox.vgrow="ALWAYS">
+                <TableView fx:id="soldItemsTable" styleClass="table-view-card" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="colId" prefWidth="60.0" text="ID" />
                         <TableColumn fx:id="colItemName" prefWidth="250.0" text="Tên sản phẩm" />

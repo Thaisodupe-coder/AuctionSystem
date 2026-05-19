@@ -38,16 +38,16 @@
    </HBox>
     <Label text="Vui lòng đăng kí để tiếp tục" textFill="#666666" />
 
-    <TextField fx:id="txtUsername" prefHeight="35.0" promptText="Tên đăng nhập" />
+    <TextField fx:id="txtUsername" prefHeight="35.0" promptText="Tên đăng nhập" styleClass="input-harmonious" />
 
-    <PasswordField fx:id="txtPassword" prefHeight="35.0" promptText="Mật khẩu" />
-   <PasswordField fx:id="txtPasswordCheck" promptText="Xác nhận mật khẩu" />
+    <PasswordField fx:id="txtPassword" prefHeight="35.0" promptText="Mật khẩu" styleClass="input-harmonious" />
+   <PasswordField fx:id="txtPasswordCheck" promptText="Xác nhận mật khẩu" styleClass="input-harmonious" />
 
-    <Button mnemonicParsing="false" onAction="#handleRegisterAction" prefHeight="30.0" prefWidth="102.0" style="-fx-background-color: #007bff; -fx-text-fill: white;" text="Đăng kí">
+    <Button mnemonicParsing="false" onAction="#handleRegisterAction" prefHeight="30.0" prefWidth="102.0" style="-fx-background-color: #007bff; -fx-text-fill: white;" styleClass="custom-button" text="Đăng kí">
         <font>
             <Font name="System Bold" size="14.0" />
         </font>
     </Button>
-   <Button mnemonicParsing="false" onAction="#handleTransferToLogin" text="Đăng nhập" />
+   <Button mnemonicParsing="false" onAction="#handleTransferToLogin" styleClass="custom-button" text="Đăng nhập" />
 
 </VBox>

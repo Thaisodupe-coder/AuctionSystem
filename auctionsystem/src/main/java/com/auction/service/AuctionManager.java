@@ -17,6 +17,8 @@ import com.auction.model.user.NormalUser;
 public class AuctionManager {
     private static volatile AuctionManager INSTANCE;
     private Map<String, Auction> auctions = new ConcurrentHashMap<>(); //lưu trữ các phiên đấu giá
+    private Runnable onAuctionChangedCallback; // Cái chuông để báo cho giao diện (MainPage)
+
     private AuctionManager() {
         // --- Dữ liệu mồi (Seed data) để test UI ---
         NormalUser mockUser;
@@ -47,6 +49,18 @@ public class AuctionManager {
             }
         }
         return INSTANCE;
+    }
+
+    // Hàm để MainPageController đăng ký "nghe chuông"
+    public void setOnAuctionChangedCallback(Runnable callback) {
+        this.onAuctionChangedCallback = callback;
+    }
+
+    // Hàm để ClientManager "bấm chuông" khi có dữ liệu mới
+    public void notifyAuctionChanged() {
+        if (onAuctionChangedCallback != null) {
+            onAuctionChangedCallback.run();
+        }
     }
 
     // Tạo phiên đấu giá mới

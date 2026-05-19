@@ -3,6 +3,7 @@ package com.auction.network;
 import com.auction.model.auction.Auction;
 import com.auction.model.auction.BidTransaction;
 import com.auction.model.item.*;
+import com.auction.model.auction.AuctionStatus;
 import com.auction.model.user.NormalUser;
 import com.auction.model.user.Seller;
 import com.auction.service.AuctionManager;
@@ -30,6 +31,7 @@ public class ClientManager {
 
     private String userId;
     private String userName;
+    private double totalBalance;
 
     private ClientManager(){}
     public static ClientManager getINSTANCE(){
@@ -78,13 +80,22 @@ public class ClientManager {
                         else if ("NEW_BID_BROADCAST".equals(response.getCommand())) { // PUSH: Nhận lượt bid mới
                             String auctionId = String.valueOf(response.getPayload().get("auctionId"));
                             String bidderId = String.valueOf(response.getPayload().get("bidderId"));
-                            String bidderName = String.valueOf(response.getPayload().get("bidderName"));
                             double amount = Double.parseDouble(String.valueOf(response.getPayload().get("amount")));
                             
                             Auction localAuction = AuctionManager.getINSTANCE().getAuction(auctionId);
                             // Cập nhật từ Broadcast cho tất cả các Client (kể cả client vừa gửi)
                             if (localAuction != null) {
-                                localAuction.syncBid(bidderId, bidderName, amount);
+                                localAuction.syncBid(bidderId, amount);
+                                AuctionManager.getINSTANCE().notifyAuctionChanged(); // Bấm chuông báo thay đổi
+                            }
+                        } else if ("STATUS_UPDATE_BROADCAST".equals(response.getCommand())) { // PUSH: Nhận cập nhật trạng thái
+                            String auctionId = String.valueOf(response.getPayload().get("auctionId"));
+                            String newStatusStr = String.valueOf(response.getPayload().get("newStatus"));
+                            
+                            Auction localAuction = AuctionManager.getINSTANCE().getAuction(auctionId);
+                            if (localAuction != null) {
+                                localAuction.syncStatus(AuctionStatus.valueOf(newStatusStr));
+                                AuctionManager.getINSTANCE().notifyAuctionChanged(); // Bấm chuông báo thay đổi
                             }
                         } else if ("GET_ALL_AUCTIONS_RES".equals(response.getCommand())) { // PULL
                             // Xóa dữ liệu cũ trước khi nạp dữ liệu thật
@@ -154,6 +165,10 @@ public class ClientManager {
         Auction localAuction = new Auction(localItem, new Seller(baseUser), startPrice, startT, endT);
         localAuction.setId(auctionId);
 
+        if (payload.get("status") != null) {
+            localAuction.setStatus(AuctionStatus.valueOf(String.valueOf(payload.get("status"))));
+        }
+
         if (payload.get("highestBidderId") != null) {
             localAuction.setHighestBidderId(String.valueOf(payload.get("highestBidderId")));
         }
@@ -163,10 +178,9 @@ public class ClientManager {
             List<Map<String, Object>> historyList = (List<Map<String, Object>>) payload.get("bidHistory");
             for (Map<String, Object> bidMap : historyList) {
                 String bId = String.valueOf(bidMap.get("bidderId"));
-                String bidName = String.valueOf(bidMap.get("bidderName"));
                 double amt = Double.parseDouble(String.valueOf(bidMap.get("amount")));
                 LocalDateTime ts = LocalDateTime.parse(String.valueOf(bidMap.get("timestamp")));
-                localAuction.addBidToHistory(new BidTransaction(auctionId, bId, bidName, amt, ts));
+                localAuction.addBidToHistory(new BidTransaction(auctionId, bId, amt, ts));
             }
         }
 
@@ -193,14 +207,20 @@ public class ClientManager {
     public String getUserName() {
         return userName;
     }
-
-    public void setUser(String userId, String userName) {
+    // lưu trữ thông tin cho user sử dụng client này
+    public void setUser(String userId, String userName, double balance) {
         this.userId = userId;
         this.userName = userName;
+        this.totalBalance = balance;
+    }
+
+    public double getTotalBalance() {
+        return totalBalance;
     }
 
     public void clearUser() {
         this.userId = null;
         this.userName = null;
+        this.totalBalance = 0;
     }
 }

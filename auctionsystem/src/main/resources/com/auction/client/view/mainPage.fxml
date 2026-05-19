@@ -35,7 +35,7 @@
                     <children>
                         <Label prefHeight="15.0" prefWidth="554.0" text="CREATE NEW AUCTION LOT" textAlignment="CENTER" textFill="#856404" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button onAction="#handleAddItemTransfer" prefHeight="27.0" prefWidth="231.0" styleClass="btn-white-outline" text="+ Create Auction" />
+                        <Button onAction="#handleAddItemTransfer" prefHeight="27.0" prefWidth="231.0" styleClass="custom-button" text="+ NEW" />
                     </children>
                 </HBox>
 

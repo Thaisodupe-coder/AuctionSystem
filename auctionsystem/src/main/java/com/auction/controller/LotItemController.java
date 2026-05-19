@@ -54,6 +54,7 @@ public class LotItemController implements AuctionObserver {
     }
 
     @Override
+    //observer
     public void update(Auction auction) {
         // cập nhật giao diện trên JavaFX Application Thread
         Platform.runLater(this::updateUI);

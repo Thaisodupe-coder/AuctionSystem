@@ -16,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -45,14 +46,12 @@ public class MainPageController {
 
     @FXML
     public void initialize() {
-        String username = ClientManager.getINSTANCE().getUserName();
-        String userId = ClientManager.getINSTANCE().getUserId();
-        double balance = 100;//ClientManager.getINSTANCE().getCurrentUser().getBalance();
-        int myAuctionCount = AuctionManager.getINSTANCE().getAuctionsBySeller(userId).size();
+        updateBalanceDisplay();
 
-        if (username != null) {
-            txtusename.setText("👤 " + username + "   |   💰 " + balance + "   |   📦 Lots: " + myAuctionCount);
-        }
+        // Móc nối "cái chuông": Hễ AuctionManager báo có thay đổi, tự động chạy lại trạm tính toán số dư
+        AuctionManager.getINSTANCE().setOnAuctionChangedCallback(() -> {
+            Platform.runLater(this::updateBalanceDisplay);
+        });
 
         if (!isInitialized) {
             // Cài đặt danh sách đổ xuống cho Categories
@@ -76,6 +75,26 @@ public class MainPageController {
         }
         
         applyFilters(); // Bắt đầu lọc dữ liệu dựa trên trạng thái mặc định
+    }
+
+    //logic cập nhật balance-
+    public void updateBalanceDisplay() {
+        String username = ClientManager.getINSTANCE().getUserName();
+        String userId = ClientManager.getINSTANCE().getUserId();
+        double totalBalance = ClientManager.getINSTANCE().getTotalBalance();
+
+        double frozenBalance = 0;
+        for (Auction auction : AuctionManager.getINSTANCE().getAllAuctions()) {
+            if (auction.getStatus() == AuctionStatus.RUNNING && userId != null && userId.equals(auction.getHighestBidderId())) {
+                frozenBalance += auction.getHighestBid();
+            }
+        }
+        double availableBalance = totalBalance - frozenBalance;
+        int myAuctionCount = AuctionManager.getINSTANCE().getAuctionsBySeller(userId).size();
+
+        if (username != null) {
+            txtusename.setText(String.format("👤 %s   |   💰 Khả dụng: %.0f (Đóng băng: %.0f)   |   📦 Lots: %d", username, availableBalance, frozenBalance, myAuctionCount));
+        }
     }
 
     private void applyFilters() {
@@ -117,6 +136,7 @@ public class MainPageController {
         filtered.sort(Comparator.comparing(Auction::getEndTime).reversed());
         renderAuctions(filtered);
     }
+    
     //load các itemView vào trong mainpage
     private void renderAuctions(List<Auction> auctions) {
         // 1. Dọn dẹp các Observer cũ trước khi xóa các Node để giải phóng RAM
@@ -196,6 +216,9 @@ public class MainPageController {
 
             // Xóa thông tin đăng nhập khi người dùng nhấn Logout
             ClientManager.getINSTANCE().clearUser();
+
+            // Gỡ bỏ chuông báo để dọn dẹp bộ nhớ (tránh memory leak)
+            AuctionManager.getINSTANCE().setOnAuctionChangedCallback(null);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/view/login.fxml"));
             Parent loginView = loader.load();
