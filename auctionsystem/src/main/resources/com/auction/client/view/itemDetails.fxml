@@ -124,8 +124,8 @@
                                 <Label text="Đặt bid của bạn :" />
                                 <HBox spacing="10.0">
                                     <children>                                        
-                                        <TextField fx:id="txtBidInput" prefHeight="40.0" prefWidth="200.0" promptText="Enter amount..." />
-                                        <Button fx:id="btnPlaceBid" onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="btn-primary" text="PLACE BID">
+                                        <TextField fx:id="txtBidInput" prefHeight="40.0" prefWidth="200.0" styleClass="input-harmonious" promptText="Enter amount..." />
+                                        <Button fx:id="btnPlaceBid" onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="custom-button" text="PLACE BID">
                                             <font><Font name="System Bold" size="14.0" /></font>
                                         </Button>
                                     </children>

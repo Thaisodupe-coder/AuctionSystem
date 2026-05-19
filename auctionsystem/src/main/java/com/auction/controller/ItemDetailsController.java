@@ -120,15 +120,18 @@ public class ItemDetailsController implements AuctionObserver {
             timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
             timeCol.setPrefWidth(170); 
             timeCol.getStyleClass().add("time-column");
+            timeCol.setStyle("-fx-alignment: CENTER");
 
             TableColumn<BidDisplayItem, String> bidderCol = new TableColumn<>("NGƯỜI ĐẶT");
             bidderCol.setCellValueFactory(new PropertyValueFactory<>("user"));
             bidderCol.setPrefWidth(110);
+            bidderCol.setStyle("-fx-alignment: CENTER");
 
             TableColumn<BidDisplayItem, String> priceCol = new TableColumn<>("GIÁ VND");
             priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
             priceCol.setPrefWidth(110);
             priceCol.getStyleClass().add("price-column");
+            priceCol.setStyle("-fx-alignment: CENTER");
 
             tvBidHistory.getColumns().addAll(timeCol, bidderCol, priceCol);
             tvBidHistory.setItems(bidLogItems);
@@ -263,7 +266,7 @@ public class ItemDetailsController implements AuctionObserver {
                     // Tìm trong lịch sử bid để lấy chính xác tên người thắng
                     winnerName = auction.getBidHistory().stream()
                             .filter(b -> b.getBidderId().equals(auction.getHighestBidderId()))
-                            .map(com.auction.model.auction.BidTransaction::getBidderName)
+                            .map(BidTransaction::getBidderName)
                             .findFirst()
                             .orElse("Chưa xác định");
                 }
