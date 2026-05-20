@@ -209,14 +209,6 @@ public class ClientManager {
     public String getUserName() {
         return userName;
     }
-    // lưu trữ thông tin cho user sử dụng client này
-    public void setUser(String userId, String userName) {
-        this.userId = userId;
-        this.userName = userName;
-        // Mặc định balance là 0 nếu không truyền vào, 
-        // giá trị này sẽ được cập nhật sau khi đồng bộ dữ liệu
-        this.totalBalance = 0;
-    }
 
     public void setUser(String userId, String userName, double balance) {
         this.userId = userId;
