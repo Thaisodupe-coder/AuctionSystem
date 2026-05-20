@@ -50,7 +50,7 @@
                                 </TableView>
                                 <LineChart fx:id="lineChartBidHistory" animated="false" createSymbols="true" legendVisible="false" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <xAxis>
-                                        <CategoryAxis label="Thời gian" side="BOTTOM" />
+                                        <CategoryAxis label="Lượt đặt giá" side="BOTTOM" />
                                     </xAxis>
                                     <yAxis>
                                         <NumberAxis forceZeroInRange="false" label="Giá (VND)" side="LEFT" />
@@ -95,22 +95,24 @@
                                 </HBox>
                                 <HBox>
                                     <children>
-                                        <Label prefWidth="120.0" text="Condition:" textFill="#666666" />
+                                        <Label prefWidth="120.0" text="Trạng thái:" textFill="#666666" />
                                         <Label fx:id="lblDetailCondition" text="Status" />
                                     </children>
                                 </HBox>
                                 <HBox>
                                     <children>
-                                        <Label prefWidth="120.0" text="Time End:" textFill="#666666" />
-                                        <Label fx:id="lblTimeEnd" text="Time" textFill="#ff2b2b">
+                                        <Label prefHeight="15.0" prefWidth="120.0" text="Thời điểm bắt đầu:" textFill="#666666" />
+                                        <Label fx:id="lblTimestart" text="Time" textFill="#00ff11">
                                             <font><Font name="System Bold" size="13.0" /></font>
                                         </Label>
                                     </children>
                                 </HBox>
                         <HBox prefHeight="15.0" prefWidth="358.0">
                            <children>
-                              <Label prefHeight="15.0" prefWidth="120.0" text="Started on:" textFill="#666666" />
-                              <Label fx:id="lblTimestart" text="Time" textFill="#00ff11" />
+                              <Label prefWidth="120.0" text="Thời điểm kết thúc:" textFill="#666666" />
+                              <Label fx:id="lblTimeEnd" text="Time" textFill="#ff2b2b">
+                                 <font><Font name="System Bold" size="13.0" /></font>
+                              </Label>
                            </children>
                         </HBox>
                         <Label fx:id="lblWinner" text="Winner: " textFill="#155724" visible="false" wrapText="true">
@@ -121,11 +123,11 @@
 
                         <VBox spacing="10.0">
                             <children>
-                                <Label text="Đặt bid của bạn :" />
+                                <Label text="Giá dự thầu: " />
                                 <HBox spacing="10.0">
                                     <children>                                        
-                                        <TextField fx:id="txtBidInput" prefHeight="40.0" prefWidth="200.0" styleClass="input-harmonious" promptText="Enter amount..." />
-                                        <Button fx:id="btnPlaceBid" onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="custom-button" text="PLACE BID">
+                                        <TextField fx:id="txtBidInput" prefHeight="40.0" prefWidth="200.0" styleClass="input-harmonious" promptText="Nhập mức giá mong muốn..."/>
+                                        <Button fx:id="btnPlaceBid" onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="custom-button" text="ĐẶT GIÁ">
                                             <font><Font name="System Bold" size="14.0" /></font>
                                         </Button>
                                     </children>
@@ -135,7 +137,7 @@
 
                         <VBox spacing="5.0">
                             <children>
-                                <Label text="Description:">
+                                <Label text="Thông tin chi tiết:">
                                     <font><Font name="System Bold" size="14.0" /></font>
                                 </Label>
                                 <Label fx:id="lblDetailDescription" text="Mô tả" wrapText="true" />

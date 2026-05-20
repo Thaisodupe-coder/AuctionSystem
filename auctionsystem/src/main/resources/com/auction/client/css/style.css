@@ -397,3 +397,17 @@
     -fx-font-size: 16px;
     -fx-padding: 2px 5px;
 }
+
+/* Tùy chỉnh Tooltip nổi bật */
+.tooltip {
+    -fx-background-color: #2c3e50; /* Màu nền xanh đen thanh lịch */
+    -fx-text-fill: white;          /* Màu chữ trắng */
+    -fx-font-size: 13px;           /* Tăng kích cỡ chữ */
+    -fx-font-weight: bold;         /* Làm chữ đậm */
+    -fx-padding: 8px 12px;         /* Tạo khoảng cách lề rộng hơn */
+    -fx-background-radius: 8px;    /* Bo góc mềm mại */
+    -fx-border-color: #3498db;     /* Viền xanh dương sáng nổi bật */
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 6px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 4); /* Hiệu ứng bóng đổ */
+}

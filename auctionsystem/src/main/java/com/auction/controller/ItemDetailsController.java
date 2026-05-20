@@ -44,7 +44,6 @@ import java.util.Map.Entry;
 
 public class ItemDetailsController implements AuctionObserver {
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-    private static final DateTimeFormatter timeOnlyFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     @FXML
     private Label lblDetailTitle;
@@ -88,18 +87,22 @@ public class ItemDetailsController implements AuctionObserver {
 
     // Model class nội bộ để hiển thị bảng
     public static class BidDisplayItem {
+        private final StringProperty sequence;
         private final StringProperty time;
         private final StringProperty user;
         private final StringProperty price;
 
-        public BidDisplayItem(String time, String user, String price) {
+        public BidDisplayItem(String sequence, String time, String user, String price) {
+            this.sequence = new SimpleStringProperty(sequence);
             this.time = new SimpleStringProperty(time);
             this.user = new SimpleStringProperty(user);
             this.price = new SimpleStringProperty(price);
         }
+        public String getSequence() { return sequence.get(); }
         public String getTime() { return time.get(); }
         public String getUser() { return user.get(); }
         public String getPrice() { return price.get(); }
+        public StringProperty sequenceProperty() { return sequence; }
         public StringProperty timeProperty() { return time; }
         public StringProperty userProperty() { return user; }
         public StringProperty priceProperty() { return price; }
@@ -116,7 +119,12 @@ public class ItemDetailsController implements AuctionObserver {
     @FXML
     public void initialize() {
         if (tvBidHistory != null) {
-            TableColumn<BidDisplayItem, String> timeCol = new TableColumn<>("THỜI GIAN");
+            TableColumn<BidDisplayItem, String> seqCol = new TableColumn<>("STT");
+            seqCol.setCellValueFactory(new PropertyValueFactory<>("sequence"));
+            seqCol.setPrefWidth(50); 
+            seqCol.setStyle("-fx-alignment: CENTER");
+
+            TableColumn<BidDisplayItem, String> timeCol = new TableColumn<>("THỜI ĐIỂM");
             timeCol.setCellValueFactory(new PropertyValueFactory<>("time"));
             timeCol.setPrefWidth(170); 
             timeCol.getStyleClass().add("time-column");
@@ -127,13 +135,13 @@ public class ItemDetailsController implements AuctionObserver {
             bidderCol.setPrefWidth(110);
             bidderCol.setStyle("-fx-alignment: CENTER");
 
-            TableColumn<BidDisplayItem, String> priceCol = new TableColumn<>("GIÁ VND");
+            TableColumn<BidDisplayItem, String> priceCol = new TableColumn<>("MỨC GIÁ (VND)");
             priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
             priceCol.setPrefWidth(110);
             priceCol.getStyleClass().add("price-column");
             priceCol.setStyle("-fx-alignment: CENTER");
 
-            tvBidHistory.getColumns().addAll(timeCol, bidderCol, priceCol);
+            tvBidHistory.getColumns().addAll(seqCol, timeCol, bidderCol, priceCol);
             tvBidHistory.setItems(bidLogItems);
             tvBidHistory.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
@@ -141,11 +149,6 @@ public class ItemDetailsController implements AuctionObserver {
         // Khởi tạo series cho biểu đồ
         if (lineChartBidHistory != null) {
             lineChartBidHistory.getData().add(priceSeries);
-
-            lineChartBidHistory.setVerticalGridLinesVisible(false);
-
-            CategoryAxis xAxis = (CategoryAxis) lineChartBidHistory.getXAxis();
-            xAxis.setTickLabelRotation(0);
             
             // Giữ cho thang đo giá ổn định, không bị nhảy về 0 khi có giá trị lớn
             if (lineChartBidHistory.getYAxis() instanceof NumberAxis) {
@@ -209,84 +212,91 @@ public class ItemDetailsController implements AuctionObserver {
         lblDetailDescription.setText(auction.getItem().getDescription());
         
         //Cập nhật giá dựa theo giá bid lớn nhất hiện tại
-        lblDetailPrice.setText(String.format("%.2f VND", auction.getHighestBid()));
+        lblDetailPrice.setText(String.format("%.0f VND", auction.getHighestBid()));
 
         // Cập nhật lịch sử đặt giá vào ListView
         List<BidTransaction> history = auction.getBidHistory();
         
-        String currentUserId = ClientManager.getINSTANCE().getUserId();
         // Chỉ thêm những bid mới mà UI chưa có
-        if (history.size() > bidLogItems.size()) { //Kiểm tra nếu tổng bid từ sv lớn hơn bid hiện có trên màn hình
+        if (history.size() > bidLogItems.size()) { // Kiểm tra nếu tổng bid từ server lớn hơn bid hiện có trên màn hình
             // Duyệt từ vị trí hiện tại của UI đến hết lịch sử mới
             for (int i = bidLogItems.size(); i < history.size(); i++) {
                 BidTransaction bid = history.get(i);
                 
                 String timeStr = bid.getTimestamp().format(timeFormatter);
-                String priceStr = String.format("%,.2f", bid.getAmount());
+                String priceStr = String.format("%,.0f", bid.getAmount());
                 
                 String bidderName = (bid.getBidderName() != null && !bid.getBidderName().isEmpty()) 
                                     ? bid.getBidderName() : "Người đấu giá";
 
-                // Thêm vào bảng dưới dạng Object thay vì String
-                bidLogItems.add(0, new BidDisplayItem(timeStr, bidderName, priceStr));
+                String seqStr = "#" + (i + 1);
+                bidLogItems.add(0, new BidDisplayItem(seqStr, timeStr, bidderName, priceStr));
 
-                // Đồ thị: Trục hoành chỉ hiển thị thời gian
-                LocalDate currentBidDate = bid.getTimestamp().toLocalDate();
-                
+                LocalDate currentBidDate = bid.getTimestamp().toLocalDate(); 
                 // Nếu là bid đầu tiên (i=0) hoặc khác ngày với bid phía trước
                 boolean isFirstBidOfDay = (i == 0) || !currentBidDate.equals(history.get(i - 1).getTimestamp().toLocalDate());
 
-                // Dùng khoảng trắng để CategoryAxis không gộp các bid trùng giây
-                String uniqueLabel = bid.getTimestamp().format(timeOnlyFormatter) + "\u200B".repeat(i);
-                priceSeries.getData().add(new XYChart.Data<>(uniqueLabel, bid.getAmount()));
+                // Trục hoành hiển thị số thứ tự đặt bid
+                XYChart.Data<String, Number> data = new XYChart.Data<>(seqStr, bid.getAmount());
+                
+                data.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                    if (newNode != null) {
+                        String tooltipText = String.format("Lượt đặt: %s\nThời điểm: %s\nMức giá: %,.0f VND",
+                                seqStr, bid.getTimestamp().format(timeFormatter), bid.getAmount());
+                        newNode.setCursor(Cursor.HAND);
+                        Tooltip tip = new Tooltip(tooltipText);
+                        tip.setShowDelay(javafx.util.Duration.millis(50));
+                        Tooltip.install(newNode, tip);
+                    }
+                });
+
+                priceSeries.getData().add(data);
 
                 if (isFirstBidOfDay) {
-                    markerData.putIfAbsent(uniqueLabel, bid.getTimestamp());
+                    markerData.putIfAbsent(seqStr, bid.getTimestamp());
                 }
             }
             Platform.runLater(this::redrawDayMarker);
         }
 
         // Thay đổi giao diện tùy thuộc vào trạng thái phiên đấu giá
-        if (auction.getStatus() == AuctionStatus.FINISHED || 
-            auction.getStatus() == AuctionStatus.PAID || 
-            auction.getStatus() == AuctionStatus.CANCELED) {
+        AuctionStatus status = auction.getStatus();
+        if (status == AuctionStatus.FINISHED || 
+            status == AuctionStatus.PAID || 
+            status == AuctionStatus.CANCELED) {
             lblDetailCondition.setText("ĐÃ KẾT THÚC");
             lblDetailCondition.setStyle("-fx-background-color: #8B0000; -fx-text-fill: white; -fx-padding: 3px 8px; -fx-background-radius: 5px;");
             
             txtBidInput.setDisable(true);
             if (btnPlaceBid != null) btnPlaceBid.setDisable(true);
-            
-            if (auction.getHighestBidderId() != null && !auction.getHighestBidderId().isEmpty()) {
-                // Lấy tên nguời thắng cuộc, ưu tiên nếu là chính mình thì lấy tên từ ClientManager
-                String winnerName;
-                if (auction.getHighestBidderId().equals(currentUserId)) {
-                    winnerName = ClientManager.getINSTANCE().getUserName();
-                } else {
-                    // Tìm trong lịch sử bid để lấy chính xác tên người thắng
-                    winnerName = auction.getBidHistory().stream()
-                            .filter(b -> b.getBidderId().equals(auction.getHighestBidderId()))
-                            .map(BidTransaction::getBidderName)
-                            .findFirst()
-                            .orElse("Chưa xác định");
+
+            if (status == AuctionStatus.CANCELED) {
+                if (lblWinner != null) {
+                    lblWinner.setText("❌ Phiên đấu giá đã bị hủy");
+                    lblWinner.setStyle("-fx-text-fill: #721c24; -fx-font-weight: bold;");
+                    lblWinner.setVisible(true);
+                }
+            } else {
+                // Logic xác định người chiến thắng: 
+                // Lấy tên từ BidTransaction cuối cùng trong lịch sử
+                String winnerName = null;
+                if (auction.getHighestBidderId() != null && !history.isEmpty()) {
+                    winnerName = history.get(history.size() - 1).getBidderName();
                 }
 
-                lblDetailPrice.setStyle("-fx-background-color: #d4edda; -fx-text-fill: #155724; -fx-padding: 3px 8px;"); // Nền xanh lá nhạt
-                if (lblWinner != null) {
-                    lblWinner.setText("🏆 WINNER: " + winnerName);
-                    lblWinner.setStyle("-fx-text-fill: #155724; -fx-font-weight: bold;");
-                    lblWinner.setVisible(true);
+                if (winnerName != null) {
+                    if (lblWinner != null) {
+                        lblWinner.setText("🏆 WINNER: " + winnerName);
+                        lblWinner.setStyle("-fx-text-fill: #155724; -fx-font-weight: bold;");
+                        lblWinner.setVisible(true);
+                    }
+                    lblDetailPrice.setStyle("-fx-background-color: #d4edda; -fx-text-fill: #155724; -fx-padding: 5px; -fx-background-radius: 5px;");
                 } else {
-                    lblDetailTitle.setText(auction.getItem().getName() + " - Winner: " + winnerName);
-                }
-                lblDetailPrice.setStyle("-fx-background-color: #d4edda; -fx-text-fill: #155724; -fx-padding: 5px; -fx-background-radius: 5px;");
-            } else {
-                if (lblWinner != null) {
-                    lblWinner.setText("❌ Phiên đấu giá kết thúc (Không có người mua)");
-                    lblWinner.setStyle("-fx-text-fill: #721c24;");
-                    lblWinner.setVisible(true);
-                } else {
-                    lblDetailTitle.setText(auction.getItem().getName() + " - Thất bại");
+                    if (lblWinner != null) {
+                        lblWinner.setText("❌ Kết thúc (Không có người mua)");
+                        lblWinner.setStyle("-fx-text-fill: #721c24;");
+                        lblWinner.setVisible(true);
+                    }
                 }
             }
         } else { // Trạng thái OPEN hoặc RUNNING
@@ -300,7 +310,7 @@ public class ItemDetailsController implements AuctionObserver {
                 if (btnPlaceBid != null) btnPlaceBid.setDisable(true);
             } else {
                 txtBidInput.setDisable(false);
-                txtBidInput.setPromptText("Enter amount...");
+                txtBidInput.setPromptText("Nhập mức giá mong muốn...");
                 if (btnPlaceBid != null) btnPlaceBid.setDisable(false);
             }
             lblDetailPrice.setStyle("");
@@ -337,18 +347,18 @@ public class ItemDetailsController implements AuctionObserver {
                 line.getStyleClass().add("day-marker");
                 line.setCursor(Cursor.HAND); // Đổi con trỏ chuột khi hover vào vạch
                 
-                // RÀNG BUỘC: Chỉ hiển thị vạch kẻ khi đồ thị đang hiển thị
+                // Chỉ hiển thị vạch kẻ khi đồ thị đang hiển thị
                 line.visibleProperty().bind(lineChartBidHistory.visibleProperty());
 
-                // Tọa độ vạch kẻ (tương đối trong StackPane)
+                // Tọa độ vạch kẻ
                 line.setStartX(chartBackground.getLayoutX() + xPos);
                 line.setEndX(chartBackground.getLayoutX() + xPos);
                 line.setStartY(chartBackground.getLayoutY());
                 line.setEndY(chartBackground.getLayoutY() + chartBackground.getBoundsInLocal().getHeight());
 
                 // Hiển thị đầy đủ ngày tháng năm và thời gian khi hover
-                Tooltip tooltip = new Tooltip("Mốc thời gian: " + dateTime.format(timeFormatter));
-                tooltip.setShowDelay(javafx.util.Duration.millis(100)); // Hiện tooltip nhanh hơn
+                Tooltip tooltip = new Tooltip("Mốc thời gian: " + dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                tooltip.setShowDelay(javafx.util.Duration.millis(50)); // Hiện tooltip nhanh hơn
                 Tooltip.install(line, tooltip);
 
                 parent.getChildren().add(line);
@@ -372,13 +382,13 @@ public class ItemDetailsController implements AuctionObserver {
             lineChartBidHistory.setVisible(true);
             // Vẽ lại vạch đỏ ngay khi hiện đồ thị
             Platform.runLater(this::redrawDayMarker);
-            btnToggleView.setText("XEM LỊCH SỬ ĐẶT GIÁ");
+            btnToggleView.setText("BẢNG KÊ");
         } else {
             tvBidHistory.setVisible(true);
             lineChartBidHistory.setVisible(false);
             // Xóa vạch đỏ khi chuyển sang danh sách
             removeDayMarkers();
-            btnToggleView.setText("XEM ĐỒ THỊ GIÁ");
+            btnToggleView.setText("BIỂU ĐỒ");
         }
     }
 
