@@ -13,7 +13,7 @@
 }
 .header-link {
     -fx-background-color: transparent;
-    -fx-text-fill: black;
+    -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-cursor: hand;
 }
@@ -118,7 +118,7 @@
 .custom-button:hover {
     -fx-background-color: #315cfd;
     -fx-text-fill: white;
-    -fx-font-size: 1.5em;
+    -fx-font-size: 1.2em;
 }
 .toggle-left {
     -fx-background-color: #4da6ff;
@@ -138,6 +138,15 @@
     -fx-border-width: 1px;
 }
 
+.toggle-center-alt {
+    -fx-background-color: #c7a460;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+
+    -fx-border-color: transparent white transparent transparent;
+    -fx-border-width: 1px;
+}
+
 .toggle-right {
     -fx-background-color: #0c4b8e;
     -fx-background-radius: 0 15 15 0;
@@ -148,6 +157,7 @@
 .combo-box-rounded {
     -fx-background-radius: 15;
     -fx-border-radius: 15;
+    -fx-background-color: #e0e0e0;
 }
 .card {
     /* Bo góc 50px */
@@ -378,10 +388,21 @@
 
 /* Thẻ item của chính user tạo */
 .my-auction-card {
-    -fx-border-color: #DAA520; /* Vàng gold */
-    -fx-border-width: 2px;
-    -fx-border-style: dashed;
+    -fx-background-color: #e0e0e0; /* Màu nền card khớp với background */
+    -fx-background-radius: 40px;
+    -fx-padding: 15px;
+
+        /* 2. Hiệu ứng chính: Đổ bóng vàng để mô phỏng viền */
+        /* Cú pháp: dropshadow(loại-mờ, màu-sắc, bán-kính-mờ, độ-lan-tỏa, lệch-x, lệch-y) */
+
+        /* Chúng ta tạo một hào quang vàng nhạt tỏa đều xung quanh */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 89, 128, 0.4), 30, 0, 0, 0);
 }
+
+.my-auction-card:hover {
+    /* Khi hover vào, hào quang vàng rõ hơn */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 89, 128, 0.8), 20, 0, 0, 0);
+    -fx-cursor: hand;
 
 /* Giá tiền của thẻ item user đang bid */
 .my-bid-price {

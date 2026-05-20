@@ -21,7 +21,7 @@
                 <Button fx:id="txtusename" styleClass="header-link" text="Username" />
 
                 <Button onAction="#handleHomeAction" styleClass="header-link" text="🏠 Home" />
-                <Button onAction="#handleSellerViewTransfer" layoutX="755.0" layoutY="21.0" styleClass="header-link" text="❒Inventory" />
+                <Button layoutX="755.0" layoutY="21.0" onAction="#handleSellerViewTransfer" styleClass="header-link" text="❒Inventory" />
                 <Button onAction="#handleLogoutAction" styleClass="header-link" text="🔑 Logout" />
             </children>
             <padding>
@@ -44,11 +44,11 @@
                         <fx:define>
                             <ToggleGroup fx:id="filterGroup" />
                         </fx:define>
-                        <ToggleButton prefWidth="150.0" selected="true" styleClass="filter-btn, filter-btn-blue" text="All Lots" toggleGroup="$filterGroup" />
-                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-green" text="Active Lots" toggleGroup="$filterGroup" />
-                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-dark" text="My Lots" toggleGroup="$filterGroup" />
-                        <ToggleButton prefWidth="150.0" styleClass="filter-btn, filter-btn-blue" text="My Bids" toggleGroup="$filterGroup" />
-                        <ComboBox fx:id="cbCategory" prefWidth="150.0" promptText="Categories" styleClass="filter-combo" />
+                        <ToggleButton prefWidth="150.0" selected="true" styleClass="toggle-left" text="All Lots" toggleGroup="$filterGroup"/>
+                        <ToggleButton prefWidth="150.0" styleClass="toggle-center-alt" text="Active Lots" toggleGroup="$filterGroup" />
+                        <ToggleButton prefWidth="150.0" styleClass="toggle-center" text="My Lots" toggleGroup="$filterGroup" />
+                        <ToggleButton prefWidth="150.0" styleClass="toggle-right" text="My Bids" textFill="WHITE" toggleGroup="$filterGroup" />
+                        <ComboBox fx:id="cbCategory" prefWidth="150.0" promptText="Categories" styleClass="combo-box-rounded" />
                     </children>
                 </HBox>
 
