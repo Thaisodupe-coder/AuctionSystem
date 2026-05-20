@@ -71,7 +71,16 @@ public class ItemDetailsController implements AuctionObserver {
     private Label lblDetailDescription;
 
     @FXML
-    private javafx.scene.control.Button btnPlaceBid; // Gắn fx:id="btnPlaceBid" cho nút "PLACE BID" trong SceneBuilder
+    private Button btnPlaceBid; // Gắn fx:id="btnPlaceBid" cho nút "PLACE BID" trong SceneBuilder
+
+    @FXML
+    private Button btnQuick5;
+
+    @FXML
+    private Button btnQuick10;
+
+    @FXML
+    private Button btnQuick50;
 
     @FXML
     private Label lblWinner; // Tạo 1 label mới trong SceneBuilder và gắn fx:id="lblWinner" để hiện tên người thắng
@@ -135,7 +144,7 @@ public class ItemDetailsController implements AuctionObserver {
             bidderCol.setPrefWidth(110);
             bidderCol.setStyle("-fx-alignment: CENTER");
 
-            TableColumn<BidDisplayItem, String> priceCol = new TableColumn<>("MỨC GIÁ (VND)");
+            TableColumn<BidDisplayItem, String> priceCol = new TableColumn<>("MỨC GIÁ (USD)");
             priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
             priceCol.setPrefWidth(110);
             priceCol.getStyleClass().add("price-column");
@@ -211,8 +220,13 @@ public class ItemDetailsController implements AuctionObserver {
         lblTimeEnd.setText(auction.getEndTime().format(timeFormatter));
         lblDetailDescription.setText(auction.getItem().getDescription());
         
+        // Xử lý logic Concurrent Bidding 
+        // Nếu giá trị đang nhập không còn cao hơn giá hiện tại thì sẽ xoá ô nhập liệu.
+        checkAndClearInvalidBidInput();
+
+
         //Cập nhật giá dựa theo giá bid lớn nhất hiện tại
-        lblDetailPrice.setText(String.format("%.0f VND", auction.getHighestBid()));
+        lblDetailPrice.setText(String.format("%.0f USD", auction.getHighestBid()));
 
         // Cập nhật lịch sử đặt giá vào ListView
         List<BidTransaction> history = auction.getBidHistory();
@@ -241,7 +255,7 @@ public class ItemDetailsController implements AuctionObserver {
                 
                 data.nodeProperty().addListener((obs, oldNode, newNode) -> {
                     if (newNode != null) {
-                        String tooltipText = String.format("Lượt đặt: %s\nThời điểm: %s\nMức giá: %,.0f VND",
+                        String tooltipText = String.format("Lượt đặt: %s\nThời điểm: %s\nMức giá: %,.0f USD",
                                 seqStr, bid.getTimestamp().format(timeFormatter), bid.getAmount());
                         newNode.setCursor(Cursor.HAND);
                         Tooltip tip = new Tooltip(tooltipText);
@@ -269,6 +283,9 @@ public class ItemDetailsController implements AuctionObserver {
             
             txtBidInput.setDisable(true);
             if (btnPlaceBid != null) btnPlaceBid.setDisable(true);
+            if (btnQuick5 != null) btnQuick5.setDisable(true);
+            if (btnQuick10 != null) btnQuick10.setDisable(true);
+            if (btnQuick50 != null) btnQuick50.setDisable(true);
 
             if (status == AuctionStatus.CANCELED) {
                 if (lblWinner != null) {
@@ -308,6 +325,9 @@ public class ItemDetailsController implements AuctionObserver {
                 txtBidInput.setDisable(true);
                 txtBidInput.setPromptText("Sản phẩm của bạn");
                 if (btnPlaceBid != null) btnPlaceBid.setDisable(true);
+                if (btnQuick5 != null) btnQuick5.setDisable(true);
+                if (btnQuick10 != null) btnQuick10.setDisable(true);
+                if (btnQuick50 != null) btnQuick50.setDisable(true);
             } else {
                 txtBidInput.setDisable(false);
                 txtBidInput.setPromptText("Nhập mức giá mong muốn...");
@@ -316,6 +336,20 @@ public class ItemDetailsController implements AuctionObserver {
             lblDetailPrice.setStyle("");
             if (lblWinner != null) lblWinner.setVisible(false);
         }
+    }
+
+    /**
+     * Kiểm tra và xóa nội dung của txtBidInput nếu giá trị hiện tại không còn hợp lệ
+     */
+    private void checkAndClearInvalidBidInput() {
+        try {
+            if (!txtBidInput.getText().isEmpty()) {
+                double currentInputBid = Double.parseDouble(txtBidInput.getText());
+                if (currentInputBid <= auction.getHighestBid()) {
+                    txtBidInput.clear();
+                }
+            }
+        } catch (NumberFormatException e) { /* Bỏ qua nếu không phải số hợp lệ */ }
     }
 
     private void redrawDayMarker() { // Vạch kẻ động vẽ lại vạch mới bám sát theo dữ liệu mới nhất
@@ -397,6 +431,37 @@ public class ItemDetailsController implements AuctionObserver {
         cleanup(); // Dọn dẹp trước khi đóng bằng nút Back
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.close();
+    }
+
+    @FXML
+    public void handleQuickBid5(ActionEvent event) {
+        updateBidInput(5);
+    }
+
+    @FXML
+    public void handleQuickBid10(ActionEvent event) {
+        updateBidInput(10);
+    }
+
+    @FXML
+    public void handleQuickBid50(ActionEvent event) {
+        updateBidInput(50);
+    }
+
+    private void updateBidInput(double increment) {
+        if (auction == null) return;
+
+        double currentInputValue = auction.getHighestBid(); // Giá cao nhất hiện tại làm mặc định
+        try {
+            // Nếu txtBidInput đã có giá trị số hợp lệ, dùng nó làm gốc để cộng dồn
+            if (!txtBidInput.getText().isEmpty()) {
+                currentInputValue = Double.parseDouble(txtBidInput.getText());
+            }
+        } catch (NumberFormatException e) {
+            // Bỏ qua nếu không phải số, giữ nguyên currentInputValue là auction.getHighestBid()
+        }
+        double nextBid = currentInputValue + increment;
+        txtBidInput.setText(String.format("%.0f", nextBid));
     }
 
     @FXML

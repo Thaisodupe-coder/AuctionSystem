@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<VBox prefHeight="700.0" prefWidth="900.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.ItemDetailsController">
+
+<VBox prefHeight="700.0" prefWidth="900.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.ItemDetailsController">
     <children>
         <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="header-bar">
             <children>
@@ -53,20 +56,20 @@
                                         <CategoryAxis label="Lượt đặt giá" side="BOTTOM" />
                                     </xAxis>
                                     <yAxis>
-                                        <NumberAxis forceZeroInRange="false" label="Giá (VND)" side="LEFT" />
+                                        <NumberAxis forceZeroInRange="false" label="Giá (USD)" side="LEFT" />
                                     </yAxis>
                                 </LineChart>
                             </children>
                         </AnchorPane>
                         <HBox alignment="CENTER">
                             <children>
-                                <Button fx:id="btnToggleView" onAction="#handleToggleView" prefWidth="200.0" styleClass="btn-toggle-view" text="XEM ĐỒ THỊ GIÁ" />
+                                <Button fx:id="btnToggleView" onAction="#handleToggleView" prefWidth="200.0" styleClass="btn-toggle-view" text="BIỂU ĐỒ" />
                             </children>
                         </HBox>
                     </children>
                 </VBox>
 
-                <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                <VBox spacing="12.0" HBox.hgrow="ALWAYS">
                     <children>
                         <Label fx:id="lblDetailTitle" text="Item" textFill="#0c4b8e">
                             <font><Font name="System Bold" size="28.0" /></font>
@@ -83,51 +86,50 @@
 
                         <Separator prefWidth="200.0" />
 
-                        <VBox spacing="10.0" style="-fx-background-color: #f9f9f9; -fx-padding: 20; -fx-border-color: #eee;">
+                        <GridPane hgap="15.0" style="-fx-background-color: #f9f9f9; -fx-padding: 15; -fx-border-color: #eee;" vgap="12.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="NEVER" minWidth="135.0" prefWidth="135.0" />
+                                <ColumnConstraints hgrow="ALWAYS" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints valignment="CENTER" />
+                                <RowConstraints valignment="CENTER" />
+                                <RowConstraints valignment="CENTER" />
+                                <RowConstraints valignment="CENTER" />
+                                <RowConstraints valignment="CENTER" />
+                            </rowConstraints>
                             <children>
-                                <HBox>
-                                    <children>
-                                        <Label prefWidth="120.0" text="Current Price:" textFill="#666666" />
-                                        <Label fx:id="lblDetailPrice" text="Price" textFill="#d9534f">
-                                            <font><Font name="System Bold" size="20.0" /></font>
-                                        </Label>
-                                    </children>
-                                </HBox>
-                                <HBox>
-                                    <children>
-                                        <Label prefWidth="120.0" text="Trạng thái:" textFill="#666666" />
-                                        <Label fx:id="lblDetailCondition" text="Status" />
-                                    </children>
-                                </HBox>
-                                <HBox>
-                                    <children>
-                                        <Label prefHeight="15.0" prefWidth="120.0" text="Thời điểm bắt đầu:" textFill="#666666" />
-                                        <Label fx:id="lblTimestart" text="Time" textFill="#00ff11">
-                                            <font><Font name="System Bold" size="13.0" /></font>
-                                        </Label>
-                                    </children>
-                                </HBox>
-                        <HBox prefHeight="15.0" prefWidth="358.0">
-                           <children>
-                              <Label prefWidth="120.0" text="Thời điểm kết thúc:" textFill="#666666" />
-                              <Label fx:id="lblTimeEnd" text="Time" textFill="#ff2b2b">
-                                 <font><Font name="System Bold" size="13.0" /></font>
-                              </Label>
-                           </children>
-                        </HBox>
-                        <Label fx:id="lblWinner" text="Winner: " textFill="#155724" visible="false" wrapText="true">
-                            <font><Font name="System Bold" size="14.0" /></font>
-                        </Label>
-                            </children>
-                        </VBox>
+                                <Label text="Giá hiện tại:" textFill="#666666" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <Label fx:id="lblDetailPrice" text="Price" textFill="#d9534f" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <font><Font name="System Bold" size="20.0" /></font>
+                                </Label>
 
-                        <VBox spacing="10.0">
+                                <Label text="Trạng thái:" textFill="#666666" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <Label fx:id="lblDetailCondition" text="Status" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                <Label text="Thời điểm bắt đầu:" textFill="#666666" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <Label fx:id="lblTimestart" text="Time" textFill="#00ff11" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <font><Font name="System Bold" size="13.0" /></font>
+                                </Label>
+
+                                <Label text="Thời điểm kết thúc:" textFill="#666666" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <Label fx:id="lblTimeEnd" text="Time" textFill="#ff2b2b" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <font><Font name="System Bold" size="13.0" /></font>
+                                </Label>
+                                
+                                <Label fx:id="lblWinner" text="Winner: " textFill="#155724" visible="false" wrapText="true" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                            </children>
+                        </GridPane>
+
+                        <VBox spacing="8.0">
                             <children>
                                 <Label text="Giá dự thầu: " />
-                                <HBox spacing="10.0">
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <children>                                        
-                                        <TextField fx:id="txtBidInput" prefHeight="40.0" prefWidth="200.0" styleClass="input-harmonious" promptText="Nhập mức giá mong muốn..."/>
-                                        <Button fx:id="btnPlaceBid" onAction="#handlePlaceBid" prefHeight="40.0" prefWidth="150.0" styleClass="custom-button" text="ĐẶT GIÁ">
+                                        <TextField fx:id="txtBidInput" prefHeight="45.0" prefWidth="200.0" promptText="Nhập mức giá mong muốn..." styleClass="input-harmonious" />
+                                        <Button fx:id="btnPlaceBid" onAction="#handlePlaceBid" prefHeight="45.0" prefWidth="125.0" styleClass="custom-button" text="ĐẶT GIÁ">
                                             <font><Font name="System Bold" size="14.0" /></font>
                                         </Button>
                                     </children>
@@ -135,14 +137,36 @@
                             </children>
                         </VBox>
 
-                        <VBox spacing="5.0">
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label text="Đặt giá nhanh">
+                                    <font><Font name="System Bold" size="13.0" /></font>
+                                </Label>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Button fx:id="btnQuick5" onAction="#handleQuickBid5" prefHeight="40.0" prefWidth="105.0" styleClass="custom-button" text="+ 5">
+                                            <font><Font name="System Bold" size="13.0" /></font>
+                                        </Button>
+                                        <Button fx:id="btnQuick10" onAction="#handleQuickBid10" prefHeight="40.0" prefWidth="105.0" styleClass="custom-button" text="+ 10">
+                                            <font><Font name="System Bold" size="13.0" /></font>
+                                        </Button>
+                                        <Button fx:id="btnQuick50" onAction="#handleQuickBid50" prefHeight="40.0" prefWidth="105.0" styleClass="custom-button" text="+ 50">
+                                            <font><Font name="System Bold" size="13.0" /></font>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="8.0">
                             <children>
                                 <Label text="Thông tin chi tiết:">
                                     <font><Font name="System Bold" size="14.0" /></font>
                                 </Label>
-                                <Label fx:id="lblDetailDescription" text="Mô tả" wrapText="true" />
+                                <Label fx:id="lblDetailDescription" wrapText="true" />
                             </children>
                         </VBox>
+                        <Region prefHeight="150.0" />
                     </children>
                 </VBox>
             </children>

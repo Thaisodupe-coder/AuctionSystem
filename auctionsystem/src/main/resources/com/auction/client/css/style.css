@@ -101,9 +101,6 @@
     -fx-border-width: 0;
 }
 .custom-button {
-    -fx-pref-width: 125px;
-    -fx-pref-height: 60px;
-
     -fx-border-color: #315cfd;
     -fx-border-width: 3px;
 
@@ -153,10 +150,6 @@
     -fx-border-radius: 15;
 }
 .card {
-    /* Kích thước theo thiết kế */
-    -fx-pref-width: 190px;
-    -fx-pref-height: 254px;
-
     /* Bo góc 50px */
     -fx-background-radius: 50px;
 
@@ -232,7 +225,7 @@
     -fx-border-color: transparent transparent #dcdcdc transparent; /* Đường kẻ mờ ngăn cách */
 }
 
-/* Hiệu ứng khi di chuột qua phần tử (Hover) */
+/* Hiệu ứng khi di chuột qua phần tử */
 .list-view-card .list-cell:hover {
     -fx-background-color: rgba(0, 0, 0, 0.03);
 }
@@ -282,7 +275,7 @@
     -fx-text-fill: #333;
 }
 
-/* 3. Định dạng nút bấm mở lịch (Arrow Button) */
+/* 3. Định dạng nút bấm mở lịch */
 .date-picker > .arrow-button {
     -fx-background-color: transparent;
     -fx-background-radius: 0 15px 15px 0; /* Bo tròn góc phải */
@@ -291,7 +284,7 @@
 
 /* Đổi màu biểu tượng cuốn lịch bên trong nút */
 .date-picker > .arrow-button > .arrow {
-    -fx-background-color: #555; /* Màu xám đậm cho icon */
+    -fx-background-color: #555;
     -fx-shape: "M7 11h2v2H7zm0 4h2v2H7zm4-4h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm0 4h2v2h-2zM9 2v2H7V2H5v2H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-1V2h-2v2H9V2z"; /* Icon lịch tối giản */
 }
 
@@ -315,7 +308,7 @@
     -fx-font-size: 12px;
 }
 
-/* Làm nổi bật nhãn trục (Thời gian, Giá VND) trong đồ thị */
+/* Làm nổi bật nhãn trục (Thời gian, Giá USD) trong đồ thị */
 .axis-label {
     -fx-font-weight: bold;
     -fx-font-size: 14px;
@@ -334,7 +327,7 @@
     -fx-font-weight: bold;
 }
 
-/* Làm nổi bật cột Giá VND (In đậm và màu đỏ nổi bật) */
+/* Làm nổi bật cột giá USD (In đậm và màu đỏ nổi bật) */
 .price-column {
     -fx-alignment: CENTER-RIGHT;
     -fx-font-weight: bold;
