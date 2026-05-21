@@ -512,6 +512,38 @@ public class ItemDetailsController implements AuctionObserver {
             showAlert(Alert.AlertType.ERROR, "Lỗi nhập liệu", "Vui lòng nhập số tiền hợp lệ!");
         }
     }
+    @FXML
+    private void handleCancelAuction(ActionEvent event) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Xác nhận hủy đấu giá");
+        confirmAlert.setHeaderText("Bạn có chắc chắn muốn hủy phiên đấu giá này không?");
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // Đăng ký handler để nhận phản hồi từ Server
+            ClientManager.getINSTANCE().setResponseHandler(response -> {
+                if ("CANCEL_AUCTION_RES".equals(response.getCommand())) {
+                    Platform.runLater(() -> {
+                        if ("SUCCESS".equals(response.getStatus())) {
+                            showAlert(Alert.AlertType.INFORMATION, "Thành công", response.getMessage());
+                            cleanup(); // Dọn dẹp trước khi đóng bằng nút Back
+                            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                            stage.close();  // Quay lại trang trước
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
+                        }
+                    });
+                }
+            });
+
+            // Gửi Request lên Server để hủy phiên và lưu database
+            Request request = new Request("CANCEL_AUCTION");
+            request.addData("auctionId", auction.getId());
+            request.addData("sellerId", ClientManager.getINSTANCE().getUserId());
+            
+            ClientManager.getINSTANCE().sendRequest(request);
+        }
+    }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
