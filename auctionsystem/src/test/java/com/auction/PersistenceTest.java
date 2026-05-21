@@ -33,9 +33,9 @@ public class PersistenceTest {
         NormalUser registeredUser = userManager.register(testUsername, "password123");
         userManager.addBalance(registeredUser.getId(), 5000.0);
 
-        Item item = new Art("Laptop Gaming", "Core i9, 32GB RAM");
+        Item item = new Electronics("Laptop Gaming", "Core i9, 32GB RAM");
         Seller seller = userManager.getSellerRole(registeredUser);
-        Auction auction = auctionManager.createAuction(item, seller, 1000.0, 
+        Auction auction = auctionManager.createAuction(item, seller, 1000.0,
                 LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2));
 
         // 2. Thực hiện LƯU dữ liệu xuống PostgreSQL (Upsert)
@@ -59,9 +59,10 @@ public class PersistenceTest {
         System.out.println("[Test] Đang kiểm tra dữ liệu sau khi nạp...");
         NormalUser restoredUser = userManager.getUserById(registeredUser.getId());
         assertNotNull(restoredUser, "User phải được khôi phục từ PostgreSQL");
-        assertEquals(5000.0, restoredUser.getBalance(), 0.001, "Số dư phải được khôi phục đúng");
+        // Số dư mặc định 10,000 + 5,000 nạp thêm = 15,000
+        assertEquals(15000.0, restoredUser.getBalance(), 0.001, "Số dư phải được khôi phục đúng");
         assertNotNull(auctionManager.getAuction(auction.getId()), "Phiên đấu giá phải được khôi phục từ PostgreSQL");
-        
+
         System.out.println("[Test] KẾT QUẢ: Test thành công rực rỡ!");
     }
 
