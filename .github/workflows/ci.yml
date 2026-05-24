@@ -30,13 +30,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Khởi tạo Database thủ công bằng psql client sau khi checkout code
     - name: Initialize Database Schema
       run: |
         sudo apt-get update && sudo apt-get install -y postgresql-client
         PGPASSWORD=admin psql -h localhost -U postgres -d auctionsystem -f auctionsystem/src/main/resources/db/init.sql
 
-    # Nâng lên JDK 21 để cân được thư viện JavaFX 21 trong file POM của bạn
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -47,8 +45,9 @@ jobs:
     - name: Build and Test with Maven
       run: |
         cd auctionsystem
-        mvn clean compile -DskipDocker=true
-        mvn test -DskipDocker=true
+        # ĐÃ SỬA: Thay -DskipDocker=true bằng -DdockerCompose.skip=true
+        mvn clean compile -DdockerCompose.skip=true
+        mvn test -DdockerCompose.skip=true
       env:
         DB_URL: jdbc:postgresql://localhost:5432/auctionsystem
         DB_USER: postgres
@@ -62,7 +61,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Đồng bộ lên JDK 21 ở bước release để không bị lỗi xung đột phiên bản khi đóng gói
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -73,7 +71,8 @@ jobs:
     - name: Package Application
       run: |
         cd auctionsystem
-        mvn package -DskipTests -DskipDocker=true
+        # ĐÃ SỬA: Thay -DskipDocker=true bằng -DdockerCompose.skip=true
+        mvn package -DskipTests -DdockerCompose.skip=true
 
     - name: Create GitHub Release
       id: create_release
