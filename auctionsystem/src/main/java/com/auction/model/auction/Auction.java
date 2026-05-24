@@ -5,6 +5,8 @@ import com.auction.model.item.Item;
 import com.auction.model.user.Seller;
 import com.auction.model.user.NormalUser;
 import com.auction.service.UserManager;
+
+import java.time.Duration;
 import java.time.LocalDateTime;
 import com.auction.exception.AuctionClosedException;
 import com.auction.exception.InvalidBidException;
@@ -95,7 +97,8 @@ public class Auction extends Entity {
         if (user == null) {
             throw new IllegalArgumentException("Không tìm thấy người dùng với ID: " + bidderId);
         }
-        // Ngăn chặn người tạo phiên tự đặt giá cho sản phẩm của mình (Shill bidding)
+
+        //ngăn chặn người tạo phiên tự đặt giá cho sản phẩm của mình (Shill bidding)
         if (this.seller.getId().equals(bidderId)) {
             throw new InvalidBidException("Bạn không thể tự đặt giá cho phiên đấu giá do chính mình tạo ra!");
         }
@@ -107,11 +110,12 @@ public class Auction extends Entity {
         }
         //logic frozen balance
         //trả lại tiền cho người đặt giá cao nhất trước đó nếu có
+        //trừ tiền của người đặt giá cao nhất hiện tại
         if (highestBidderId != null){
             UserManager.getINSTANCE().addBalance(highestBidderId, highestBid);
         }
-        //trừ tiền của người đặt giá cao nhất hiện tại
         UserManager.getINSTANCE().addBalance(bidderId, -amount);
+
         syncBid(bidderId, user.getName(), amount); // Thông báo cho các observer về thay đổi
         return true;
     }
@@ -121,6 +125,12 @@ public class Auction extends Entity {
      * Hàm này được dùng khi Client nhận được tín hiệu Broadcast giá mới.
      */
     public synchronized void syncBid(String bidderId, String bidderName, double amount) {
+        //anti-sniping : nếu có bid mới trong 5 phút cuối thì gia hạn phiên thêm 5 phút
+        LocalDateTime now = LocalDateTime.now();
+        Duration timeLeft = Duration.between(now,this.endTime);
+        if (timeLeft.toSeconds() <= 300){
+            this.endTime = this.endTime.plusSeconds(300);
+        }
         this.highestBid = amount;
         this.highestBidderId = bidderId;
         BidTransaction newBid = new BidTransaction(this.getId(), bidderId, bidderName, amount, LocalDateTime.now());
@@ -145,7 +155,7 @@ public class Auction extends Entity {
         return new ArrayList<>(bidHistory);
     }
     
-    // Observer pattern : dùng cho controller
+    //observer pattern : dùng cho controller
     public void addObserver(AuctionObserver observer) {
         if (observer != null && !observers.contains(observer)) {
             observers.add(observer);

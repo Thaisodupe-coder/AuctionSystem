@@ -26,7 +26,6 @@ public abstract class UserDecorator extends User {
     public void setBalance(double balance) {
         user.setBalance(balance);
     }
-    // Cho phép lấy lại đối tượng gốc nếu cần thiết
     public User getUser() {
         return user;
     }

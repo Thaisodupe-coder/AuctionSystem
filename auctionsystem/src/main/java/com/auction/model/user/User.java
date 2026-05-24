@@ -17,7 +17,7 @@ public abstract class User extends Entity {
         super();
         this.name = name;
         this.password = password;
-        this.balance = 0.0; // Mặc định số dư ban đầu là 0
+        this.balance = 0.0; //mặc định số dư ban đầu là 0
     }
 
     //getter & setter

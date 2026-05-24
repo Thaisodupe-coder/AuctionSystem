@@ -133,8 +133,32 @@ public class MainPageController {
             }).collect(Collectors.toList());
         }
 
-        filtered.sort(Comparator.comparing(Auction::getEndTime).reversed());
+        // Sắp xếp theo trạng thái, sau đó theo thời gian kết thúc (gần nhất lên trước)
+        filtered.sort((a1, a2) -> {
+            int p1 = getStatusPriority(a1.getStatus());
+            int p2 = getStatusPriority(a2.getStatus());
+            
+            if (p1 != p2) {
+                return Integer.compare(p1, p2);
+            }
+
+            return a2.getEndTime().compareTo(a1.getEndTime());
+        });
+
         renderAuctions(filtered);
+    }
+
+    // Hàm quy định mức độ ưu tiên của các trạng thái (số càng nhỏ xếp càng cao)
+    private int getStatusPriority(AuctionStatus status) {
+        if (status == null) return 6;
+        switch (status) {
+            case RUNNING: return 1;
+            case OPEN: return 2;
+            case FINISHED: return 3;
+            case PAID: return 4;
+            case CANCELED: return 5;
+            default: return 6;
+        }
     }
     
     //load các itemView vào trong mainpage

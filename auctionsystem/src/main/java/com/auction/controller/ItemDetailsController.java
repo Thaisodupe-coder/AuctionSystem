@@ -72,7 +72,7 @@ public class ItemDetailsController implements AuctionObserver {
     private Label lblDetailDescription;
 
     @FXML
-    private Button btnPlaceBid; // Gắn fx:id="btnPlaceBid" cho nút "PLACE BID" trong SceneBuilder
+    private Button btnPlaceBid;
 
     @FXML
     private Button btnQuick5;
@@ -84,7 +84,7 @@ public class ItemDetailsController implements AuctionObserver {
     private Button btnQuick50;
 
     @FXML
-    private Label lblWinner; // Tạo 1 label mới trong SceneBuilder và gắn fx:id="lblWinner" để hiện tên người thắng
+    private Label lblWinner;
 
     @FXML
     private TableView<BidDisplayItem> tvBidHistory;
@@ -125,6 +125,8 @@ public class ItemDetailsController implements AuctionObserver {
     private final Map<String, LocalDateTime> markerData = new HashMap<>();
 
     private Auction auction;
+
+    private LocalDateTime lastKnownEndTime = null;
 
     @FXML
     public void initialize() {
@@ -186,6 +188,7 @@ public class ItemDetailsController implements AuctionObserver {
         bidLogItems.clear();
         priceSeries.getData().clear();
         markerData.clear();
+        lastKnownEndTime = null;
         
         // Xóa các vạch kẻ ngày cũ trên giao diện
         removeDayMarkers();
@@ -218,7 +221,24 @@ public class ItemDetailsController implements AuctionObserver {
         txtUID.setText(auction.getId());
 
         lblTimestart.setText(auction.getStartTime().format(timeFormatter));
-        lblTimeEnd.setText(auction.getEndTime().format(timeFormatter));
+        
+        // Anti-sniping UI effect
+        LocalDateTime currentEndTime = auction.getEndTime();
+        if (lastKnownEndTime != null && currentEndTime.isAfter(lastKnownEndTime)) {
+            lblTimeEnd.setText(currentEndTime.format(timeFormatter) + " (+5p Gia hạn)");
+            
+            // Tạo luồng ngầm để khôi phục màu chữ sau 3 giây
+            new Thread(() -> {
+                try { Thread.sleep(3000); } catch (InterruptedException e) {}
+                Platform.runLater(() -> {
+                    lblTimeEnd.setText(currentEndTime.format(timeFormatter));
+                });
+            }).start();
+        } else if (lastKnownEndTime == null || currentEndTime.equals(lastKnownEndTime)) {
+            lblTimeEnd.setText(currentEndTime.format(timeFormatter));
+        }
+        lastKnownEndTime = currentEndTime;
+        
         lblDetailDescription.setText(auction.getItem().getDescription());
         
         // Xử lý logic Concurrent Bidding 
