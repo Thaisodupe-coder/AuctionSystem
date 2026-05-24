@@ -1,6 +1,8 @@
 package com.auction.controller;
 
 import com.auction.model.auction.Auction;
+import com.auction.model.auction.AuctionStatus;
+import com.auction.model.auction.BidTransaction;
 import com.auction.network.ClientManager;
 import com.auction.service.AuctionManager;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -35,22 +37,55 @@ public class SellerViewController {
     private TableColumn<Auction, String> colSoldDate;
 
     @FXML
+    private TableColumn<Auction, String> colStatus;
+
+    @FXML
     private TableColumn<Auction, String> colBuyer;
 
     @FXML
     public void initialize() {
         // 1. Thiết lập cách lấy dữ liệu cho từng cột
-        colId.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getId()));
+        colId.setCellValueFactory(cellData -> {
+            int index = soldItemsTable.getItems().indexOf(cellData.getValue());
+            return new SimpleStringProperty(String.valueOf("#" + (index + 1)));
+        });
+        colId.setStyle("-fx-alignment: CENTER");
+
         colItemName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getItem().getName()));
+        colItemName.setStyle("-fx-alignment: CENTER");
+
         colPrice.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getHighestBid()).asObject());
-        
+        colPrice.getStyleClass().add("price-column");
+        colPrice.setStyle("-fx-alignment: CENTER");
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         colSoldDate.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getEndTime().format(formatter)));
+        colSoldDate.getStyleClass().add("time-column");
+        colSoldDate.setStyle("-fx-alignment: CENTER");
+
+        colStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatus().name()));
+        colStatus.setStyle("-fx-alignment: CENTER");
 
         colBuyer.setCellValueFactory(cellData -> {
-            String buyerId = cellData.getValue().getHighestBidderId();
-            return new SimpleStringProperty(buyerId != null ? buyerId : "Chưa có");
+            Auction auction = cellData.getValue();
+            AuctionStatus status = auction.getStatus();
+            List<BidTransaction> history = auction.getBidHistory();
+            String winnerId = auction.getHighestBidderId();
+
+            String displayText;
+            if (status == AuctionStatus.OPEN) {
+                displayText = "Chưa bắt đầu";
+            } else if (status == AuctionStatus.CANCELED) {
+                displayText = "---";
+            } else if (winnerId != null && !history.isEmpty()) {
+                String winnerName = history.get(history.size() - 1).getBidderName();
+                displayText = (status == AuctionStatus.FINISHED || status == AuctionStatus.PAID) ? "🏆 " + winnerName : winnerName;
+            } else {
+                displayText = (status == AuctionStatus.FINISHED || status == AuctionStatus.PAID) ? "Không có người mua" : "Chưa có lượt đặt";
+            }
+            return new SimpleStringProperty(displayText);
         });
+        colBuyer.setStyle("-fx-alignment: CENTER");
 
         // 2. Lấy dữ liệu của User hiện tại và đưa vào bảng
         String currentUserId = ClientManager.getINSTANCE().getUserId();

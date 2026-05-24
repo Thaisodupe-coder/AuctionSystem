@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.auction.model.auction.AuctionStatus;
 import com.auction.network.message.Request;
 import com.auction.network.message.Response;
 import com.auction.service.UserManager;
@@ -132,6 +134,7 @@ public class ClientHandler implements Runnable {
                     for (BidTransaction bid : auction.getBidHistory()) {
                         Map<String, Object> bidMap = new HashMap<>();
                         bidMap.put("bidderId", bid.getBidderId());
+                        bidMap.put("bidderName", bid.getBidderName());
                         bidMap.put("amount", bid.getAmount());
                         bidMap.put("timestamp", bid.getTimestamp().toString());
                         historyData.add(bidMap);
@@ -152,6 +155,7 @@ public class ClientHandler implements Runnable {
                 AuctionManager.getINSTANCE().placeBid(auctionId, bidderId, amount);
                 Auction auction = AuctionManager.getINSTANCE().getAuction(auctionId);
                 NormalUser bidder = UserManager.getINSTANCE().getUserById(bidderId);
+                String bidderName = bidder.getName();
 
                 response.setStatus("SUCCESS");
                 response.setMessage("Đặt giá thành công!");
@@ -172,6 +176,7 @@ public class ClientHandler implements Runnable {
                 broadcastRes.setStatus("SUCCESS");
                 broadcastRes.addData("auctionId", auctionId);
                 broadcastRes.addData("bidderId", bidderId);
+                broadcastRes.addData("bidderName", bidderName);
                 broadcastRes.addData("amount", amount);
                 AuctionServer.broadcast(broadcastRes);
             } else if ("CREATE_AUCTION".equals(command)) {
@@ -226,6 +231,35 @@ public class ClientHandler implements Runnable {
 
                 // Tối ưu: Chỉ lưu auction mới tạo
                 PersistenceService.saveAuction(auction);
+            } else if ("CANCEL_AUCTION".equals(command)) {
+                String auctionId = (String) request.getPayload().get("auctionId");
+                String sellerId = (String) request.getPayload().get("sellerId");
+                
+                Auction auction = AuctionManager.getINSTANCE().getAuction(auctionId);
+                if (auction == null) {
+                    response.setStatus("ERROR");
+                    response.setMessage("Phiên đấu giá không tồn tại!");
+                } else {
+                    boolean success = auction.cancelAuction(sellerId);
+                    if (success) {
+                        response.setStatus("SUCCESS");
+                        response.setMessage("Đã hủy phiên đấu giá thành công!");
+                        
+                        // Lưu trạng thái CANCELED xuống database
+                        PersistenceService.saveAuction(auction);
+                        
+                        // Broadcast thông báo hủy cho tất cả client
+                        Response broadcastRes = new Response();
+                        broadcastRes.setCommand("STATUS_UPDATE_BROADCAST");
+                        broadcastRes.setStatus("SUCCESS");
+                        broadcastRes.addData("auctionId", auctionId);
+                        broadcastRes.addData("newStatus", AuctionStatus.CANCELED);
+                        AuctionServer.broadcast(broadcastRes);
+                    } else {
+                        response.setStatus("ERROR");
+                        response.setMessage("Không thể hủy. Bạn không phải người tạo hoặc phiên đã kết thúc.");
+                    }
+                }
             } else {
                 response.setStatus("ERROR");
                 response.setMessage("Lệnh không được hỗ trợ: " + command);

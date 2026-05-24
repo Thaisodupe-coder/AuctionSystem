@@ -67,7 +67,7 @@ public class LotItemController implements AuctionObserver {
         lblTitle.setText(auction.getItem().getName());
 
         // cập nhật giá dựa theo giá bid lớn nhất hiện tại
-        txtPrice.setText(String.format("%.2f VND", auction.getHighestBid()));
+        txtPrice.setText(String.format("%.0f USD", auction.getHighestBid()));
 
         String currentUserId = ClientManager.getINSTANCE().getUserId();
         

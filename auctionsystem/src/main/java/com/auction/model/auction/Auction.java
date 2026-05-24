@@ -90,7 +90,7 @@ public class Auction extends Entity {
         if (this.status != AuctionStatus.RUNNING) {
             throw new AuctionClosedException("Chỉ có thể đặt giá khi phiên đấu giá đang RUNNING | Current status: " + this.status);
         }
-        // Kiểm tra số dư người dùng trước khi chấp nhận giá thầu
+
         NormalUser user = UserManager.getINSTANCE().getUserById(bidderId);
         if (user == null) {
             throw new IllegalArgumentException("Không tìm thấy người dùng với ID: " + bidderId);
@@ -112,7 +112,7 @@ public class Auction extends Entity {
         }
         //trừ tiền của người đặt giá cao nhất hiện tại
         UserManager.getINSTANCE().addBalance(bidderId, -amount);
-        syncBid(bidderId, amount); // Thông báo cho các observer về thay đổi
+        syncBid(bidderId, user.getName(), amount); // Thông báo cho các observer về thay đổi
         return true;
     }
 
@@ -120,10 +120,10 @@ public class Auction extends Entity {
      * Đồng bộ dữ liệu giá thầu từ Server về Client (Bỏ qua các bước kiểm tra logic của Server).
      * Hàm này được dùng khi Client nhận được tín hiệu Broadcast giá mới.
      */
-    public synchronized void syncBid(String bidderId, double amount) {
+    public synchronized void syncBid(String bidderId, String bidderName, double amount) {
         this.highestBid = amount;
         this.highestBidderId = bidderId;
-        BidTransaction newBid = new BidTransaction(this.getId(), bidderId, amount, LocalDateTime.now());
+        BidTransaction newBid = new BidTransaction(this.getId(), bidderId, bidderName, amount, LocalDateTime.now());
         this.addBidToHistory(newBid);
         notifyObservers();
     }

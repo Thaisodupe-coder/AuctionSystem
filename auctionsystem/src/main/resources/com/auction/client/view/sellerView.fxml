@@ -13,10 +13,10 @@
     <children>
         <HBox alignment="CENTER_LEFT" prefHeight="60.0" styleClass="header-bar">
             <children>
-                <Label text="Lịch Sử Hàng Đã Bán" textFill="WHITE">
+                <Label text="KHO HÀNG CỦA TÔI" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="20.0" />
-                    </font>
+                    </font> 
                 </Label>
                 <VBox HBox.hgrow="ALWAYS" />
                 <Button onAction="#handleBackToMain" styleClass="header-link" text="🏠 Quay lại" />
@@ -31,20 +31,24 @@
                 <Insets bottom="20.0" left="20.0" right="20.0" top="10.0" />
             </padding>
             <children>
-                <Label text="Danh sách các sản phẩm đã giao dịch thành công:">
+                <Label text="Danh sách các sản phẩm đấu giá">
                     <font>
                         <Font size="16.0" />
                     </font>
                 </Label>
 
-                <TableView fx:id="soldItemsTable" styleClass="table-view-card" VBox.vgrow="ALWAYS">
+                <TableView fx:id="soldItemsTable" styleClass="history-table" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colId" prefWidth="60.0" text="ID" />
+                        <TableColumn fx:id="colId" prefWidth="50.0" text="STT" />
                         <TableColumn fx:id="colItemName" prefWidth="250.0" text="Tên sản phẩm" />
-                        <TableColumn fx:id="colPrice" prefWidth="150.0" text="Giá cuối (VNĐ)" />
+                        <TableColumn fx:id="colPrice" prefWidth="150.0" text="Giá cuối (USD)" />
                         <TableColumn fx:id="colSoldDate" prefWidth="180.0" text="Ngày kết thúc" />
+                        <TableColumn fx:id="colStatus" prefWidth="150.0" text="Trạng thái" />
                         <TableColumn fx:id="colBuyer" prefWidth="200.0" text="Người mua" />
                     </columns>
+                    <placeholder>
+                        <Label text="Bạn chưa có sản phẩm nào trong kho hàng" />
+                    </placeholder>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                     </columnResizePolicy>

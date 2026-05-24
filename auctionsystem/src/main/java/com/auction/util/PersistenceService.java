@@ -152,15 +152,18 @@ public class PersistenceService {
 
             // 3. Load Lịch sử đặt giá (Bids) chuyển vào lớp auction
             try (Statement stmt = conn.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM bids ORDER BY bid_time ASC")) {
+                    // Thực hiện JOIN để lấy username của người đặt giá
+                    ResultSet rs = stmt.executeQuery("SELECT b.*, u.username FROM bids b " +
+                                                   "JOIN users u ON b.bidder_id = u.id " + 
+                                                   "ORDER BY b.bid_time ASC")) {
                 while (rs.next()) {
                     String auctionId = rs.getString("auction_id");
                     Auction auction = AuctionManager.getINSTANCE().getAuction(auctionId);
                     if (auction != null) {
                         Timestamp bidTs = rs.getTimestamp("bid_time");
-                        BidTransaction bid = new BidTransaction(auctionId, rs.getString("bidder_id"),
-                                rs.getDouble("amount"),
-                                bidTs != null ? bidTs.toLocalDateTime() : null);
+                        BidTransaction bid = new BidTransaction(auctionId, rs.getString("bidder_id"), 
+                                rs.getString("username"), rs.getDouble("amount"),
+                                bidTs.toLocalDateTime());
                         auction.addBidToHistory(bid);
                     }
                 }
