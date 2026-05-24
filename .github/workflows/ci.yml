@@ -2,10 +2,10 @@ name: Auction System CI/CD
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "thong" ]
     tags: [ "v*" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "thong" ]
 
 jobs:
   build-and-test:
@@ -40,8 +40,8 @@ jobs:
     - name: Build and Test with Maven
       run: |
         cd auctionsystem
-        mvn clean compile
-        mvn test
+        mvn clean compile -DskipDocker=true
+        mvn test -DskipDocker=true
       env:
         DB_URL: jdbc:postgresql://localhost:5432/auctionsystem
         DB_USER: postgres
@@ -65,7 +65,7 @@ jobs:
     - name: Package Application
       run: |
         cd auctionsystem
-        mvn package -DskipTests
+        mvn package -DskipTests -DskipDocker=true
 
     - name: Create GitHub Release
       id: create_release
@@ -79,7 +79,7 @@ jobs:
           
           Hướng dẫn chạy:
           1. Đảm bảo đã bật PostgreSQL (Docker).
-          2. Chạy Server: `java -cp auctionsystem-${{ github.ref_name }}.jar com.auction.server.AuctionServer`
+          2. Chạy Server: `java -jar auctionsystem-1.5-SNAPSHOT-jar-with-dependencies.jar`
           3. Chạy Client: Sử dụng lệnh Maven javafx:run hoặc package tương ứng.
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
