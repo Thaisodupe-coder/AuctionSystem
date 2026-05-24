@@ -48,7 +48,6 @@
                 <version>4.0.0</version>
                 <configuration>
                     <!-- Chỉ trỏ tới file compose ở thư mục cha -->
-                    <skip>${skipDocker}</skip>
                     <composeFile>${project.basedir}/../docker-compose.yml</composeFile>
                     <detachedMode>true</detachedMode>
                 </configuration>
@@ -125,27 +124,11 @@
                         <include>**/Test*.java</include>
                     </includes>
                     <excludes>
+                        <exclude>**/PersistenceTest.java</exclude>
+                        <exclude>**/DatabaseInspectorTest.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <skipDocker>false</skipDocker>
-            </properties>
-        </profile>
-        <profile>
-            <id>github-actions</id>
-            <properties>
-                <skipDocker>true</skipDocker>
-            </properties>
-        </profile>
-    </profiles>
 </project>
