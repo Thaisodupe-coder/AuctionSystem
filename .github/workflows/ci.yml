@@ -2,9 +2,9 @@ name: Auction System CI/CD
 
 on:
   push:
-    branches: [ "main", "master","thong" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main", "master","thong" ]
+    branches: [ "main", "master" ]
 
 jobs:
   build-and-test:
