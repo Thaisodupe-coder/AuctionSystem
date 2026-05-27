@@ -80,22 +80,28 @@ public class PersistenceService {
     }
 
     /**
+     * Dọn sạch toàn bộ dữ liệu trong Database để phục vụ Testing.
+     * Sử dụng TRUNCATE với CASCADE để xóa sạch các bảng có quan hệ khóa ngoại.
+     */
+    public static void clearDatabase() {
+        String sql = "TRUNCATE TABLE bids, auctions, users RESTART IDENTITY CASCADE";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
+            Logger.info("Đã dọn sạch toàn bộ dữ liệu Database (Truncated).");
+        } catch (SQLException e) {
+            Logger.error("Lỗi khi dọn dẹp Database: " + e.getMessage());
+        }
+    }
+
+    /**
      * Tự động nạp dữ liệu từ PostgreSQL vào các Map private của Manager
      */
     public static void loadData() {
         try (Connection conn = getConnection()) {
             // 1. Load Người dùng
             Map<String, NormalUser> userMap = new HashMap<>();
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM users")) {// tạo
-                                                                                                                    // đối
-                                                                                                                    // tượng
-                                                                                                                    // resultset
-                                                                                                                    // chứa
-                                                                                                                    // dữ
-                                                                                                                    // liệu
-                                                                                                                    // dạng
-                                                                                                                    // bảng
-                                                                                                                    // ảo
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM users")) {// tạo câu truy vấn để lấy tất cả người dùng
                 while (rs.next()) {
                     NormalUser user = new NormalUser(rs.getString("username"), rs.getString("password"));
                     setPrivateField(user, "id", rs.getString("id"));// lấy id của Entity
@@ -123,11 +129,7 @@ public class PersistenceService {
                         item = new Art(name, desc);
                     }
 
-                    NormalUser owner = UserManager.getINSTANCE().getUserById(rs.getString("seller_id"));// lấy user bằng
-                                                                                                        // id vì đã load
-                                                                                                        // user vào
-                                                                                                        // usermanager
-                                                                                                        // trước rồi
+                    NormalUser owner = UserManager.getINSTANCE().getUserById(rs.getString("seller_id"));// lấy user bằng id của seller_id trong DB để tạo đối tượng seller, nếu không tìm thấy user nào thì bỏ qua phiên đấu giá này luôn
                     if (owner == null)
                         continue;
 
@@ -261,14 +263,7 @@ public class PersistenceService {
 
             // 1. Lưu Users
             String userUpsert = "INSERT INTO users (id, username, password, balance) VALUES (?, ?, ?, ?) " +
-                    "ON CONFLICT (id) DO UPDATE SET balance = EXCLUDED.balance, password = EXCLUDED.password";// nếu
-                                                                                                              // chưa có
-                                                                                                              // thì tạo
-                                                                                                              // mới có
-                                                                                                              // rồi thì
-                                                                                                              // cập
-                                                                                                              // nhật
-                                                                                                              // balance
+                    "ON CONFLICT (id) DO UPDATE SET balance = EXCLUDED.balance, password = EXCLUDED.password";// nếu đã tồn tại user thì chỉ update số dư và password, còn username thì không đổi được vì có ràng buộc unique
             try (PreparedStatement pstmt = conn.prepareStatement(userUpsert)) {
                 for (NormalUser user : UserManager.getINSTANCE().getAllUsers().values()) {
                     pstmt.setString(1, user.getId());
