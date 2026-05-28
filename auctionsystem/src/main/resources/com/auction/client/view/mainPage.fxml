@@ -14,7 +14,7 @@
 
 <VBox prefHeight="800.0" prefWidth="1000.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.controller.MainPageController">
     <children>
-        <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="header-bar">
+        <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="50.0" styleClass="header-bar">
             <children>
 
                 <Region HBox.hgrow="ALWAYS" />
@@ -31,10 +31,10 @@
 
         <VBox alignment="TOP_CENTER" spacing="15.0" VBox.vgrow="ALWAYS">
             <children>
-                <HBox alignment="CENTER_LEFT" styleClass="notification-box">
+                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="80.0" style="-fx-border-radius: 50;" styleClass="notification-box">
                     <children>
                         <Label prefHeight="15.0" prefWidth="554.0" text="CREATE NEW AUCTION LOT" textAlignment="CENTER" textFill="#856404" />
-                        <Region HBox.hgrow="ALWAYS" />
+                        <Region maxHeight="-Infinity" minHeight="-Infinity" prefHeight="50.0" HBox.hgrow="ALWAYS" />
                         <Button onAction="#handleAddItemTransfer" prefHeight="27.0" prefWidth="231.0" styleClass="custom-button" text="+ NEW" />
                     </children>
                 </HBox>
@@ -44,11 +44,23 @@
                         <fx:define>
                             <ToggleGroup fx:id="filterGroup" />
                         </fx:define>
-                        <ToggleButton prefWidth="150.0" selected="true" styleClass="toggle-left" text="All Lots" toggleGroup="$filterGroup"/>
-                        <ToggleButton prefWidth="150.0" styleClass="toggle-center-alt" text="Active Lots" toggleGroup="$filterGroup" />
-                        <ToggleButton prefWidth="150.0" styleClass="toggle-center" text="My Lots" toggleGroup="$filterGroup" />
-                        <ToggleButton prefWidth="150.0" styleClass="toggle-right" text="My Bids" textFill="WHITE" toggleGroup="$filterGroup" />
-                        <ComboBox fx:id="cbCategory" prefWidth="150.0" promptText="Categories" styleClass="combo-box-rounded" />
+                        <ToggleButton prefWidth="150.0" selected="true" styleClass="neumorphic-toggle" text="All Lots" toggleGroup="$filterGroup"/>
+                        <ToggleButton prefWidth="150.0" styleClass="neumorphic-toggle" text="Active Lots" toggleGroup="$filterGroup">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin></ToggleButton>
+                        <ToggleButton prefWidth="150.0" styleClass="neumorphic-toggle" text="My Lots" toggleGroup="$filterGroup">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin></ToggleButton>
+                        <ToggleButton prefWidth="150.0" styleClass="neumorphic-toggle" text="My Bids" textFill="WHITE" toggleGroup="$filterGroup">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin></ToggleButton>
+                        <ComboBox fx:id="cbCategory" prefWidth="150.0" promptText="Categories" styleClass="combo-box-rounded">
+                     <HBox.margin>
+                        <Insets left="25.0" />
+                     </HBox.margin></ComboBox>
                     </children>
                 </HBox>
 

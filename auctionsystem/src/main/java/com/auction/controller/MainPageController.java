@@ -93,7 +93,7 @@ public class MainPageController {
         int myAuctionCount = AuctionManager.getINSTANCE().getAuctionsBySeller(userId).size();
 
         if (username != null) {
-            txtusename.setText(String.format("👤 %s   |   💰 Khả dụng: %.0f (Đóng băng: %.0f)   |   📦 Lots: %d", username, availableBalance, frozenBalance, myAuctionCount));
+            txtusename.setText(String.format("👤 %s   |   💵 Khả dụng: %,.0f USD   |   🔒 Đóng băng: %,.0f USD   |   📦 Lots: %d", username, availableBalance, frozenBalance, myAuctionCount));
         }
     }
 

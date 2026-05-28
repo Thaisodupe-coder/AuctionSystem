@@ -23,7 +23,7 @@
     <children>
         <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="header-bar">
             <children>
-                <Label text="Hệ thống đấu giá" textFill="WHITE">
+                <Label styleClass="header-link" text="Hệ thống đấu giá" textFill="WHITE">
                     <font><Font name="System Bold" size="18.0" /></font>
                     <HBox.margin><Insets left="20.0" /></HBox.margin>
                 </Label>
@@ -122,7 +122,7 @@
                                 <Label fx:id="lblTimeEnd" text="Time" textFill="#ff2b2b" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                     <font><Font name="System Bold" size="13.0" /></font>
                                 </Label>
-                                
+
                                 <Label fx:id="lblWinner" text="Winner: " textFill="#155724" visible="false" wrapText="true" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
                                     <font><Font name="System Bold" size="14.0" /></font>
                                 </Label>
@@ -133,7 +133,7 @@
                             <children>
                                 <Label text="Giá dự thầu: " />
                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>                                        
+                                    <children>
                                         <TextField fx:id="txtBidInput" prefHeight="45.0" prefWidth="200.0" promptText="Nhập mức giá mong muốn..." styleClass="input-harmonious" />
                                         <Button fx:id="btnPlaceBid" onAction="#handlePlaceBid" prefHeight="45.0" prefWidth="125.0" styleClass="custom-button" text="ĐẶT GIÁ">
                                             <font><Font name="System Bold" size="14.0" /></font>

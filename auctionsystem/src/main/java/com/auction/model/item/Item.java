@@ -18,4 +18,5 @@ public abstract class Item extends Entity {
     public String getDescription() {
         return description;
     }
+    public abstract String getCategory();
 }

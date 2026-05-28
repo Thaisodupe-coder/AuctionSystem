@@ -15,6 +15,8 @@ module com.auction {
     exports com.auction.model.auction;
     exports com.auction.model.common;
     exports com.auction.service;
+    exports com.auction.network.message;
+
 
     opens com.auction to javafx.fxml, org.junit.platform.commons;
     opens com.auction.controller to javafx.fxml;

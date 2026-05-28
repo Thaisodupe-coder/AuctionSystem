@@ -22,7 +22,7 @@
 }
 .notification-box {
     -fx-background-color: #DAEBF5;
-       -fx-border-color: #DAEBF5;
+    -fx-border-color: #DAEBF5;
     -fx-border-width: 1px;
     -fx-border-radius: 4px;
     -fx-background-radius: 4px;
@@ -35,18 +35,6 @@
     -fx-border-radius: 3px;
     -fx-cursor: hand;
 }
-.filter-btn {
-    -fx-background-radius: 0;
-    -fx-border-color: white;
-    -fx-border-width: 0 1 0 0;
-    -fx-text-fill: black;
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
-}
-.filter-btn-blue { -fx-background-color: #4da6ff; }
-.filter-btn-green { -fx-background-color: #5cb85c; }
-.filter-btn-dark { -fx-background-color: #0c4b8e; }
-.filter-combo { -fx-background-color: white; -fx-border-color: #ccc; }
 .item-card {
     -fx-background-color: white;
     -fx-border-color: #dddddd;
@@ -101,6 +89,9 @@
     -fx-border-width: 0;
 }
 .custom-button {
+    -fx-pref-width: 125px;
+    -fx-pref-height: 60px;
+
     -fx-border-color: #315cfd;
     -fx-border-width: 3px;
 
@@ -119,7 +110,78 @@
     -fx-background-color: #315cfd;
     -fx-text-fill: white;
     -fx-font-size: 1.2em;
+    -fx-font-size: 1.2em;
 }
+
+/* Kiểu dáng cơ bản cho nút Delete màu đỏ */
+.delete-button {
+    -fx-background-color: #e52d27;       /* Màu đỏ chủ đạo giống mẫu */
+    -fx-background-radius: 15px;         /* Bo góc nhẹ vuông vắn */
+    -fx-text-fill: white;               /* Màu chữ trắng */
+    -fx-font-weight: bold;              /* Chữ in đậm */
+    -fx-font-size: 1.2em;
+     -fx-pref-width: 100px;
+     -fx-pref-height: 120px;
+    -fx-padding: 8px 16px 8px 20px;     /* Padding căn chỉnh lề trong */
+    -fx-cursor: hand;                   /* Hiệu ứng trỏ chuột thành hình bàn tay */
+
+    /* Đổ bóng nhẹ tạo độ nổi khối phẳng (Flat Design) */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 5, 0, 0, 2);
+}
+
+/* Hiệu ứng khi di chuột qua (Hover) */
+.delete-button:hover {
+    -fx-background-color: #cf231d;       /* Màu đỏ tối hơn một chút */
+}
+
+/* Hiệu ứng khi click chuột vào (Pressed) */
+.delete-button:pressed {
+    -fx-background-color: #b51c17;       /* Màu đỏ đậm khi nhấn xuống */
+    -fx-effect: none;                    /* Mất đổ bóng tạo cảm giác nút bị lún xuống */
+}
+
+/* --- TRẠNG THÁI BÌNH THƯỜNG (UNSELECTED) --- */
+.neumorphic-toggle {
+    -fx-background-color: #e0e0e0;       /* Trùng màu với nền ứng dụng */
+    -fx-background-radius: 12px;         /* Bo góc mềm mại như hình mẫu */
+    -fx-border-radius: 12px;
+    -fx-text-fill: #555555;              /* Màu chữ xám đậm */
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 20px;
+    -fx-cursor: hand;
+
+    /* Đổ bóng nổi nhẹ (Soft Drop Shadow) */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.12), 10, 0, 4, 4);
+
+    /* Hiệu ứng chuyển động mượt mà khi hover/click (nếu JavaFX có hỗ trợ) */
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+/* Hiệu ứng khi di chuột qua ở trạng thái bình thường */
+.neumorphic-toggle:hover {
+    -fx-text-fill: #333333;
+    /* Tăng độ nổi một chút khi di chuột qua */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.18), 12, 0, 5, 5);
+}
+
+
+/* --- TRẠNG THÁI ĐƯỢC CHỌN (SELECTED / ACTIVATED) --- */
+/* Khi ToggleButton được nhấn kích hoạt, nó sẽ chìm xuống hoặc đổi sang màu xanh thương hiệu */
+.neumorphic-toggle:selected {
+    /* Phương án A: Nếu muốn đổi sang màu xanh dương đồng bộ hệ thống của bạn */
+    -fx-background-color: #315cfd;
+    -fx-text-fill: white;
+
+    /* Bóng chìm cực nhẹ bên trong để tạo cảm giác nút bị ấn lún xuống */
+    -fx-effect: innershadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 1, 2);
+}
+
+/* Hiệu ứng di chuột khi nút đang ở trạng thái được chọn */
+.neumorphic-toggle:selected:hover {
+    -fx-background-color: #264fd3; /* Xanh đậm hơn chút khi hover */
+}
+
 .toggle-left {
     -fx-background-color: #4da6ff;
     -fx-background-radius: 15 0 0 15;
@@ -171,6 +233,45 @@
     */
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 60, 0, 20, 20);
 }
+
+/* Kiểu dáng cho nút Upload */
+.upload-button {
+    /* Nền trong suốt để tệp liền mạch với nền tối của ứng dụng */
+    -fx-background-color: transparent;
+
+    /* Thiết lập viền trắng đứt nét */
+    -fx-border-color: grey;
+    -fx-border-width: 1.5px;
+    /* Dùng segments để tạo nét đứt mượt hơn dashed mặc định (độ dài nét 5px, khoảng cách 5px) */
+    -fx-border-style: segments(5, 5);
+
+    /* Bo góc cho viền và nền */
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+
+    /* Kích thước và căn lề tạo không gian rộng rãi (như một drop zone) */
+    -fx-padding: 30px 40px;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+
+    /* Đổ bóng vầng sáng màu trắng/xám mờ tập trung ở cạnh dưới */
+    /* dropshadow(loại, màu, độ_mờ, lan_tỏa, lệch_x, lệch_y) */
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.4), 40, 0.1, 0, 10);
+
+    -fx-transition: all 0.2s ease;
+}
+
+/* Hiệu ứng khi di chuột vào (phát sáng mạnh hơn hoặc hiện nền mờ) */
+.upload-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.05); /* Nền sáng lên cực nhẹ */
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.6), 50, 0.2, 0, 15);
+}
+
+/* Hiệu ứng khi click */
+.upload-button:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
 .table-view-card {
     -fx-pref-width: 190px; /* Theo thiết kế web */
     -fx-pref-height: 254px; /* Theo thiết kế web */
@@ -403,7 +504,7 @@
     /* Khi hover vào, hào quang vàng rõ hơn */
     -fx-effect: dropshadow(three-pass-box, rgba(0, 89, 128, 0.8), 20, 0, 0, 0);
     -fx-cursor: hand;
-}
+
 /* Giá tiền của thẻ item user đang bid */
 .my-bid-price {
     -fx-text-fill: #0c4b8e; /* Chữ màu xanh đậm hơn một chút */

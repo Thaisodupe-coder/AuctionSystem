@@ -23,7 +23,7 @@ import javafx.application.Platform;
 
 public class ClientManager {
     private volatile static ClientManager INSTANCE;
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
     private Socket socket;
     private PrintWriter writer;
     private BufferedReader reader;
@@ -133,7 +133,11 @@ public class ClientManager {
         listenerThread.setDaemon(true); // Đảm bảo thread tự tắt khi ứng dụng đóng
         listenerThread.start();
     }
-
+    private static final Map<String, ItemFactory> factoryRegister = Map.of(
+        "Art", new ArtFactory(),
+        "Vehicle", new VehicleFactory(),
+        "Electronics", new ElectronicsFactory()
+    );
     /**
      * Tái tạo đối tượng Auction từ dữ liệu Map (payload) và thêm vào AuctionManager của Client.
      * Dùng chung cho cả PUSH (broadcast) và PULL (get all).
@@ -153,12 +157,12 @@ public class ClientManager {
             startT = LocalDateTime.parse(String.valueOf(payload.get("startTime")));
         }
         LocalDateTime endT = LocalDateTime.parse(String.valueOf(payload.get("endTime")));
-        
-        Item localItem;
-        if ("Art".equals(category)) localItem = new Art(name, desc);
-        else if ("Electronics".equals(category)) localItem = new Electronics(name, desc);
-        else if ("Vehicle".equals(category)) localItem = new Vehicle(name, desc);
-        else throw new IllegalArgumentException("Danh mục không hợp lệ: " + category);
+        //factory cho item
+        ItemFactory factory = factoryRegister.get(category);
+        if (factory == null) {
+            throw new IllegalArgumentException("Danh mục không hợp lệ: " + category);
+        }
+        Item localItem = factory.createItem(name, desc);
         localItem.setId(itemId);
         //tạo 1 local đối tượng auction
         NormalUser baseUser = new NormalUser(sellerName, "");
@@ -225,4 +229,6 @@ public class ClientManager {
         this.userName = null;
         this.totalBalance = 0;
     }
+
+
 }

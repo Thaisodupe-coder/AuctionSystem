@@ -1,0 +1,217 @@
+@startuml
+title Auction System - Class Diagram
+
+package com.auction.model {
+    abstract class Entity {
+        - id: String
+        + getId(): String
+        + setId(id: String)
+    }
+
+    package item {
+        abstract class Item {
+            - name: String
+            - description: String
+            - category: String
+        }
+        class Art
+        class Electronics
+        class Vehicle
+        interface ItemFactory {
+            + createItem(name: String, desc: String): Item
+        }
+        class ArtFactory
+        class ElectronicsFactory
+        class VehicleFactory
+    }
+
+    package user {
+        abstract class User {
+            - name: String
+            - password: String
+            - balance: double
+        }
+        class NormalUser
+        abstract class UserDecorator {
+            # user: User
+            + UserDecorator(user: User)
+        }
+        class Seller
+        class Bidder
+        class Admin
+    }
+
+    package auction {
+        class Auction {
+            - item: Item
+            - seller: Seller
+            - highestBidderId: String
+            - highestBid: double
+            - startTime: LocalDateTime
+            - endTime: LocalDateTime
+            - bidHistory: List<BidTransaction>
+            - observers: List<AuctionObserver>
+            - status: AuctionStatus
+            - updateAuctionStatus()
+            + processBid(bidderId: String, amount: double): boolean
+            + syncBid(bidderId: String, bidderName: String, amount: double)
+            + syncStatus(newStatus: AuctionStatus)
+            + addBidToHistory(transaction: BidTransaction)
+            + getBidHistory(): List<BidTransaction>
+            + cancelAuction(sellerId: String): boolean
+            + finalizeAuction()
+            + monitorState()
+            + addObserver(observer: AuctionObserver)
+            + removeObserver(observer: AuctionObserver)
+            + notifyObservers()
+        }
+        class BidTransaction {
+            - auctionId: String
+            - bidderId: String
+            - bidderName: String
+            - amount: double
+            - timestamp: LocalDateTime
+        }
+        enum AuctionStatus {
+            OPEN
+            RUNNING
+            FINISHED
+            PAID
+            CANCELED
+        }
+        interface AuctionObserver {
+            + update(auction: Auction)
+        }
+    }
+}
+
+package com.auction.service {
+    class UserManager <<Singleton>> {
+        - users: Map<String, NormalUser>
+        + static getINSTANCE(): UserManager
+        + register(username, password): NormalUser
+        + login(username, password): NormalUser
+        + getUserById(id: String): NormalUser
+        + getBidderRole(user: NormalUser): Bidder
+        + getSellerRole(user: NormalUser): Seller
+        + getAdminRole(user: NormalUser): Admin
+        + addBalance(userId: String, amount: double)
+        + getAllUsers(): Map<String, NormalUser>
+    }
+    class AuctionManager <<Singleton>> {
+        - auctions: Map<String, Auction>
+        - onAuctionChangedCallback: Runnable
+        + static getINSTANCE(): AuctionManager
+        + setOnAuctionChangedCallback(callback: Runnable)
+        + notifyAuctionChanged()
+        + createAuction(item: Item, seller: Seller, startPrice: double, startTime: LocalDateTime, endTime: LocalDateTime): Auction
+        + addAuction(auction: Auction)
+        + clearAuctions()
+        + cancelAuction(auctionId: String, sellerId: String): boolean
+        + getAuction(auctionId: String): Auction
+        + getAllAuctions(): List<Auction>
+        + getAuctionsBySeller(sellerId: String): List<Auction>
+        + placeBid(auctionId: String, bidderId: String, amount: double): boolean
+        + getWinnerId(auctionId: String): String
+        + getWinningBid(auctionId: String): double
+    }
+}
+
+package com.auction.util {
+    class PersistenceService {
+        + static isShuttingDown: boolean
+        + static startPeriodicSave(intervalMinutes: int)
+        + static stopService()
+        + static getConnection(): Connection
+        + static loadData()
+        + static saveUser(user: NormalUser)
+        + static saveAuction(a: Auction)
+        + static saveBid(b: BidTransaction)
+        + static saveData()
+    }
+}
+
+package com.auction.controller {
+    class MainPageController
+    class LoginController
+    class RegisterController
+    class ItemDetailsController
+    class LotItemController
+    class SellerViewController
+    class AddItemController
+}
+
+package com.auction.network {
+    class ClientManager <<Singleton>> {
+        + static getINSTANCE(): ClientManager
+        + setResponseHandler(handler: Consumer)
+        + sendRequest(request: Request)
+        + setUser(userId: String, username: String, balance: double)
+        + getUserId(): String
+    }
+}
+
+package com.auction.server {
+    class AuctionServer
+    class ClientHandler
+}
+
+
+' ==========================================
+' MỐI QUAN HỆ (RELATIONSHIPS)
+' ==========================================
+
+' 1. Kế thừa (Inheritance)
+Entity <|-- Item
+Entity <|-- User
+User <|-- NormalUser
+Entity <|-- Auction
+Item <|-- Art
+Item <|-- Electronics
+Item <|-- Vehicle
+User <|-- UserDecorator
+UserDecorator <|-- Seller
+UserDecorator <|-- Bidder
+UserDecorator <|-- Admin
+
+' 2. Thực thi giao diện (Realization)
+ItemFactory <|.. ArtFactory
+ItemFactory <|.. ElectronicsFactory
+ItemFactory <|.. VehicleFactory
+AuctionObserver <|.. ItemDetailsController
+AuctionObserver <|.. LotItemController
+
+' Quan hệ tạo đối tượng (Factory Method)
+ItemFactory ..> Item : creates >
+ArtFactory ..> Art : creates >
+ElectronicsFactory ..> Electronics : creates >
+VehicleFactory ..> Vehicle : creates >
+
+' 3. Hợp thành (Composition) - Phụ thuộc vòng đời chặt chẽ
+Auction "1" *-- "1" Item : contains >
+Auction "1" *-- "*" BidTransaction : history >
+AuctionServer "1" *-- "*" ClientHandler : manages >
+
+' 4. Tập hợp (Aggregation) - Nhóm đối tượng, vòng đời độc lập
+UserManager "1" o-- "*" NormalUser : manages >
+AuctionManager "1" o-- "*" Auction : manages >
+Auction "1" o-- "*" AuctionObserver : notifies >
+UserDecorator o-- User : decorates >
+
+' 5. Liên kết (Association)
+Auction --> AuctionStatus : status
+Auction "*" --> "1" Seller : created by >
+ItemDetailsController --> "1" Auction : observes/displays
+LotItemController --> "1" Auction : observes/displays
+
+' 6. Phụ thuộc (Dependency) - Gọi hàm, truyền nhận dữ liệu
+MainPageController ..> ClientManager : uses
+MainPageController "1" *-- "*" LotItemController : renders >
+ItemDetailsController ..> ClientManager : uses
+AddItemController ..> ClientManager : uses
+LotItemController ..> ItemDetailsController : opens view >
+PersistenceService ..> UserManager : injects data >
+PersistenceService ..> AuctionManager : injects data >
+AuctionServer ..> PersistenceService : loads/saves >
+AuctionServer ..> AuctionManager : monitors >
+@enduml

@@ -13,9 +13,13 @@ import com.auction.service.AuctionManager;
 import com.auction.model.user.NormalUser;
 import com.auction.model.user.Seller;
 import com.auction.model.item.Item;
+import com.auction.model.item.ItemFactory;
 import com.auction.model.item.Art;
+import com.auction.model.item.ArtFactory;
 import com.auction.model.item.Electronics;
+import com.auction.model.item.ElectronicsFactory;
 import com.auction.model.item.Vehicle;
+import com.auction.model.item.VehicleFactory;
 import com.auction.model.auction.Auction;
 import com.auction.model.auction.BidTransaction;
 import com.auction.util.PersistenceService;
@@ -30,10 +34,10 @@ import java.time.LocalDateTime;
 import com.google.gson.Gson;
 
 public class ClientHandler implements Runnable {
-    private Socket socket;
+    private final Socket socket; // final vì không bao giờ đổi kết nối sau khi tạo Handler
     private BufferedReader reader;
     private PrintWriter writer;
-    private Gson gson;
+    private final Gson gson;     // final giúp bảo vệ instance Gson
     private NormalUser user;
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -113,12 +117,7 @@ public class ClientHandler implements Runnable {
                     auctionData.put("sellerName", auction.getSeller().getName());
                     auctionData.put("name", auction.getItem().getName());
                     auctionData.put("startPrice", auction.getHighestBid()); // Giá hiện tại
-                    
-                    String category = "";
-                    if (auction.getItem() instanceof Art) category = "Art";
-                    else if (auction.getItem() instanceof Electronics) category = "Electronics";
-                    else if (auction.getItem() instanceof Vehicle) category = "Vehicle";
-                    auctionData.put("category", category);
+                    auctionData.put("category", auction.getItem().getCategory());
 
                     auctionData.put("description", auction.getItem().getDescription());
                     auctionData.put("startTime", auction.getStartTime().toString());
@@ -195,16 +194,9 @@ public class ClientHandler implements Runnable {
                     throw new IllegalArgumentException("Không tìm thấy thông tin người dùng hợp lệ để tạo phiên!");
                 }
                 Seller seller = UserManager.getINSTANCE().getSellerRole(baseUser);
-                Item item;
-                if ("Art".equals(category)) {
-                    item = new Art(name, description);
-                } else if ("Electronics".equals(category)) {
-                    item = new Electronics(name, description);
-                } else if ("Vehicle".equals(category)) {
-                    item = new Vehicle(name, description);
-                } else {
-                    throw new IllegalArgumentException("Danh mục không hợp lệ");
-                }
+                ItemFactory itemFactory= setItemFactory(category);
+                Item item = itemFactory.createItem(name, description);
+                
                 
                 Auction auction = AuctionManager.getINSTANCE().createAuction(item, seller, startPrice, startTime, endTime);
                 response.setStatus("SUCCESS");
@@ -276,7 +268,7 @@ public class ClientHandler implements Runnable {
         return response;
     }
 
-    public void sendResponse(Response response) {
+    void sendResponse(Response response) {
         String jsonResponse = gson.toJson(response);
         writer.println(jsonResponse);
         System.out.println("[Server gửi]: " + jsonResponse);
@@ -291,5 +283,17 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    private static final Map<String, ItemFactory> factoryRegister = Map.of(
+    "Art", new ArtFactory(),
+    "Vehicle", new VehicleFactory(),
+    "Electronics", new ElectronicsFactory()
+    );
+    private ItemFactory setItemFactory(String category){
+        ItemFactory factory = factoryRegister.get(category);
+        if (factory == null) {
+            throw new IllegalArgumentException("Danh mục không hợp lệ: " + category);
+        }
+        return factory;
     }
 }

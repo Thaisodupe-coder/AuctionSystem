@@ -81,7 +81,7 @@
                                 </Label>
                                 <HBox alignment="CENTER_LEFT" spacing="20.0">
                                     <children>
-                                        <Button onAction="#handleChooseImage" prefWidth="180.0" styleClass="custom-button" text="📁 Browse" />
+                                        <Button onAction="#handleChooseImage" prefWidth="180.0" styleClass="upload-button" text="+  📁 Browse" textFill="#868686" />
                                         <ImageView fx:id="imgPreview" fitHeight="120.0" fitWidth="160.0" pickOnBounds="true" preserveRatio="true" style="-fx-border-color: #ccc; -fx-border-width: 1;" />
                                     </children>
                                 </HBox>
@@ -92,7 +92,7 @@
 
                         <HBox alignment="CENTER_RIGHT" prefHeight="29.0" prefWidth="725.0" spacing="15.0">
                             <children>
-                                <Button onAction="#handleClear" prefWidth="100.0" styleClass="combo-box-rounded" text="Clear Form" />
+                                <Button onAction="#handleClear" prefWidth="100.0" styleClass="delete-button" text="Clear" />
                                 <Button onAction="#handleSubmit" prefHeight="34.0" prefWidth="142.0" styleClass="custom-button" text="+ CREATE">
                                     <font>
                               <Font name="System Bold" size="14.0" />
