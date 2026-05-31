@@ -20,7 +20,8 @@ import com.auction.network.message.Response;
 
 public class AuctionServer {
     private static final int PORT = 8888;
-    // Danh sách lưu trữ các luồng kết nối tới Client (Sẽ dùng cho tính năng Broadcast/Observer sau này)
+    // Danh sách lưu trữ các luồng kết nối tới Client (Sẽ dùng cho tính năng
+    // Broadcast/Observer sau này)
     private static final List<ClientHandler> clients = new CopyOnWriteArrayList<>();
     // ThreadPool để quản lý và tái sử dụng các luồng, tránh quá tải server
     private static final ExecutorService pool = Executors.newFixedThreadPool(10);
@@ -44,7 +45,8 @@ public class AuctionServer {
             }
         }));
 
-        // Khởi động dịch vụ lưu dữ liệu định kỳ (đã được đóng gói trong PersistenceService)
+        // Khởi động dịch vụ lưu dữ liệu định kỳ (đã được đóng gói trong
+        // PersistenceService)
         PersistenceService.startPeriodicSave(10);
 
         // Khởi động luồng ngầm giám sát thời gian thực toàn bộ các phiên đấu giá
@@ -52,11 +54,11 @@ public class AuctionServer {
         System.out.println("port : " + PORT);
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Đang chờ kết nối từ Client...");
-            
+
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Client mới kết nối: " + socket.getInetAddress());
-                
+
                 ClientHandler clientHandler = new ClientHandler(socket);
                 clients.add(clientHandler);
                 pool.execute(clientHandler);
@@ -67,16 +69,17 @@ public class AuctionServer {
             pool.shutdown();
         }
     }
-    
-    // Luồng ngầm giám sát mọi trạng thái (Bắt đầu, Kết thúc, Thanh toán) của phiên đấu giá
+
+    // Luồng ngầm giám sát mọi trạng thái (Bắt đầu, Kết thúc, Thanh toán) của phiên
+    // đấu giá
     private static void startAuctionMonitor() {
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 for (Auction auction : AuctionManager.getINSTANCE().getAllAuctions()) {
                     AuctionStatus oldStatus = auction.getStatus();
-                    auction.monitorState(); 
+                    auction.monitorState();
                     AuctionStatus newStatus = auction.getStatus();
-                    
+
                     if (oldStatus != newStatus) {
                         Response broadcastRes = new Response();
                         broadcastRes.setCommand("STATUS_UPDATE_BROADCAST");
@@ -91,7 +94,7 @@ public class AuctionServer {
             }
         }, 1, 1, TimeUnit.SECONDS); // Chạy mỗi 1 giây để phản ứng theo thời gian thực
     }
-    
+
     // Hàm Broadcast: Gửi một thông báo tới toàn bộ Client đang kết nối
     public static void broadcast(Response response) {
         for (ClientHandler client : clients) {

@@ -23,28 +23,41 @@ import javafx.application.Platform;
 
 public class ClientManager {
     private volatile static ClientManager INSTANCE;
-    private final Gson gson = new Gson();
-    private Socket socket;
+    private final Gson gson = new Gson();// đối tượng dùng để chuyển đổi giữa Object và JSON
+    private Socket socket; // Kết nối TCP với Server
     private PrintWriter writer;
     private BufferedReader reader;
     private Consumer<Response> responseHandler; // Callback để báo cho Controller biết có kết quả
-
+    // Consumer này sẽ được Controller đăng ký để nhận phản hồi từ Server sau khi
+    // gửi Request. Ví dụ: LoginController sẽ đăng ký để nhận phản hồi về kết quả
+    // đăng nhập, AddItemController sẽ đăng ký để nhận phản hồi về kết quả thêm
+    // phiên đấu giá, v.v.
+    // Consumer này là một hàm nhận vào một đối tượng Response (được giải mã từ
+    // JSON) và thực hiện các hành động tương ứng, như cập nhật giao diện người
+    // dùng, hiển thị thông báo, hoặc chuyển hướng
+    // Consumer là một generic functional interface trong Java, có một phương thức
+    // duy nhất accept(T t) nhận vào một đối tượng kiểu T và không trả về giá trị
+    // nào. Ở đây, T là Response, nên responseHandler sẽ là một hàm nhận vào một
+    // Response và thực hiện các hành động dựa trên nội dung của Response đó.
     private String userId;
     private String userName;
     private double totalBalance;
 
-    private ClientManager(){}
-    public static ClientManager getINSTANCE(){
-        if (INSTANCE==null){
-            synchronized(ClientManager.class){
-                if (INSTANCE==null){
+    private ClientManager() {
+    }
+
+    public static ClientManager getINSTANCE() {
+        if (INSTANCE == null) {
+            synchronized (ClientManager.class) {
+                if (INSTANCE == null) {
                     INSTANCE = new ClientManager();
                 }
             }
         }
         return INSTANCE;
     }
-// kết nối ClientManager với Controller
+
+    // kết nối ClientManager với Controller
     public void setResponseHandler(Consumer<Response> responseHandler) {
         this.responseHandler = responseHandler;
     }
@@ -55,12 +68,13 @@ public class ClientManager {
             writer = new PrintWriter(socket.getOutputStream(), true);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             System.out.println("Đã kết nối tới Server " + host + ":" + port);
-            
+
             startListening();
         } catch (IOException e) {
             System.err.println("Lỗi kết nối tới Server: " + e.getMessage());
         }
     }
+
     // chờ nhận các json từ server gửi cho client
     private void startListening() {
         Thread listenerThread = new Thread(() -> {
@@ -68,31 +82,32 @@ public class ClientManager {
                 String jsonResponse;
                 while ((jsonResponse = reader.readLine()) != null) {
                     System.out.println("[Client nhận]: " + jsonResponse);
-                    
+
                     try {
-                        Response response = gson.fromJson(jsonResponse, Response.class);
-                        
+                        Response response = gson.fromJson(jsonResponse, Response.class);// chuyển từ JSON sang Object
+                                                                                        // Response để dễ xử lý
+
                         // Phân loại: Xử lý ngầm các lệnh Broadcast từ Server
                         if ("NEW_AUCTION_BROADCAST".equals(response.getCommand())) { // PUSH
                             addLocalAuction(response.getPayload());
                             System.out.println("___thêm phiên đấu giá mới vào local___");
-                        }
-                        else if ("NEW_BID_BROADCAST".equals(response.getCommand())) { // PUSH: Nhận lượt bid mới
+                        } else if ("NEW_BID_BROADCAST".equals(response.getCommand())) { // PUSH: Nhận lượt bid mới
                             String auctionId = String.valueOf(response.getPayload().get("auctionId"));
                             String bidderId = String.valueOf(response.getPayload().get("bidderId"));
                             String bidderName = String.valueOf(response.getPayload().get("bidderName"));
                             double amount = Double.parseDouble(String.valueOf(response.getPayload().get("amount")));
-                            
+
                             Auction localAuction = AuctionManager.getINSTANCE().getAuction(auctionId);
                             // Cập nhật từ Broadcast cho tất cả các Client (kể cả client vừa gửi)
                             if (localAuction != null) {
                                 localAuction.syncBid(bidderId, bidderName, amount);
                                 AuctionManager.getINSTANCE().notifyAuctionChanged(); // Bấm chuông báo thay đổi
                             }
-                        } else if ("STATUS_UPDATE_BROADCAST".equals(response.getCommand())) { // PUSH: Nhận cập nhật trạng thái
+                        } else if ("STATUS_UPDATE_BROADCAST".equals(response.getCommand())) { // PUSH: Nhận cập nhật
+                                                                                              // trạng thái
                             String auctionId = String.valueOf(response.getPayload().get("auctionId"));
                             String newStatusStr = String.valueOf(response.getPayload().get("newStatus"));
-                            
+
                             Auction localAuction = AuctionManager.getINSTANCE().getAuction(auctionId);
                             if (localAuction != null) {
                                 localAuction.syncStatus(AuctionStatus.valueOf(newStatusStr));
@@ -102,13 +117,15 @@ public class ClientManager {
                             // Xóa dữ liệu cũ trước khi nạp dữ liệu thật
                             AuctionManager.getINSTANCE().clearAuctions();
                             // Dữ liệu trả về là một List các Map
-                            List<Map<String, Object>> auctionDataList = (List<Map<String, Object>>) response.getPayload().get("auctions");
-                            
+                            List<Map<String, Object>> auctionDataList = (List<Map<String, Object>>) response
+                                    .getPayload().get("auctions");
+
                             if (auctionDataList != null) {
                                 for (Map<String, Object> auctionData : auctionDataList) {
                                     addLocalAuction(auctionData);
                                 }
-                                System.out.println("Đã đồng bộ " + auctionDataList.size() + " phiên đấu giá từ Server.");
+                                System.out
+                                        .println("Đã đồng bộ " + auctionDataList.size() + " phiên đấu giá từ Server.");
                             }
 
                             // Sau khi đồng bộ xong, báo cho Controller (Login/Register) để tiếp tục luồng
@@ -133,13 +150,15 @@ public class ClientManager {
         listenerThread.setDaemon(true); // Đảm bảo thread tự tắt khi ứng dụng đóng
         listenerThread.start();
     }
+
     private static final Map<String, ItemFactory> factoryRegister = Map.of(
-        "Art", new ArtFactory(),
-        "Vehicle", new VehicleFactory(),
-        "Electronics", new ElectronicsFactory()
-    );
+            "Art", new ArtFactory(),
+            "Vehicle", new VehicleFactory(),
+            "Electronics", new ElectronicsFactory());
+
     /**
-     * Tái tạo đối tượng Auction từ dữ liệu Map (payload) và thêm vào AuctionManager của Client.
+     * Tái tạo đối tượng Auction từ dữ liệu Map (payload) và thêm vào AuctionManager
+     * của Client.
      * Dùng chung cho cả PUSH (broadcast) và PULL (get all).
      */
     private void addLocalAuction(Map<String, Object> payload) {
@@ -151,20 +170,20 @@ public class ClientManager {
         double startPrice = Double.parseDouble(String.valueOf(payload.get("startPrice")));
         String category = String.valueOf(payload.get("category"));
         String desc = String.valueOf(payload.get("description"));
-        
+
         LocalDateTime startT = LocalDateTime.now();
         if (payload.get("startTime") != null) {
             startT = LocalDateTime.parse(String.valueOf(payload.get("startTime")));
         }
         LocalDateTime endT = LocalDateTime.parse(String.valueOf(payload.get("endTime")));
-        //factory cho item
+        // factory cho item
         ItemFactory factory = factoryRegister.get(category);
         if (factory == null) {
             throw new IllegalArgumentException("Danh mục không hợp lệ: " + category);
         }
         Item localItem = factory.createItem(name, desc);
         localItem.setId(itemId);
-        //tạo 1 local đối tượng auction
+        // tạo 1 local đối tượng auction
         NormalUser baseUser = new NormalUser(sellerName, "");
         baseUser.setId(sellerId);
         Auction localAuction = new Auction(localItem, new Seller(baseUser), startPrice, startT, endT);
@@ -190,7 +209,7 @@ public class ClientManager {
             }
         }
 
-        //nhét vào RAM của Client
+        // nhét vào RAM của Client
         AuctionManager.getINSTANCE().addAuction(localAuction);
     }
 
@@ -229,6 +248,5 @@ public class ClientManager {
         this.userName = null;
         this.totalBalance = 0;
     }
-
 
 }

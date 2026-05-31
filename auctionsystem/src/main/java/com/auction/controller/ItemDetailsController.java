@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import javafx.stage.Stage;
 import java.awt.Toolkit;
 import java.util.Map.Entry;
@@ -108,14 +107,38 @@ public class ItemDetailsController implements AuctionObserver {
             this.user = new SimpleStringProperty(user);
             this.price = new SimpleStringProperty(price);
         }
-        public String getSequence() { return sequence.get(); }
-        public String getTime() { return time.get(); }
-        public String getUser() { return user.get(); }
-        public String getPrice() { return price.get(); }
-        public StringProperty sequenceProperty() { return sequence; }
-        public StringProperty timeProperty() { return time; }
-        public StringProperty userProperty() { return user; }
-        public StringProperty priceProperty() { return price; }
+
+        public String getSequence() {
+            return sequence.get();
+        }
+
+        public String getTime() {
+            return time.get();
+        }
+
+        public String getUser() {
+            return user.get();
+        }
+
+        public String getPrice() {
+            return price.get();
+        }
+
+        public StringProperty sequenceProperty() {
+            return sequence;
+        }
+
+        public StringProperty timeProperty() {
+            return time;
+        }
+
+        public StringProperty userProperty() {
+            return user;
+        }
+
+        public StringProperty priceProperty() {
+            return price;
+        }
     }
 
     private final ObservableList<BidDisplayItem> bidLogItems = FXCollections.observableArrayList();
@@ -183,7 +206,7 @@ public class ItemDetailsController implements AuctionObserver {
     public void setData(Auction auction) {
         // Nếu đang theo dõi auction cũ, hủy đăng ký trước khi nhận auction mới
         cleanup();
-        
+
         // Xóa lịch sử cũ của sản phẩm trước đó để không bị lẫn dữ liệu
         bidLogItems.clear();
         priceSeries.getData().clear();
@@ -193,7 +216,7 @@ public class ItemDetailsController implements AuctionObserver {
         // Xóa các vạch kẻ ngày cũ trên giao diện
         removeDayMarkers();
 
-        //controller sẽ đăng kí theo dõi 1 auction (observer)
+        // controller sẽ đăng kí theo dõi 1 auction (observer)
         this.auction = auction;
         this.auction.addObserver(this);
         updateUI();
@@ -208,14 +231,15 @@ public class ItemDetailsController implements AuctionObserver {
 
     @Override
     public void update(Auction auction) {
-        //sound
+        // sound
         Toolkit.getDefaultToolkit().beep();
         // Khi Auction có thay đổi (ví dụ: giá tăng), hàm này sẽ được gọi từ luồng mạng
         Platform.runLater(this::updateUI);
     }
 
     private void updateUI() {
-        if (auction == null) return;
+        if (auction == null)
+            return;
 
         lblDetailTitle.setText(auction.getItem().getName());
         txtUID.setText(auction.getId());
@@ -229,7 +253,10 @@ public class ItemDetailsController implements AuctionObserver {
 
             // Tạo luồng ngầm để khôi phục màu chữ sau 3 giây
             new Thread(() -> {
-                try { Thread.sleep(3000); } catch (InterruptedException e) {}
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                }
                 Platform.runLater(() -> {
                     lblTimeEnd.setText(currentEndTime.format(timeFormatter));
                 });
@@ -240,13 +267,12 @@ public class ItemDetailsController implements AuctionObserver {
         lastKnownEndTime = currentEndTime;
 
         lblDetailDescription.setText(auction.getItem().getDescription());
-        
+
         // Xử lý logic Concurrent Bidding
         // Nếu giá trị đang nhập không còn cao hơn giá hiện tại thì sẽ xoá ô nhập liệu.
         checkAndClearInvalidBidInput();
 
-
-        //Cập nhật giá dựa theo giá bid lớn nhất hiện tại
+        // Cập nhật giá dựa theo giá bid lớn nhất hiện tại
         lblDetailPrice.setText(String.format("%.0f USD", auction.getHighestBid()));
 
         // Cập nhật lịch sử đặt giá vào ListView
@@ -262,14 +288,16 @@ public class ItemDetailsController implements AuctionObserver {
                 String priceStr = String.format("%,.0f", bid.getAmount());
 
                 String bidderName = (bid.getBidderName() != null && !bid.getBidderName().isEmpty())
-                                    ? bid.getBidderName() : "Người đấu giá";
+                        ? bid.getBidderName()
+                        : "Người đấu giá";
 
                 String seqStr = "#" + (i + 1);
                 bidLogItems.add(0, new BidDisplayItem(seqStr, timeStr, bidderName, priceStr));
 
                 LocalDate currentBidDate = bid.getTimestamp().toLocalDate();
                 // Nếu là bid đầu tiên (i=0) hoặc khác ngày với bid phía trước
-                boolean isFirstBidOfDay = (i == 0) || !currentBidDate.equals(history.get(i - 1).getTimestamp().toLocalDate());
+                boolean isFirstBidOfDay = (i == 0)
+                        || !currentBidDate.equals(history.get(i - 1).getTimestamp().toLocalDate());
 
                 // Trục hoành hiển thị số thứ tự đặt bid
                 XYChart.Data<String, Number> data = new XYChart.Data<>(seqStr, bid.getAmount());
@@ -297,16 +325,21 @@ public class ItemDetailsController implements AuctionObserver {
         // Thay đổi giao diện tùy thuộc vào trạng thái phiên đấu giá
         AuctionStatus status = auction.getStatus();
         if (status == AuctionStatus.FINISHED ||
-            status == AuctionStatus.PAID ||
-            status == AuctionStatus.CANCELED) {
+                status == AuctionStatus.PAID ||
+                status == AuctionStatus.CANCELED) {
             lblDetailCondition.setText("ĐÃ KẾT THÚC");
-            lblDetailCondition.setStyle("-fx-background-color: #8B0000; -fx-text-fill: white; -fx-padding: 3px 8px; -fx-background-radius: 5px;");
-            
+            lblDetailCondition.setStyle(
+                    "-fx-background-color: #8B0000; -fx-text-fill: white; -fx-padding: 3px 8px; -fx-background-radius: 5px;");
+
             txtBidInput.setDisable(true);
-            if (btnPlaceBid != null) btnPlaceBid.setDisable(true);
-            if (btnQuick5 != null) btnQuick5.setDisable(true);
-            if (btnQuick10 != null) btnQuick10.setDisable(true);
-            if (btnQuick50 != null) btnQuick50.setDisable(true);
+            if (btnPlaceBid != null)
+                btnPlaceBid.setDisable(true);
+            if (btnQuick5 != null)
+                btnQuick5.setDisable(true);
+            if (btnQuick10 != null)
+                btnQuick10.setDisable(true);
+            if (btnQuick50 != null)
+                btnQuick50.setDisable(true);
 
             if (status == AuctionStatus.CANCELED) {
                 if (lblWinner != null) {
@@ -328,7 +361,8 @@ public class ItemDetailsController implements AuctionObserver {
                         lblWinner.setStyle("-fx-text-fill: #155724; -fx-font-weight: bold;");
                         lblWinner.setVisible(true);
                     }
-                    lblDetailPrice.setStyle("-fx-background-color: #d4edda; -fx-text-fill: #155724; -fx-padding: 5px; -fx-background-radius: 5px;");
+                    lblDetailPrice.setStyle(
+                            "-fx-background-color: #d4edda; -fx-text-fill: #155724; -fx-padding: 5px; -fx-background-radius: 5px;");
                 } else {
                     if (lblWinner != null) {
                         lblWinner.setText("❌ Kết thúc (Không có người mua)");
@@ -340,27 +374,35 @@ public class ItemDetailsController implements AuctionObserver {
         } else { // Trạng thái OPEN hoặc RUNNING
             lblDetailCondition.setText(auction.getStatus().name());
             lblDetailCondition.setStyle(""); // Đặt lại style mặc định
-            
-            // Kiểm tra nếu user hiện tại là người tạo phiên đấu giá thì vô hiệu hóa nút đặt giá
+
+            // Kiểm tra nếu user hiện tại là người tạo phiên đấu giá thì vô hiệu hóa nút đặt
+            // giá
             if (auction.getSeller().getId().equals(ClientManager.getINSTANCE().getUserId())) {
                 txtBidInput.setDisable(true);
                 txtBidInput.setPromptText("Sản phẩm của bạn");
-                if (btnPlaceBid != null) btnPlaceBid.setDisable(true);
-                if (btnQuick5 != null) btnQuick5.setDisable(true);
-                if (btnQuick10 != null) btnQuick10.setDisable(true);
-                if (btnQuick50 != null) btnQuick50.setDisable(true);
+                if (btnPlaceBid != null)
+                    btnPlaceBid.setDisable(true);
+                if (btnQuick5 != null)
+                    btnQuick5.setDisable(true);
+                if (btnQuick10 != null)
+                    btnQuick10.setDisable(true);
+                if (btnQuick50 != null)
+                    btnQuick50.setDisable(true);
             } else {
                 txtBidInput.setDisable(false);
                 txtBidInput.setPromptText("Enter amount...");
-                if (btnPlaceBid != null) btnPlaceBid.setDisable(false);
+                if (btnPlaceBid != null)
+                    btnPlaceBid.setDisable(false);
             }
             lblDetailPrice.setStyle("");
-            if (lblWinner != null) lblWinner.setVisible(false);
+            if (lblWinner != null)
+                lblWinner.setVisible(false);
         }
     }
 
     /**
-     * Kiểm tra và xóa nội dung của txtBidInput nếu giá trị hiện tại không còn hợp lệ
+     * Kiểm tra và xóa nội dung của txtBidInput nếu giá trị hiện tại không còn hợp
+     * lệ
      */
     private void checkAndClearInvalidBidInput() {
         try {
@@ -370,19 +412,22 @@ public class ItemDetailsController implements AuctionObserver {
                     txtBidInput.clear();
                 }
             }
-        } catch (NumberFormatException e) { /* Bỏ qua nếu không phải số hợp lệ */ }
+        } catch (NumberFormatException e) {
+            /* Bỏ qua nếu không phải số hợp lệ */ }
     }
 
     private void redrawDayMarker() { // Vạch kẻ động vẽ lại vạch mới bám sát theo dữ liệu mới nhất
         removeDayMarkers(); // Xóa vạch cũ để vẽ lại vạch mới cập nhật tọa độ
-        if (!lineChartBidHistory.isVisible()) return;
+        if (!lineChartBidHistory.isVisible())
+            return;
 
         CategoryAxis xAxis = (CategoryAxis) lineChartBidHistory.getXAxis();
 
         // Lấy khung chứa đồ thị để vẽ lên
         Node chartBackground = lineChartBidHistory.lookup(".chart-plot-background");
 
-        if (chartBackground == null) return;
+        if (chartBackground == null)
+            return;
 
         Pane parent = (Pane) lineChartBidHistory.getParent();
 
@@ -412,7 +457,8 @@ public class ItemDetailsController implements AuctionObserver {
                 line.setEndY(chartBackground.getLayoutY() + chartBackground.getBoundsInLocal().getHeight());
 
                 // Hiển thị đầy đủ ngày tháng năm và thời gian khi hover
-                Tooltip tooltip = new Tooltip("Mốc thời gian: " + dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                Tooltip tooltip = new Tooltip(
+                        "Mốc thời gian: " + dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 tooltip.setShowDelay(javafx.util.Duration.millis(50)); // Hiện tooltip nhanh hơn
                 Tooltip.install(line, tooltip);
 
@@ -470,7 +516,8 @@ public class ItemDetailsController implements AuctionObserver {
     }
 
     private void updateBidInput(double increment) {
-        if (auction == null) return;
+        if (auction == null)
+            return;
 
         double currentInputValue = auction.getHighestBid(); // Giá cao nhất hiện tại làm mặc định
         try {
@@ -479,7 +526,8 @@ public class ItemDetailsController implements AuctionObserver {
                 currentInputValue = Double.parseDouble(txtBidInput.getText());
             }
         } catch (NumberFormatException e) {
-            // Bỏ qua nếu không phải số, giữ nguyên currentInputValue là auction.getHighestBid()
+            // Bỏ qua nếu không phải số, giữ nguyên currentInputValue là
+            // auction.getHighestBid()
         }
         double nextBid = currentInputValue + increment;
         txtBidInput.setText(String.format("%.0f", nextBid));
@@ -495,25 +543,21 @@ public class ItemDetailsController implements AuctionObserver {
             }
 
             double amount = Double.parseDouble(input);
-
-            //Kiểm tra trạng thái phiên đấu giá
+            // Kiểm tra trạng thái phiên đấu giá
             if (auction.getStatus() != AuctionStatus.RUNNING) {
                 showAlert(Alert.AlertType.ERROR, "Lỗi đặt giá", "Chỉ có thể đặt giá khi phiên đấu giá đang diễn ra!");
                 return;
             }
-
             if (amount <= auction.getHighestBid()) {
                 showAlert(Alert.AlertType.ERROR, "Lỗi đặt giá", "Giá đặt phải cao hơn giá hiện tại!");
                 return;
             }
-            
             // Đăng ký nhận phản hồi từ Server để cập nhật UI Realtime
-            ClientManager.getINSTANCE().setResponseHandler(response -> {
+            ClientManager.getINSTANCE().setResponseHandler(response -> { // biểu thức lambda đại diện cho method accept của Consumer<Response>
                 if ("PLACE_BID_RES".equals(response.getCommand())) {
                     Platform.runLater(() -> {
                         if ("SUCCESS".equals(response.getStatus())) {
                             // Chỉ cần xóa ô nhập khi có phản hồi SUCCESS.
-                            // Việc cập nhật giá và UI sẽ được lắng nghe thông qua NEW_BID_BROADCAST trong ClientManager.
                             txtBidInput.clear();
                         } else {
                             showAlert(Alert.AlertType.ERROR, "Đặt giá thất bại", response.getMessage());
@@ -527,7 +571,6 @@ public class ItemDetailsController implements AuctionObserver {
             request.addData("auctionId", auction.getId());
             request.addData("bidderId", ClientManager.getINSTANCE().getUserId());
             request.addData("amount", amount);
-            
             ClientManager.getINSTANCE().sendRequest(request);
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.ERROR, "Lỗi nhập liệu", "Vui lòng nhập số tiền hợp lệ!");
@@ -549,7 +592,7 @@ public class ItemDetailsController implements AuctionObserver {
                             showAlert(Alert.AlertType.INFORMATION, "Thành công", response.getMessage());
                             cleanup(); // Dọn dẹp trước khi đóng bằng nút Back
                             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                            stage.close();  // Quay lại trang trước
+                            stage.close(); // Quay lại trang trước
                         } else {
                             showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
                         }

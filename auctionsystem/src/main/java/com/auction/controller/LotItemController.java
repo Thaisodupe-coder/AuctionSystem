@@ -36,13 +36,14 @@ public class LotItemController implements AuctionObserver {
     private Label lblMyLot;
 
     private Auction auction;
+
     public void setData(Auction auction) {
         // nếu controller này đang theo dõi một auction khác, hãy hủy đăng ký trước
         cleanup();
-        
+
         this.auction = auction;
         this.auction.addObserver(this); // đăng ký để nhận thông báo khi auction thay đổi
-        
+
         updateUI();
     }
 
@@ -54,15 +55,16 @@ public class LotItemController implements AuctionObserver {
     }
 
     @Override
-    //observer
+    // observer
     public void update(Auction auction) {
         // cập nhật giao diện trên JavaFX Application Thread
         Platform.runLater(this::updateUI);
     }
 
     private void updateUI() {
-        if (auction == null) return;
-    
+        if (auction == null)
+            return;
+
         lblStatus.setText(auction.getStatus().name());
         lblTitle.setText(auction.getItem().getName());
 
@@ -70,8 +72,9 @@ public class LotItemController implements AuctionObserver {
         txtPrice.setText(String.format("%.0f USD", auction.getHighestBid()));
 
         String currentUserId = ClientManager.getINSTANCE().getUserId();
-        
-        // 0. reset lại CSS cũ để tránh bị lưu dính style khi tái sử dụng thẻ (Recycle Node)
+
+        // 0. reset lại CSS cũ để tránh bị lưu dính style khi tái sử dụng thẻ (Recycle
+        // Node)
         if (lotCard != null) {
             lotCard.getStyleClass().remove("my-auction-card");
         }
@@ -95,14 +98,16 @@ public class LotItemController implements AuctionObserver {
                 lblMyLot.setManaged(false);
             }
         }
-        
-        // 2. highlight "Phiên tôi đang bid" (Đổi nền HBox/VBox chứa giá sang màu xanh dương nhạt)
+
+        // 2. highlight "Phiên tôi đang bid" (Đổi nền HBox/VBox chứa giá sang màu xanh
+        // dương nhạt)
         boolean isParticipating = auction.getBidHistory().stream()
                 .anyMatch(b -> b.getBidderId().equals(currentUserId));
         if (isParticipating) {
             txtPrice.getStyleClass().add("my-bid-price");
             if (txtPrice.getParent() != null) { // đổi nền của cả cái khung chứa chữ Current Price
-                txtPrice.getParent().setStyle("-fx-background-color: #e3f2fd; -fx-border-color: #90caf9; -fx-border-radius: 4px; -fx-background-radius: 4px; -fx-padding: 3px;");
+                txtPrice.getParent().setStyle(
+                        "-fx-background-color: #e3f2fd; -fx-border-color: #90caf9; -fx-border-radius: 4px; -fx-background-radius: 4px; -fx-padding: 3px;");
             }
         }
     }
@@ -116,17 +121,17 @@ public class LotItemController implements AuctionObserver {
 
             // lấy controller của màn hình chi tiết
             ItemDetailsController detailsController = loader.getController();
-            
+
             detailsController.setData(this.auction);
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle(auction.getItem().getName());
             stage.setScene(new Scene(detailsView));
-            
+
             // bắt sự kiện khi người dùng bấm nút "X" tắt cửa sổ để dọn dẹp
             stage.setOnHidden(e -> detailsController.cleanup());
-            
+
             stage.show();
         } catch (Exception e) {
             // in toàn bộ lỗi ra để biết chính xác lỗi ở dòng nào, file nào
