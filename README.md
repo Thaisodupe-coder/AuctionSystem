@@ -148,7 +148,7 @@ mvn javafx:run
 - **Thông báo bằng âm thanh hệ thống.**
 
 ## 7. Link báo cáo PDF và Video Demo
-- **Báo cáo Bài tập lớn (PDF):** [Link tải báo cáo tại đây](https://docs.google.com/document/d/1iULcfl7N3TXtoBKnOJFQPiXQNGtAJo9m/edit?usp=sharing&rtpof=true&sd=true)
+- **Báo cáo Bài tập lớn (PDF):** [Link tải báo cáo tại đây]([https://docs.google.com/document/d/1iULcfl7N3TXtoBKnOJFQPiXQNGtAJo9m/edit?usp=sharing&rtpof=true&sd=true](https://drive.google.com/file/d/1BUdht4-owyjAs3zZlWIcVAv8atDW0KcD/view?usp=sharing)
 - **Video Demo hệ thống:** [Link xem video tại đây](#)
 
 ## 🛠️ Hướng Dẫn Tải & Cấu Hình Môi Trường (Setup Prerequisites)
