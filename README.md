@@ -149,7 +149,7 @@ mvn javafx:run
 
 ## 7. Link báo cáo PDF và Video Demo
 - **Báo cáo Bài tập lớn (PDF):** [Link tải báo cáo tại đây](https://drive.google.com/file/d/1BUdht4-owyjAs3zZlWIcVAv8atDW0KcD/view?usp=sharing)
-- **Video Demo hệ thống:** [Link xem video tại đây](#)
+- **Video Demo hệ thống:** [Link xem video tại đây](https://drive.google.com/file/d/1sMB5x2lA6FTe4-EEeQkoCgOw2b78beSZ/view?fbclid=IwY2xjawSJRvFleHRuA2FlbQIxMABicmlkETFRam52UHlMdTZXeFcyc2pCc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHnJwRhXIZyL4IShmovpFpYuowleDxLA5rhdjRLZgBsNhSRzK13zCBTycTKZD_aem_4n3UmKW_oaiRk6V8fR2O6g)
 
 ## 🛠️ Hướng Dẫn Tải & Cấu Hình Môi Trường (Setup Prerequisites)
 
