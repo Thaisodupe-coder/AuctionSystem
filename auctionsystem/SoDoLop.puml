@@ -1,0 +1,222 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam nodesep 100
+skinparam ranksep 100
+
+class Entity {
+    - String id
+}
+class Auction {
+    - Item item
+    - Seller seller
+    - String highestBidderId
+    - double highestBid
+    - LocalDateTime startTime
+    - LocalDateTime endTime
+    - List<BidTransaction> bidHistory
+    - AuctionStatus status
+    + processBid(String bidderId , double amount)
+    + cancelAuction(String sellerId)
+    + finalizeAuction()
+}
+
+class BidTransaction {
+    - String auctionId
+    - String bidderId
+    - String bidderName
+    - double amount
+    - LocalDateTime timestamp
+}
+interface AuctionObserver {
+    + update()
+}
+
+enum AuctionStatus {
+    OPEN
+    RUNNING
+    FINISHED
+    CANCELED
+    PAID
+}
+
+
+class User {
+    - String name
+    - String password
+    - UserRole role
+    - double balance
+}
+
+class NormalUser {
+}
+
+abstract class UserDecorator {
+    # User user
+    + getUser()
+}
+
+class Seller {
+    + postItem(Item item, double startPrice, LocalDateTime startTime, LocalDateTime endTime)
+    + cancelAuction(String auctionId)
+}
+
+class Bidder {
+    + placeBid(String auctionId, double amount)
+}
+
+interface IBidder {
+    + placeBid(auctionId: String, amount: double): boolean
+}
+
+interface ISeller {
+    + postItem(item: Item, ...): Auction
+    + cancelAuction(auctionId: String): boolean
+}
+
+enum UserRole {
+    SELLER
+    BIDDER
+}
+
+abstract class Item {
+    - String name
+    - String description
+}
+abstract class ItemFactory {
+    + createItem(String name  , String description)
+}
+class ElectronicsFactory {
+    + createItem(String name , String description)
+}
+class ArtFactory {
+    + createItem(String name , String description)
+}
+class VehicleFactory {
+    + createItem(String name , String description)
+}
+class Art
+class Electronics
+class Vehicle
+
+class AuctionManager <<Singleton>> {
+    - Map<String , Auction> auctions
+    + createAuction(Item item, Seller seller, double startPrice, LocalDateTime startTime, LocalDateTime endTime)
+    + addAuction(Auction auction)
+    + clearAuctions()
+    + cancelAuction(String auctionId, String sellerId)
+    + placeBid(String auctionId, String bidderId, double amount)
+    + getWinnerId(String auctionId)
+    + getWinningBid(String auctionId)
+}
+
+class UserManager <<Singleton>> {
+    - Map<String,NormalUser> users
+    + register(String username, String password)
+    + login(String username, String password)]
+    + getUserById(String id)
+    + addBalance(String userId, double amount)
+}
+
+class ClientManager <<Singleton>> {
+    - Gson gson
+    - Socket socket
+    - Consumer<Response> responseHandler
+    - String userId
+    - String username
+    - double totalBalance
+    + setResponseHandler(Consumer<Response> responseHandler)
+    + connect(String host, int port)
+    + startListening()
+    + addLocalAuction(Map<String, Object> payload)
+    + sendRequest(Request request)
+    + clearUser()
+}
+
+class Request {
+    - String command
+    - Map<String, Object> payload
+    + addData(String key, Object value)
+}
+
+class Response {
+    - String command
+    - String status
+    - String message
+    - Map<String, Object> payload
+    + addData(String key, Object value)
+}
+
+class AuctionServer {
+    - List<ClientHandler> clients
+    - startAuctionMonitor()
+    + broadcast(Response response)
+    + removeClient(ClientHandler clientHandler)
+}
+
+class ClientHandler {
+    - Socket socket
+    - Gson gson
+    - NormalUser user
+    + run()
+    + handleRequest(Request request)
+    + sendResponse(Response response)
+    + closeEverything()
+}
+
+
+class Controller
+
+class CustomException
+
+class AppClient {
+    + launch()
+    + stop()
+}
+
+class Launcher
+
+
+Auction --|> Entity
+BidTransaction --|> Entity
+
+Item --|> Entity
+Art --|> Item
+Electronics --|> Item
+Vehicle --|> Item
+ElectronicsFactory --|> ItemFactory
+ArtFactory --|> ItemFactory
+VehicleFactory --|> ItemFactory
+
+User --|> Entity
+UserDecorator --|> User
+NormalUser --|> User
+Bidder --|> UserDecorator
+IBidder <|.. Bidder
+AuctionObserver <|.. Bidder
+Seller --|> UserDecorator
+ISeller <|.. Seller
+AuctionObserver <|.. Seller
+
+Auction ..> AuctionStatus
+Auction ..> CustomException
+Auction o-- Item
+Auction o-- Seller
+Auction *-- BidTransaction
+Auction o-- AuctionObserver
+
+ItemFactory ..> Item
+VehicleFactory ..> Vehicle
+ArtFactory ..> Art
+ElectronicsFactory ..> Electronics
+
+User o-- UserDecorator
+UserManager o-- NormalUser
+ClientHandler o-- NormalUser
+ClientHandler ..> Response
+ClientHandler ..> Request
+AuctionManager ..> Auction
+AuctionServer o-- ClientHandler
+ClientManager ..> Request
+ClientManager ..> Response
+Controller --> ClientManager
+@enduml
